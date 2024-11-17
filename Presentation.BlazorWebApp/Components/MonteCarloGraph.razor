@@ -1,0 +1,83 @@
+﻿@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
+@using MathNet.Numerics.Distributions
+<BECanvas Width="800" Height="450" @ref="_canvasReference"></BECanvas>
+
+@code {
+    private Canvas2DContext _context;
+
+    protected BECanvasComponent _canvasReference;
+    private readonly Random _random = new Random();
+    private double x0 = 10;
+    private double x_scale = 10;
+    private double y0 = 450;
+    private double y_scale = 30;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _context = await this._canvasReference.CreateCanvas2DAsync();
+        await _context.SetFillStyleAsync("black");
+
+        await _context.FillRectAsync(0, 0, 1600, 900);
+        await DrawAxis();
+        while (true)
+        {
+            await PlotPath();
+        }
+    }
+
+    private double X(double x)
+    {
+        return x * x_scale + x0;
+    }
+
+    private double Y(double y)
+    {
+        return y * y_scale + y0;
+    }
+
+    private async Task DrawAxis()
+    {
+        await _context.BeginPathAsync();
+        await _context.SetStrokeStyleAsync("white");
+        // x-axis
+        await _context.MoveToAsync(X(0), Y(0));
+        await _context.LineToAsync(X(100), Y(0));
+        // y-axis
+        await _context.MoveToAsync(X(0), Y(-2));
+        await _context.LineToAsync(X(0), Y(2));
+
+        await _context.StrokeAsync();
+    }
+
+    private async Task PlotPath()
+    {
+        await _context.BeginPathAsync();
+        var color = String.Format("#{0:X6}", _random.Next(0x1000000));
+        await _context.SetStrokeStyleAsync(color);
+        await _context.MoveToAsync(X(0), Y(0));
+        double x = 0;
+        foreach (Double y in MonteCarloSimulation())
+        {
+            await _context.LineToAsync(X(x), Y(y));
+            await _context.StrokeAsync();
+            x++;
+            await Task.Delay(50);
+        }
+    }
+
+    private IEnumerable<Double> MonteCarloSimulation()
+    {
+        const int SAMPLE_SIZE = 160;
+        double[] normals = new double[SAMPLE_SIZE];
+        double volatility = 0.5;
+        Normal.Samples(_random, normals, 0, volatility);
+        double sum = 0;
+        for (int i = 0; i < SAMPLE_SIZE; i++)
+        {
+            sum += normals[i];
+            yield return sum;
+        }
+    }
+}

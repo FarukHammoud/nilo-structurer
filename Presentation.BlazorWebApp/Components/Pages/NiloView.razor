@@ -1,0 +1,16 @@
+﻿@page "/montecarlo"
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
+@using MathNet.Numerics.Distributions;
+@using Presentation.BlazorWebApp.Components.Items
+@rendermode InteractiveServer
+
+
+<PageTitle>Nilo View</PageTitle>
+<MonteCarloGraph/>
+
+<div style="display:flex; flex-direction:column; gap: 0.2em">
+    <Item Name="Call Option"/>
+    <Item Name="Put Option"/>
+</div>
+
