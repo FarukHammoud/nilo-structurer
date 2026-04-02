@@ -9,22 +9,22 @@ namespace PositionServices {
                 new EuropeanCallOption() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying() { Code = "MSFT" }
+                    Underlying = new Underlying("MSFT")
                 },
                 new EuropeanPutOption() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying() { Code = "MSFT" }
+                    Underlying = new Underlying("MSFT")
                 },
                 new AmericanCallOption() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying() { Code = "MSFT" }
+                    Underlying = new Underlying("MSFT")
                 },
                 new AmericanPutOption() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying() { Code = "MSFT" }
+                    Underlying = new Underlying("MSFT")
                 },
             };
         }

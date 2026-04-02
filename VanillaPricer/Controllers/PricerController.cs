@@ -23,11 +23,13 @@ namespace VanillaPricer.Controllers {
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [Route("price")]
+
+        // only server project should have this controller
         public ActionResult<double> GetPrice() {
             EuropeanCallOption contract = new() {
                 Maturity = DateTime.Today,
                 Strike = 10,
-                Underlying = new Underlying() { Code = "MSFT" }
+                Underlying = new Underlying("MSFT")
             };
             return CreatedAtAction("price", _pricerService.Price(contract));
         }

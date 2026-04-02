@@ -1,5 +1,5 @@
 ﻿namespace Domain.Model.Payoffs {
-    public class StatelessPayoff : IPayoff {
+    public class StatelessPayoff : IMonoUnderlyingNonPathDependentPayoff {
         private readonly Func<double, double> _map;
         public StatelessPayoff(Func<double, double> map) {
             _map = map;

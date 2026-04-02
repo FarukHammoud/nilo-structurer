@@ -15,8 +15,6 @@ builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<PricerService>();
 builder.Services.AddTransient<IPricer<EuropeanCallOption>, EuropeanCallPricer>();
 builder.Services.AddTransient<IPricer<EuropeanPutOption>, EuropeanPutPricer>();
-builder.Services.AddTransient<IPricer<AmericanCallOption>, AmericanCallPricer>();
-builder.Services.AddTransient<IPricer<AmericanPutOption>, AmericanPutPricer>();
 
 var app = builder.Build();
 

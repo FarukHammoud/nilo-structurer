@@ -22,7 +22,7 @@
       "commandName": "Executable",
       "executablePath": "dotnet",
       "commandLineArgs": "watch run debug",
-      "workingDirectory": "C:\\Users\\faruk\\Desktop\\code\\VanillaPricer\\Presentation.BlazorWebApp"
+      "workingDirectory": "C:\\Users\\faruk\\Desktop\\code\\nilo-structurer\\Presentation.BlazorWebApp"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"

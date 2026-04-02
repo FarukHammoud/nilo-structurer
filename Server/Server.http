@@ -1,0 +1,6 @@
+@Server_HostAddress = http://localhost:5067
+
+POST {{Server_HostAddress}}/pricer/
+Accept: application/json
+
+###
