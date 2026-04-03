@@ -6,8 +6,8 @@ namespace BrownianServices.Tests {
     public sealed class CorrelationTest {
         [TestMethod]
         public void TestGeneratedPathsHaveSameLength() {
-            Underlying A = new Underlying("A");
-            Underlying B = new Underlying("B");
+            Underlying A = new Equity("A");
+            Underlying B = new Equity("B");
             BrowniansConfiguration configuration = new BrowniansConfiguration() {
                 Underlyings = new List<Underlying>() { A, B },
                 CorrelationMatrix = new Double[,] {
@@ -26,8 +26,8 @@ namespace BrownianServices.Tests {
 
         [TestMethod]
         public void TestGeneratedFollowCorrelationMatrix() {
-            Underlying A = new Underlying("A");
-            Underlying B = new Underlying("B");
+            Underlying A = new Equity("A");
+            Underlying B = new Equity("B");
             BrowniansConfiguration configuration = new BrowniansConfiguration() {
                 Underlyings = new List<Underlying>() { A, B },
                 CorrelationMatrix = new Double[,] {

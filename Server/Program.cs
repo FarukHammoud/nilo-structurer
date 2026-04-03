@@ -20,8 +20,8 @@ builder.Services.AddSingleton<PositionService>();
 builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<PricerService>();
 builder.Services.AddTransient<IPricer<CashFlow>, CashFlowPricer>();
-builder.Services.AddTransient<IPricer<EuropeanCallOption>, EuropeanCallPricer>();
-builder.Services.AddTransient<IPricer<EuropeanPutOption>, EuropeanPutPricer>();
+builder.Services.AddTransient<IPricer<EuropeanCall>, EuropeanCallPricer>();
+builder.Services.AddTransient<IPricer<EuropeanPut>, EuropeanPutPricer>();
 
 builder.Services.AddControllers().AddJsonOptions(o => {
     o.JsonSerializerOptions.Converters.Add(new ContractConverter());

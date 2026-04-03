@@ -1,5 +1,5 @@
 ﻿namespace Domain {
-    public class Underlying {
+    public abstract class Underlying {
         public string Code { get; set; }
 
         public Underlying(string code) {

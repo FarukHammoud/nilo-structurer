@@ -8,7 +8,7 @@
         private readonly Dictionary<string, Type> _contractKinds = new()
         {
             { "cash_flow", typeof(CashFlow) },
-            { "european_call_option", typeof(EuropeanCallOption) }
+            { "european_call_option", typeof(EuropeanCall) }
             // you can extend this map
         };
 

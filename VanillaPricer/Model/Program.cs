@@ -13,8 +13,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<PositionService>();
 builder.Services.AddSingleton<MarketDataService>();
 builder.Services.AddSingleton<PricerService>();
-builder.Services.AddTransient<IPricer<EuropeanCallOption>, EuropeanCallPricer>();
-builder.Services.AddTransient<IPricer<EuropeanPutOption>, EuropeanPutPricer>();
+builder.Services.AddTransient<IPricer<EuropeanCall>, EuropeanCallPricer>();
+builder.Services.AddTransient<IPricer<EuropeanPut>, EuropeanPutPricer>();
 
 var app = builder.Build();
 

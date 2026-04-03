@@ -26,10 +26,10 @@ namespace VanillaPricer.Controllers {
 
         // only server project should have this controller
         public ActionResult<double> GetPrice() {
-            EuropeanCallOption contract = new() {
+            EuropeanCall contract = new() {
                 Maturity = DateTime.Today,
                 Strike = 10,
-                Underlying = new Underlying("MSFT")
+                Underlying = new Equity("MSFT")
             };
             return CreatedAtAction("price", _pricerService.Price(contract));
         }

@@ -6,25 +6,25 @@ namespace PositionServices {
         public PositionService() {
             _portfolioToContracts = new Dictionary<String, List<VanillaContract>>();
             _portfolioToContracts["VANILL"] = new List<VanillaContract>() { 
-                new EuropeanCallOption() {
+                new EuropeanCall() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying("MSFT")
+                    Underlying = new Equity("MSFT") 
                 },
-                new EuropeanPutOption() {
+                new EuropeanPut() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying("MSFT")
+                    Underlying = new Equity("MSFT")
                 },
-                new AmericanCallOption() {
+                new AmericanCall() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying("MSFT")
+                    Underlying = new Equity("MSFT")
                 },
-                new AmericanPutOption() {
+                new AmericanPut() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Underlying("MSFT")
+                    Underlying = new Equity("MSFT")
                 },
             };
         }
