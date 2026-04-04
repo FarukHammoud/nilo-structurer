@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using Domain.Model.Contracts.MultiUnderlyingOptions;
 using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
 using PricerServices.Pricers;
@@ -241,6 +240,92 @@ namespace PricingServices.Tests {
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
             double theoreticalPrice = BlackScholes.DoubleDigital2D(spotMSFT, spotAAPL, strike1, strike2, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity );
+
+            // Price using General Diffusion
+            IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
+            ValueWithPrecision monteCarloResult = mcPricer.Price(contract.Payoff,
+                marketData,
+                contract.Maturity,
+                DateTime.Today);
+
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void CallBestOfPremium() {
+            Equity MSFT = new("MSFT");
+            Equity AAPL = new("AAPL");
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new BestOf(MSFT, AAPL),
+                Strike = strike,
+            };
+            MarketData marketData = new MarketData()
+                .SetSpot(MSFT, spotMSFT)
+                .SetSpot(AAPL, spotAAPL)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetDrift(AAPL, riskFreeRate)
+                .SetRiskFreeRate(riskFreeRate)
+                .SetVolatility(MSFT, volatilityMSFT)
+                .SetVolatility(AAPL, volatilityAAPL)
+                .SetCorrelationMatrix(new double[,] {
+                    { 1.0, rho },
+                    { rho, 1.0 }
+                });
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double theoreticalPrice = BlackScholes.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
+
+            // Price using General Diffusion
+            IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
+            ValueWithPrecision monteCarloResult = mcPricer.Price(contract.Payoff,
+                marketData,
+                contract.Maturity,
+                DateTime.Today);
+
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void CallWorstOfPremium() {
+            Equity MSFT = new("MSFT");
+            Equity AAPL = new("AAPL");
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new WorstOf(MSFT, AAPL),
+                Strike = strike,
+            };
+            MarketData marketData = new MarketData()
+                .SetSpot(MSFT, spotMSFT)
+                .SetSpot(AAPL, spotAAPL)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetDrift(AAPL, riskFreeRate)
+                .SetRiskFreeRate(riskFreeRate)
+                .SetVolatility(MSFT, volatilityMSFT)
+                .SetVolatility(AAPL, volatilityAAPL)
+                .SetCorrelationMatrix(new double[,] {
+                    { 1.0, rho },
+                    { rho, 1.0 }
+                });
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double theoreticalPrice = BlackScholes.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
 
             // Price using General Diffusion
             IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();

@@ -9,11 +9,13 @@
             _secondUnderlying = secondUnderlying;
         }
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
-            return _payoffMap(pricesAtMaturity[_firstUnderlying], pricesAtMaturity[_secondUnderlying]);
+            double firstUnderlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_firstUnderlying, pricesAtMaturity);
+            double secondUnderlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_secondUnderlying, pricesAtMaturity);
+            return _payoffMap(firstUnderlyingValue, secondUnderlyingValue);
         }
 
         public List<Underlying> GetUnderlyingDependencyList() {
-            return new List<Underlying>() { _firstUnderlying, _secondUnderlying };
+            return _firstUnderlying.GetUnderlyingDependencyList().Union(_secondUnderlying.GetUnderlyingDependencyList()).ToList();
         }
     }
 }

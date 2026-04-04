@@ -1,4 +1,4 @@
-﻿namespace Domain.Model.Contracts.MultiUnderlyingOptions {
+﻿namespace Domain {
     public class EuropeanDoubleDigit : NonPathDependentContract {
         public required Underlying FirstUnderlying { get; set; }
         public required Underlying SecondUnderlying { get; set; }

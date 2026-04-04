@@ -76,19 +76,39 @@ namespace PricerServices {
             double d2Y = (Math.Log(Y / Ky) + (r - 0.5 * sigmaY * sigmaY) * T)
                          / (sigmaY * Math.Sqrt(T));
 
-            return Exp(-r * T) * BivariateN(d2X, d2Y, rho);
+            return Exp(-r * T) * N2(d2X, d2Y, rho);
         }
 
-        public static double BivariateN(double a, double b, double rho) {
-            GaussLegendreRule gaussLegendreRule = new GaussLegendreRule(-10, a, 10);
-            double[] abcissas = gaussLegendreRule.Abscissas;
-            double[] weights = gaussLegendreRule.Weights;
-
+        // This method computes the bivariate normal cumulative distribution function using Gauss-Legendre quadrature.
+        public static double N2(double a, double b, double rho) {
             double f(double b, double rho, double z) {
                 return N((b - rho * z) / Math.Sqrt(1 - rho * rho)) * n(z);
             }
+            return GaussLegendreRule.Integrate(z => f(b, rho, z), -10, a, 10);
+        }
 
-            return abcissas.Zip(weights, (x, w) => w * f(b, rho, x)).Sum();
+        public static double CallBestOf(double S1, double S2, double K,
+                               double r, double sigma1, double sigma2,
+                               double rho, double T) {
+            double C1 = CallPrice(S1, K, T, r, sigma1);
+            double C2 = CallPrice(S2, K, T, r, sigma2);
+            return C1 + C2 - CallWorstOf(S1, S2, K, r, sigma1, sigma2, rho, T);
+        }
+
+        public static double CallWorstOf(double S1, double S2, double K,
+                               double r, double sigma1, double sigma2,
+                               double rho, double T) {
+            double D1_1 = d1(S1, K, T, r, sigma1);
+            double D2_1 = d2(S1, K, T, r, sigma1);
+            double D1_2 = d1(S2, K, T, r, sigma2);
+            double D2_2 = d2(S2, K, T, r, sigma2);
+            double sigmaRatio = Math.Sqrt(sigma1 * sigma1 + sigma2 * sigma2 - 2 * rho * sigma1 * sigma2);
+            double e1 = d1(S1, S2, T, 0, sigmaRatio);
+            double e2 = -d2(S1, S2, T, 0, sigmaRatio);
+            double rhoS1Ratio = (sigma1 - rho * sigma2) / sigmaRatio;
+            double rhoS2Ratio = (sigma2 - rho * sigma1) / sigmaRatio;
+            return S1 * N2(D1_1, -e1, -rhoS1Ratio) + S2 * N2(D1_2, -e2, -rhoS2Ratio)
+                 - K * Exp(-r * T) * N2(D2_1, D2_2, rho);
         }
 
     }

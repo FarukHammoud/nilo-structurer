@@ -6,6 +6,8 @@
             Code = code;
         }
 
+        public abstract List<Underlying> GetUnderlyingDependencyList();
+
         public override bool Equals(object? obj) {
             return obj is Underlying underlying &&
                    Code == underlying.Code;
@@ -14,5 +16,7 @@
         public override int GetHashCode() {
             return Code.GetHashCode();
         }
+
+       
     }
 }

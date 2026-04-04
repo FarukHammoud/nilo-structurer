@@ -6,12 +6,13 @@
             _payoffMap = payoffMap;
             _underlying = underlying;
         }
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
-            return _payoffMap(pricesAtMaturity[_underlying]);
+        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
+            double underlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_underlying, pricesAtMaturity);
+            return _payoffMap(underlyingValue);
         }
 
         public List<Underlying> GetUnderlyingDependencyList() {
-            return new List<Underlying>() { _underlying };
+            return _underlying.GetUnderlyingDependencyList();
         }
     }
 }
