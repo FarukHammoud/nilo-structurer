@@ -1,7 +1,8 @@
 ﻿namespace Domain {
     public class MarketData : IMarketData {
 
-        private double _riskFreeRate;
+        private Double? _riskFreeRate = null;
+        private Curve _discountCurve = new();
         private List<Underlying> underlyings = new();
         private Dictionary<Underlying, double> _spots = new();
         private Dictionary<Underlying, double> _drifts = new();
@@ -51,8 +52,16 @@
             return this;
         }
 
+        public MarketData SetDiscountCurve(Curve discountCurve) {
+            _discountCurve = discountCurve;
+            return this;
+        }
+
         public double GetDiscountFactor(DateTime date, DateTime today) {
-            return Math.Exp(-_riskFreeRate * (date - today).TotalDays / 365.0);
+            if (_riskFreeRate.HasValue) {
+                return Math.Exp(-_riskFreeRate.Value * (date - today).TotalDays / 365.0);
+            }
+            return _discountCurve.GetValue(date) / _discountCurve.GetValue(today);          
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Application;
 using Domain;
+using FixedIncomeServices;
 using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
 using PricerServices.Pricers;
@@ -10,8 +11,8 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void DigitalCallPremium() {
+            Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
             Equity MSFT = new("MSFT");
-            double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
             BinaryCall contract = new() {
@@ -19,16 +20,19 @@ namespace PricingServices.Tests {
                 Strike = spotPrice,
                 Underlying = MSFT
             };
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
+
             MarketData marketData = new MarketData()
                 .SetSpot(MSFT, spotPrice)
                 .SetDrift(MSFT, riskFreeRate)
-                .SetRiskFreeRate(riskFreeRate)
                 .SetVolatility(MSFT, volatility)
+                .SetDiscountCurve(discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.DigitalCallPrice(spotPrice, contract.Strike,timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = BlackScholes.DigitalCallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
 
             // Price using General Diffusion
             IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
