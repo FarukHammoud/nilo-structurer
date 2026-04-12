@@ -6,33 +6,46 @@ namespace PricerServices {
     public class PricingEngine {
 
         private ModelConfiguration _config;
-        private IMarketData _marketData;
+        private IMarketData? _marketData;
         public PricingEngine(ModelConfiguration configuration) {
             _config = configuration;
         }
 
-        public PricingEngine SetMarketData(IMarketData marketData) {
+        private PricingEngine SetMarketData(IMarketData marketData) {
             _marketData = marketData;
             return this;
         }
 
-        public static void Run(PricingRequest request) {
-            PricingEngine engine = new PricingEngine(request.ModelConfiguration)
-                .SetMarketData(request.MarketData);
-            HashSet<IMarketData> shiftedMarketData = new HashSet<IMarketData>();
-            shiftedMarketData.Add(request.MarketData);
-            foreach (IIndicator indicator in request.Indicators) {
-                indicator.GetShiftedMarketData().ForEach(md => shiftedMarketData.Add(md));
-            }
+        public static Dictionary<Contract, Dictionary<IIndicator, ValueWithPrecision>> Run(PricingRequest request) {
+            PricingEngine engine = new PricingEngine(request.ModelConfiguration);
+            HashSet<IMarketData> shiftedMarketData = request.Indicators
+                .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData))
+                .ToHashSet();
             Dictionary<IMarketData, Dictionary<Contract, ValueWithPrecision>> subResults = new();
             foreach(IMarketData marketData in shiftedMarketData) {
-                foreach(Contract contract in request.Position) {
+                engine.SetMarketData(marketData);
+                Dictionary<Contract, ValueWithPrecision> resultByContract = new();
+                foreach (Contract contract in request.Position) {
                     if (contract is NonPathDependentContract nonPathDependentContract) {
+                        // ALERT: Diffusion is done several times
+                        // Initialize / Price Differentiation
                         ValueWithPrecision result = engine.Price(nonPathDependentContract.Payoff, nonPathDependentContract.Maturity, request.PricingDate);
-                        subResults.Add(marketData, new Dictionary<Contract, ValueWithPrecision>)
+                        resultByContract.Add(contract, result);
                     }
                 }
+                subResults.Add(marketData, resultByContract);
             }
+
+            // Transform subResults to the desired output format
+            Dictionary<Contract, Dictionary<IMarketData, ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
+            Dictionary<Contract, Dictionary<IIndicator, ValueWithPrecision>> indicatorResult = new();
+            foreach (Contract contract in request.Position) {
+                indicatorResult.Add(contract, new());
+                foreach (IIndicator indicator in request.Indicators) {
+                    indicatorResult[contract].Add(indicator, indicator.GetResult(request.MarketData, pivotedSubResults[contract]));
+                }
+            }
+            return indicatorResult;
         }
 
         public ValueWithPrecision Price(INonPathDependentPayoff payoff, DateTime maturity, DateTime today) {

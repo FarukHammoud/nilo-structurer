@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using PositionServices;
+using Application;
 
 namespace VanillaPricer.Controllers {
     [ApiController]

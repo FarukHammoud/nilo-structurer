@@ -2,6 +2,7 @@ using Application;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Server.Controllers {
+    // DEPRECATED
     [ApiController]
     [Route("[controller]")]
     public class PricerController : ControllerBase {

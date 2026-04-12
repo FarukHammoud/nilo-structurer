@@ -1,6 +1,6 @@
 ﻿namespace Domain {
     public interface IIndicator {
-        List<IMarketData> GetShiftedMarketData();
-        ValueWithPrecision GetResult(List<ValueWithPrecision> values);
+        IList<IMarketData> GetShiftedMarketData(IMarketData marketData);
+        ValueWithPrecision GetResult(IMarketData unshiftedMarketData, Dictionary<IMarketData, ValueWithPrecision> resultsByShift);
     }
 }

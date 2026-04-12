@@ -243,7 +243,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.DoubleDigital2D(spotMSFT, spotAAPL, strike1, strike2, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity );
+            double theoreticalPrice = Stulz.DoubleDigital2D(spotMSFT, spotAAPL, strike1, strike2, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity );
 
             // Price using General Diffusion
             IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
@@ -286,7 +286,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
+            double theoreticalPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
 
             // Price using General Diffusion
             IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
@@ -329,7 +329,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
+            double theoreticalPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
 
             // Price using General Diffusion
             IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();

@@ -1,5 +1,5 @@
 ﻿namespace Domain {
-    public abstract class Underlying {
+    public abstract class Underlying : IUnderlying {
         public string Code { get; set; }
 
         public Underlying(string code) {
@@ -16,7 +16,5 @@
         public override int GetHashCode() {
             return Code.GetHashCode();
         }
-
-       
     }
 }

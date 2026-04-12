@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Application;
+using Domain;
 
 namespace PositionServices {
     public class PositionService {
