@@ -4,7 +4,7 @@ namespace Application {
     public class BestOf : StructuredUnderlying {
         public Underlying FirstUnderlying { get; set; }
         public Underlying SecondUnderlying { get; set; }
-        public BestOf(Underlying firstUnderlying, Underlying secondUnderlying) 
+        public BestOf(Underlying firstUnderlying, Underlying secondUnderlying)
             : base("BestOf_" + firstUnderlying.Code + "_" + secondUnderlying.Code) {
             FirstUnderlying = firstUnderlying;
             SecondUnderlying = secondUnderlying;

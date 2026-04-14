@@ -5,7 +5,8 @@ namespace Application {
         public required Underlying Underlying { get; set; }
         public required double Strike1 { get; set; }
         public required double Strike2 { get; set; }
-        public override List<NonPathDependentContract> Contracts => new() {
+        public required DateTime Maturity { get; set; }
+        public override List<INonPathDependentContract> Contracts => new() {
             new EuropeanPut() { Underlying = Underlying, Maturity = Maturity, Strike = Strike1, Notional = -1 },
             new EuropeanPut() { Underlying = Underlying, Maturity = Maturity, Strike = Strike2}};
     }

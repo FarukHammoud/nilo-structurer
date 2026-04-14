@@ -9,7 +9,7 @@ namespace Server {
             _serviceProvider = serviceProvider;
         }
 
-        public double? Price<T>(T contract) where T : Contract {
+        public double? Price<T>(T contract) where T : IContract {
             Type pricerType = typeof(IPricer<>).MakeGenericType(contract.GetType());
             dynamic pricer = _serviceProvider.GetRequiredService(pricerType);
             return pricer.Price((dynamic) contract);

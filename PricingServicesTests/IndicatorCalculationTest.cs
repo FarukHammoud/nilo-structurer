@@ -39,13 +39,13 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new () {
-                Position = new List<Contract>() { contract },
+                Position = new List<IContract>() { contract },
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Delta() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<Contract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
             ValueWithPrecision monteCarloResult = results[contract][new Delta()];   
 
 

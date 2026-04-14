@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class EuropeanDoubleDigit : NonPathDependentContract {
+    public class EuropeanDoubleDigit : SinglePayoffNonPathDependentContract {
         public required Underlying FirstUnderlying { get; set; }
         public required Underlying SecondUnderlying { get; set; }
         public double FirstStrike { get; set; }

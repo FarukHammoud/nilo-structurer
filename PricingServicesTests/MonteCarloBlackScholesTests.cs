@@ -4,6 +4,7 @@ using FixedIncomeServices;
 using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
 using PricerServices.Pricers;
+using System.Diagnostics.Contracts;
 
 namespace PricingServices.Tests {
     [TestClass]
@@ -138,6 +139,54 @@ namespace PricingServices.Tests {
                 DateTime.Today);
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void CallPutParity() {
+            // c = p + S0 - K*exp(-rT)
+
+            Equity MSFT = new("MSFT");
+            double riskFreeRate = 0.0175;
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            double strike = spotPrice * 1.1;
+            EuropeanCall call = new() {
+                Maturity = DateTime.Today.AddMonths(4),
+                Strike = strike,
+                Underlying = MSFT
+            };
+            EuropeanPut put = new() {
+                Maturity = DateTime.Today.AddMonths(4),
+                Strike = strike,
+                Underlying = MSFT,
+                Notional = -1.0
+            };
+            CashFlow cashFlow = new([ 
+                Tuple.Create(DateTime.Today, -spotPrice), 
+                Tuple.Create(DateTime.Today.AddMonths(4), strike) ]) {
+                 Currency = new Currency("EUR")
+            };
+            Book book = new([ call, put, cashFlow ]);
+
+            MarketData marketData = new MarketData()
+                .SetSpot(MSFT, spotPrice)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetRiskFreeRate(riskFreeRate)
+                .SetVolatility(MSFT, volatility)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { book },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
+            ValueWithPrecision monteCarloResult = results[book][new Premium()];
+            Assert.IsLessThan(monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to 0");
         }
 
         [TestMethod]

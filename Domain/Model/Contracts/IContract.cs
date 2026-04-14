@@ -1,3 +1,5 @@
 ﻿namespace Domain {
-    public interface IContract;
+    public interface IContract {
+        double Notional { get; set; }
+    }
 }

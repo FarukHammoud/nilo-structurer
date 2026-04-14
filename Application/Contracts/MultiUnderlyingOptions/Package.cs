@@ -1,8 +1,11 @@
 ﻿using Domain;
 
 namespace Application {
-    public abstract class Package : NonPathDependentContract {
-        public override INonPathDependentPayoff Payoff => new ComposedNonPathDependentPayoff(Contracts.Select(x => x.Payoff).ToList());
-        public abstract List<NonPathDependentContract> Contracts { get; }
+    public abstract class Package : INonPathDependentContract {
+        public List<Tuple<DateTime, INonPathDependentPayoff>> Payoffs => 
+            Contracts.SelectMany(c => c.Payoffs).ToList();
+
+        public abstract List<INonPathDependentContract> Contracts { get; }
+        public double Notional { get; set; } = 1.0;
     }
 }

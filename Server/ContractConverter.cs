@@ -4,7 +4,7 @@
     using System.Text.Json;
     using System.Text.Json.Serialization;
 
-    public class ContractConverter : JsonConverter<Contract> {
+    public class ContractConverter : JsonConverter<SinglePayoffNonPathDependentContract> {
 
         private readonly Dictionary<string, Type> _contractKinds = new()
         {
@@ -13,7 +13,7 @@
             // you can extend this map
         };
 
-        public override Contract Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        public override SinglePayoffNonPathDependentContract Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
             using var doc = JsonDocument.ParseValue(ref reader);
             var root = doc.RootElement;
 
@@ -27,10 +27,10 @@
                 throw new JsonException($"Unknown kind '{kind}'");
             }
 
-            return (Contract)JsonSerializer.Deserialize(root.GetRawText(), targetType, options);
+            return (SinglePayoffNonPathDependentContract)JsonSerializer.Deserialize(root.GetRawText(), targetType, options);
         }
 
-        public override void Write(Utf8JsonWriter writer, Contract value, JsonSerializerOptions options) {
+        public override void Write(Utf8JsonWriter writer, SinglePayoffNonPathDependentContract value, JsonSerializerOptions options) {
             JsonSerializer.Serialize(writer, (object)value, value.GetType(), options);
         }
     }

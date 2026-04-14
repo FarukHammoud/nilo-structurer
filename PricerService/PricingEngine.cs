@@ -16,30 +16,36 @@ namespace PricerServices {
             return this;
         }
 
-        public static Dictionary<Contract, Dictionary<IIndicator, ValueWithPrecision>> Run(PricingRequest request) {
+        public static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> Run(PricingRequest request) {
             PricingEngine engine = new PricingEngine(request.ModelConfiguration);
             HashSet<IMarketData> shiftedMarketData = request.Indicators
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData))
                 .ToHashSet();
-            Dictionary<IMarketData, Dictionary<Contract, ValueWithPrecision>> subResults = new();
+            Dictionary<IMarketData, Dictionary<IContract, ValueWithPrecision>> subResults = new();
             foreach(IMarketData marketData in shiftedMarketData) {
                 engine.SetMarketData(marketData);
-                Dictionary<Contract, ValueWithPrecision> resultByContract = new();
-                foreach (Contract contract in request.Position) {
-                    if (contract is NonPathDependentContract nonPathDependentContract) {
+                Dictionary<IContract, ValueWithPrecision> resultByContract = new();
+                foreach (IContract contract in request.Position) {
+                    if (contract is INonPathDependentContract nonPathDependentContract) {
                         // ALERT: Diffusion is done several times
                         // Initialize / Price Differentiation
-                        ValueWithPrecision result = engine.Price(nonPathDependentContract.Payoff, nonPathDependentContract.Maturity, request.PricingDate);
-                        resultByContract.Add(contract, result);
+                        List<ValueWithPrecision> payoffsValues = nonPathDependentContract.Payoffs.Select(
+                            payoff => engine.Price(payoff.Item2, payoff.Item1, request.PricingDate))
+                            .ToList();
+                        ValueWithPrecision aggregatedPayoffValue = new ValueWithPrecision {
+                            Value = payoffsValues.Sum(pv => pv.Value),
+                            Precision = Math.Sqrt(payoffsValues.Sum(pv => Math.Pow(pv.Precision, 2)))
+                        };
+                        resultByContract.Add(contract, aggregatedPayoffValue);
                     }
                 }
                 subResults.Add(marketData, resultByContract);
             }
 
             // Transform subResults to the desired output format
-            Dictionary<Contract, Dictionary<IMarketData, ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
-            Dictionary<Contract, Dictionary<IIndicator, ValueWithPrecision>> indicatorResult = new();
-            foreach (Contract contract in request.Position) {
+            Dictionary<IContract, Dictionary<IMarketData, ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> indicatorResult = new();
+            foreach (IContract contract in request.Position) {
                 indicatorResult.Add(contract, new());
                 foreach (IIndicator indicator in request.Indicators) {
                     indicatorResult[contract].Add(indicator, indicator.GetResult(request.MarketData, pivotedSubResults[contract]));
