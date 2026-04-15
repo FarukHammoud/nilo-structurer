@@ -29,9 +29,8 @@ namespace PricerServices {
                     if (contract is INonPathDependentContract nonPathDependentContract) {
                         // ALERT: Diffusion is done several times
                         // Initialize / Price Differentiation
-                        List<ValueWithPrecision> payoffsValues = nonPathDependentContract.Payoffs.Select(
-                            payoff => engine.Price(payoff.Item2, payoff.Item1, request.PricingDate))
-                            .ToList();
+                        IEnumerable<ValueWithPrecision> payoffsValues = nonPathDependentContract.Payoffs.Select(
+                            payoff => engine.Price(payoff.Item2, payoff.Item1, request.PricingDate));
                         ValueWithPrecision aggregatedPayoffValue = new ValueWithPrecision {
                             Value = payoffsValues.Sum(pv => pv.Value),
                             Precision = Math.Sqrt(payoffsValues.Sum(pv => Math.Pow(pv.Precision, 2)))

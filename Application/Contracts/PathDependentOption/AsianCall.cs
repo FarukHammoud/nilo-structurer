@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class AsianCall : PathDependentContract {
+    public class AsianCall : SinglePayoffPathDependentContract {
 
         public override IPathDependentPayoff Payoff => 
             new MonoUnderlyingPathDependentPayoff(d => Math.Max(0, d.Values.Average() - Strike), FixingDates, Underlying);

@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class GeometricAsianCall : PathDependentContract {
+    public class GeometricAsianCall : SinglePayoffPathDependentContract {
 
         // needs to adapt the payoff to be geometric average instead of arithmetic average, but otherwise is the same as AsianCall
         public override IPathDependentPayoff Payoff => 

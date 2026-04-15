@@ -186,7 +186,7 @@ namespace PricingServices.Tests {
             };
             Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
             ValueWithPrecision monteCarloResult = results[book][new Premium()];
-            Assert.IsLessThan(monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to 0");
+            Assert.IsLessThan(3.09 * monteCarloResult.Precision, monteCarloResult.Value, "The Monte Carlo price should be close to 0");
         }
 
         [TestMethod]

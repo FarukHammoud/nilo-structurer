@@ -2,6 +2,6 @@
 
 namespace Domain {
     public interface INonPathDependentContract : IContract {
-        List<Tuple<DateTime, INonPathDependentPayoff>> Payoffs { get; }
+        IEnumerable<Tuple<DateTime, INonPathDependentPayoff>> Payoffs { get; }
     }
 }

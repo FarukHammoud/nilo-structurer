@@ -22,14 +22,14 @@ namespace PricerServices.Pricers {
             };
             DiffusionResult diffusion = GeneralDiffusion.DiffuseMultiUnderlying(diffusionConfiguration);
             Dictionary<Underlying, List<double>> lastResults = diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[path.Length - 1]).ToList());
-            double[] payoffsAtMaturity = new double[diffusion.NumberOfEvents];
-            for (int event_id = 0; event_id < diffusion.NumberOfEvents; event_id++) {
+            double[] payoffsAtMaturity = new double[diffusionConfiguration.NumberOfDrawings];
+            for (int event_id = 0; event_id < diffusionConfiguration.NumberOfDrawings; event_id++) {
                 Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[event_id]);
                 payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(priceAtMaturity);
             }
             return new ValueWithPrecision() {
                 Value = marketData.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
-                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(diffusion.NumberOfEvents)
+                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(diffusionConfiguration.NumberOfDrawings)
             };
         }
 
