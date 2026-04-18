@@ -11,7 +11,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void DeltaBSvsMonteCarlo() {
-            PricingEngine monteCarloEngine = new(ModelConfiguration.LocalVolatilityDiffusion);
+            PricingEngine monteCarloEngine = new(); // LocalVolatilityDiffusion as parameters
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
             Equity MSFT = new("MSFT");

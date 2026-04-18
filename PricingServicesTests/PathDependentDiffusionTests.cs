@@ -25,6 +25,7 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
+                .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
                 .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
@@ -35,11 +36,15 @@ namespace PricingServices.Tests {
             double theoreticalPrice = BlackScholes.DigitalCallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
 
             // Price using General Diffusion
-            IMultiUnderlyingPricer<INonPathDependentPayoff, IMarketData> mcPricer = new GeneralDiffusionPricer();
-            ValueWithPrecision monteCarloResult = mcPricer.Price(contract.Payoff, 
-                marketData,
-                contract.Maturity,
-                DateTime.Today);
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
+            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }

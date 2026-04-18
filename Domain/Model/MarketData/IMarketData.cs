@@ -1,7 +1,6 @@
 ﻿namespace Domain {
-    public interface IMarketData {
+    public interface IMarketData : IDiscounter {
         List<Underlying> GetUnderlyings();
-        double GetDiscountFactor(DateTime date, DateTime today);
         double GetSpot(Underlying underlying);
         double GetDrift(Underlying underlying); 
         ILocalVolatilityModel GetVolatility(Underlying underlying);
