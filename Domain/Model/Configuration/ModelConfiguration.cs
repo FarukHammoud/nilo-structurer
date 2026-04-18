@@ -15,5 +15,11 @@
             Volatility = new LocalVolatility(),
             Pricing = new MonteCarlo(),
         };
+
+        public static ModelConfiguration BinaryTree => new() {
+            Discounting = new DiscountCurveDiscounting(),
+            Volatility = new ConstantVolatility(),
+            Pricing = new BinaryTree(),
+        };
     }
 }

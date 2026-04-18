@@ -28,6 +28,14 @@ namespace PricerServices {
                     subResults.Add(marketData, resultByContract);
                 }
             }
+            if (request.ModelConfiguration.Pricing is BinaryTree) {
+                INonPathDependentPricer pricer = new BinaryTreePricer();
+                foreach (IMarketData marketData in shiftedMarketData) {
+                    pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate));
+                    Dictionary<IContract, ValueWithPrecision> resultByContract = nonPathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PriceContract(request, pricer, contract));
+                    subResults.Add(marketData, resultByContract);
+                }
+            }
 
             return GetIndicatorResults(request, subResults);
         }
