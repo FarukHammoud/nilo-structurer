@@ -13,7 +13,7 @@ namespace Application {
             return _payoffMap(underlyingValue);
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
             return _underlying.GetUnderlyingDependencyList();
         }
     }

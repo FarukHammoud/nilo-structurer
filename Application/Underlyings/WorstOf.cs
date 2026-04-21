@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class WorstOf : StructuredUnderlying {
+    public record WorstOf : StructuredUnderlying {
         public Underlying FirstUnderlying { get; set; }
         public Underlying SecondUnderlying { get; set; }
         public WorstOf(Underlying firstUnderlying, Underlying secondUnderlying) 

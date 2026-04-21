@@ -3,7 +3,7 @@ using Domain;
 using MathNet.Numerics.Statistics;
 
 namespace PricerServices.Pricers {
-    public class GeneralDiffusionPricer : INonPathDependentPricer {
+    public class NonPathDependentDiffusionPricer : INonPathDependentPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private DiffusionResult? _diffusion;

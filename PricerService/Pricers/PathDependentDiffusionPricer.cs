@@ -3,34 +3,37 @@ using Domain;
 using MathNet.Numerics.Statistics;
 
 namespace PricerServices.Pricers {
-    public class PathDependentDiffusionPricer : IMultiUnderlyingPathDependentPricer<IPathDependentPayoff, IMarketData> {
+    public class PathDependentDiffusionPricer : IPathDependentPricer {
 
-        public ValueWithPrecision Price(IPathDependentPayoff payoff, IMarketData marketData, DateTime maturity, DateTime today) {
-            List<Underlying> underlyings = payoff.GetUnderlyingDependencyList();
-            List<DateTime> datesOfInterest = payoff.GetDatesOfInterest();
-            List<DateTime> timeDiscretization = Enumerable.Range(0, (int)(maturity - today).TotalDays + 1)
-                .Select(i => today.AddDays(i))
-                .Union(datesOfInterest)
-                .ToList();
-            DiffusionConfiguration diffusionConfiguration = getDiffusionConfiguration(marketData, underlyings, timeDiscretization);
-            DiffusionResult diffusion = GeneralDiffusion.DiffuseMultiUnderlying(diffusionConfiguration);
-            Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
-            foreach (DateTime date in datesOfInterest) {
-                int index = timeDiscretization.IndexOf(date);
-                pricesAtDiscretizationPoints[date] = diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[index]).ToList());
+        private DiffusionConfiguration? _diffusionConfiguration;
+        private DiffusionResult? _diffusion;
+
+        public ValueWithPrecision Price(IPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+            if (_diffusion == null || _diffusionConfiguration == null) {
+                throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
-            double[] payoffsAtMaturity = new double[diffusion.NumberOfEvents];
-            for (int event_id = 0; event_id < diffusion.NumberOfEvents; event_id++) {
+            List<DateTime> datesOfInterest = payoff.GetObservationDates();
+            Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
+            if (payoff.GetMonitoringFrequency() == MonitoringFrequency.Continuous) {
+                datesOfInterest = _diffusionConfiguration.TimeDiscretization;
+            }
+            foreach (DateTime date in datesOfInterest) {
+                int index = _diffusionConfiguration.TimeDiscretization.IndexOf(date);
+                pricesAtDiscretizationPoints[date] = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[index]).ToList());
+            }
+            double[] payoffsAtMaturity = new double[_diffusion.NumberOfEvents];
+            for (int event_id = 0; event_id < _diffusion.NumberOfEvents; event_id++) {
                 Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[event_id]));
                 payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(pricesAtInterestDates);
             }
             return new ValueWithPrecision() {
-                Value = marketData.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
-                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(diffusion.NumberOfEvents)
+                Value = discounter.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
+                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusion.NumberOfEvents)
             };
         }
 
-        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, List<Underlying> underlyings, List<DateTime> timeDiscretization) {
+        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, List<DateTime> timeDiscretization) {
+            List<Underlying> underlyings = marketData.GetUnderlyings();
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
                 CorrelationMatrix = marketData.GetCorrelationMatrix(underlyings),
@@ -40,6 +43,16 @@ namespace PricerServices.Pricers {
                 TimeDiscretization = timeDiscretization,
                 Volatilities = underlyings.ToDictionary(x => x, marketData.GetVolatility)
             };
+        }
+
+        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization) {
+            //List<DateTime> datesOfInterest = payoff.GetDatesOfInterest();
+            //List<DateTime> timeDiscretization = Enumerable.Range(0, (int)(maturity - today).TotalDays + 1)
+            //    .Select(i => today.AddDays(i))
+            //    .Union(datesOfInterest)
+            //    .ToList();
+            _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
+            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
     }
 }

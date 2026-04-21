@@ -13,7 +13,7 @@ namespace Application {
             return _payoffs.Aggregate(1.0, (product, payoff) => product * payoff.GetPayoffAtMaturity(pricesAtMaturity));
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
             return _payoffs.SelectMany(payoff => payoff.GetUnderlyingDependencyList()).Distinct().ToList();
         }
     }

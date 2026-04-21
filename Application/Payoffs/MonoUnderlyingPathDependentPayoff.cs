@@ -2,26 +2,26 @@
 
 namespace Application {
     public class MonoUnderlyingPathDependentPayoff : IPathDependentPayoff {
-        private readonly Func<Dictionary<DateTime, double>, double> _payoffMap;
-        private readonly Underlying _underlying;
-        private readonly List<DateTime> _datesOfInterest;
-        public MonoUnderlyingPathDependentPayoff(Func<Dictionary<DateTime, double>, double> payoffMap, List<DateTime> datesOfInterest, Underlying underlying) {
-            _payoffMap = payoffMap;
-            _datesOfInterest = datesOfInterest;
-            _underlying = underlying;
+        public required Func<Dictionary<DateTime, double>, double> PayoffMap { get; init; }
+        public required Underlying Underlying { get; init; }
+        public required List<DateTime> ObservationDates { get; init; }
+        public required MonitoringFrequency MonitoringFrequency { get; init; }
+
+        public MonitoringFrequency GetMonitoringFrequency() {
+            return MonitoringFrequency;
         }
 
-        public List<DateTime> GetDatesOfInterest() {
-            return _datesOfInterest;
+        public List<DateTime> GetObservationDates() {
+            return ObservationDates;
         }
 
         public double GetPayoffAtMaturity(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
-            Dictionary<DateTime, double> underlyingValues = ((IPathDependentPayoff)this).GetUnderlyingValues(_underlying, prices);
-            return _payoffMap(underlyingValues);
+            Dictionary<DateTime, double> underlyingValues = ((IPathDependentPayoff)this).GetUnderlyingValues(Underlying, prices);
+            return PayoffMap(underlyingValues);
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
-            return _underlying.GetUnderlyingDependencyList();
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
+            return Underlying.GetUnderlyingDependencyList();
         }
     }
 }

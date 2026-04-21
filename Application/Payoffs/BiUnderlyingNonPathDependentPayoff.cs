@@ -16,7 +16,7 @@ namespace Application {
             return _payoffMap(firstUnderlyingValue, secondUnderlyingValue);
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
             return _firstUnderlying.GetUnderlyingDependencyList().Union(_secondUnderlying.GetUnderlyingDependencyList()).ToList();
         }
     }

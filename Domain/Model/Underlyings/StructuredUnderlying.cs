@@ -1,5 +1,5 @@
 ﻿namespace Domain {
-    public abstract class StructuredUnderlying : Underlying {
+    public abstract record StructuredUnderlying : Underlying {
         public StructuredUnderlying(string name) : base(name) {
         }
 

@@ -1,11 +1,15 @@
 ﻿using Domain;
+using System.Diagnostics;
 
 namespace Application {
     public class GeometricAsianCall : SinglePayoffPathDependentContract {
-
-        // needs to adapt the payoff to be geometric average instead of arithmetic average, but otherwise is the same as AsianCall
         public override IPathDependentPayoff Payoff => 
-            new MonoUnderlyingPathDependentPayoff(d => Math.Max(0, d.Values.Average() - Strike), FixingDates, Underlying);
+            new MonoUnderlyingPathDependentPayoff() {
+                PayoffMap = d => Math.Max(0, Math.Exp(d.Values.Select(a => Math.Log(a)).Average()) - Strike),
+                ObservationDates = FixingDates,
+                Underlying = Underlying,
+                MonitoringFrequency = MonitoringFrequency.None
+            };
         public required Underlying Underlying { get; set; }
         public required double Strike { get; set; }
         public required List<DateTime> FixingDates { get; set; } = new List<DateTime>();

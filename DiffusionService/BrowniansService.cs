@@ -5,7 +5,7 @@ using MathNet.Numerics.LinearAlgebra;
 namespace BrownianServices {
     public class BrowniansService {
 
-        private Random _random = new Random();
+        private static readonly Random _random = new Random(Guid.NewGuid().GetHashCode());
 
         /// <summary>
         /// This method generates correlated Brownian motion paths based on the provided configuration. 

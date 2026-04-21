@@ -12,8 +12,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            return (Math.Log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.Sqrt(T));
+            double σ = volatility;
+            return (Math.Log(S / K) + (r + 0.5 * σ * σ) * T) / (σ * Math.Sqrt(T));
         }
 
         public static double d2(double spot, double strike, double timeToMaturity, double riskFreeRate, double volatility) {
@@ -21,8 +21,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            return d1(S, K, T, r, sigma) - sigma * Math.Sqrt(T);
+            double σ = volatility;
+            return d1(S, K, T, r, σ) - σ * Math.Sqrt(T);
         }
 
         public static double DigitalCallPrice(double spot, double strike, double timeToMaturity, double riskFreeRate, double volatility) {
@@ -30,8 +30,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D2 = d2(S, K, T, r, sigma);
+            double σ = volatility;
+            double D2 = d2(S, K, T, r, σ);
             return Exp(-r * T) * N(D2);
         }
 
@@ -40,8 +40,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D2 = d2(S, K, T, r, sigma);
+            double σ = volatility;
+            double D2 = d2(S, K, T, r, σ);
             return Exp(-r * T) * (1 - N(D2));
         }
 
@@ -50,9 +50,9 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D1 = d1(S, K, T, r, sigma);
-            double D2 = d2(S, K, T, r, sigma);
+            double σ = volatility;
+            double D1 = d1(S, K, T, r, σ);
+            double D2 = d2(S, K, T, r, σ);
             return S * N(D1) - K * Exp(-r * T) * N(D2);
         }
 
@@ -61,8 +61,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D1 = d1(S, K, T, r, sigma);
+            double σ = volatility;
+            double D1 = d1(S, K, T, r, σ);
             return N(D1);
         }
 
@@ -71,8 +71,8 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D1 = d1(S, K, T, r, sigma);
+            double σ = volatility;
+            double D1 = d1(S, K, T, r, σ);
             return 1 - N(D1);
         }
 
@@ -81,9 +81,9 @@ namespace Domain {
             double K = strike;
             double T = timeToMaturity;
             double r = riskFreeRate;
-            double sigma = volatility;
-            double D1 = d1(S, K, T, r, sigma);
-            double D2 = d2(S, K, T, r, sigma);
+            double σ = volatility;
+            double D1 = d1(S, K, T, r, σ);
+            double D2 = d2(S, K, T, r, σ);
             return K * Exp(-r * T) * N(-D2) - S * N(-D1);
         }
     }

@@ -15,7 +15,7 @@ namespace Application {
             return _factor * _basePayoff.GetPayoffAtMaturity(pricesAtMaturity);
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
             return _basePayoff.GetUnderlyingDependencyList();
         }
     }

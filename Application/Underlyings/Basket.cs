@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class Basket : StructuredUnderlying {
+    public record Basket : StructuredUnderlying {
         public List<Underlying> Underlyings => _components.Select(c => c.Item1).ToList();
         public List<double> Weights => _components.Select(c => c.Item2).ToList();
         private List<Tuple<Underlying, double>> _components;

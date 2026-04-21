@@ -1,8 +1,9 @@
 ﻿namespace Domain {
     public interface IPathDependentPayoff : IPayoff {
         double GetPayoffAtMaturity(Dictionary<DateTime, Dictionary<Underlying, double>> prices);
-        List<Underlying> GetUnderlyingDependencyList();
-        List<DateTime> GetDatesOfInterest();
+        IReadOnlyList<Underlying> GetUnderlyingDependencyList();
+        List<DateTime> GetObservationDates();
+        MonitoringFrequency GetMonitoringFrequency();
 
         public Dictionary<DateTime, double> GetUnderlyingValues(Underlying underlying, Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
             Dictionary<DateTime, double> underlyingValues = new Dictionary<DateTime, double>();

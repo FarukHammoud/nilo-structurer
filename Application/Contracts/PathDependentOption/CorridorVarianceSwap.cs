@@ -8,7 +8,12 @@ namespace Application {
         public double UpperBound { get; set; } = double.MaxValue;
         public double LowerBound { get; set; } = 0.0;
         public override IPathDependentPayoff Payoff => 
-            new MonoUnderlyingPathDependentPayoff(GetPayoff, FixingDates, Underlying);
+            new MonoUnderlyingPathDependentPayoff() {
+                PayoffMap = GetPayoff,
+                ObservationDates = FixingDates,
+                Underlying = Underlying,
+                MonitoringFrequency = MonitoringFrequency.Daily
+            };
         
         private List<DateTime> FixingDates => Enumerable.Range(0, (int)(Maturity - StartDate).TotalDays).Select(i => StartDate.AddDays(i)).ToList();
         private double GetPayoff(Dictionary<DateTime, double> prices) {
@@ -19,7 +24,7 @@ namespace Application {
             List<double> priceList = FixingDates.Select(date => prices[date]).ToList();
             int N = 0;
             double sum = 0;
-            for (int i = 0; i < N; i++) {
+            for (int i = 1; i < priceList.Count; i++) {
                 if (priceList[i - 1] < LowerBound || priceList[i - 1] > UpperBound) {
                     continue;
                 }

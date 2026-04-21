@@ -1,7 +1,0 @@
-﻿using Domain;
-
-namespace Application {
-    public interface IMultiUnderlyingPathDependentPricer<T1, T2> where T1 : IPathDependentPayoff where T2 : IMarketData {
-        ValueWithPrecision Price(T1 contract, T2 MarketData, DateTime maturity, DateTime today);
-    }
-}

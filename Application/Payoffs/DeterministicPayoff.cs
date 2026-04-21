@@ -10,7 +10,7 @@ namespace Application {
             return _payoffValue;
         }
 
-        public List<Underlying> GetUnderlyingDependencyList() {
+        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
             return [];
         }
     }

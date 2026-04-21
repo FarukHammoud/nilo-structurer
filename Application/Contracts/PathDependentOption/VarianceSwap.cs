@@ -5,8 +5,13 @@ namespace Application {
         public required Underlying Underlying { get; set; }
         public required double VarianceStrike { get; set; }
         public required DateTime StartDate { get; set; }
-        public override IPathDependentPayoff Payoff => 
-            new MonoUnderlyingPathDependentPayoff(GetPayoff, FixingDates, Underlying);
+        public override IPathDependentPayoff Payoff =>
+            new MonoUnderlyingPathDependentPayoff() {
+                PayoffMap = GetPayoff,
+                ObservationDates = FixingDates,
+                Underlying = Underlying,
+                MonitoringFrequency = MonitoringFrequency.Daily
+            };
         
         private List<DateTime> FixingDates => Enumerable.Range(0, (int)(Maturity - StartDate).TotalDays).Select(i => StartDate.AddDays(i)).ToList();
         private double GetPayoff(Dictionary<DateTime, double> prices) {

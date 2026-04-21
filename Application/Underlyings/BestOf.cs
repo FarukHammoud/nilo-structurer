@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class BestOf : StructuredUnderlying {
+    public record BestOf : StructuredUnderlying {
         public Underlying FirstUnderlying { get; set; }
         public Underlying SecondUnderlying { get; set; }
         public BestOf(Underlying firstUnderlying, Underlying secondUnderlying)
