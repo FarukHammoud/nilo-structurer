@@ -2,16 +2,25 @@
 
 namespace Application {
     public class Theta : IIndicator {
+
+        private readonly double _bump;
+
+        public Theta(double bump = 1) {
+            _bump = bump;
+        }
+
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
-            return new List<(IMarketData, DateTime)> { (marketData, pricingDate.AddDays(1)) };
+            return [
+                (marketData, pricingDate.AddDays(-_bump)), 
+                (marketData, pricingDate.AddDays(_bump))];
         }
 
         public ValueWithPrecision GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            ValueWithPrecision centralValue = resultsByShift[marketDatas[0]];
-            ValueWithPrecision shiftedValue = resultsByShift[marketDatas[1]];
-            double theta = (shiftedValue.Value - centralValue.Value);
-            double precision = (shiftedValue.Precision + centralValue.Precision) / 2;
+            ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
+            ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
+            double theta = - 365 * (plusValue.Value - minusValue.Value) / (2 * _bump);
+            double precision = 365 * (plusValue.Precision + minusValue.Precision) / 2;
             return new ValueWithPrecision { Value = theta, Precision = precision };
         }
 

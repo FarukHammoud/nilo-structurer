@@ -9,15 +9,17 @@ namespace Application {
             _bump = bump;
         }
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
-            return [(marketData, pricingDate), (new ShiftedMarketData(marketData).ShiftDiscountRate(_bump), pricingDate)];
+            return [
+                (new ShiftedMarketData(marketData).ShiftDiscountRate(-_bump), pricingDate),
+                (new ShiftedMarketData(marketData).ShiftDiscountRate(+_bump), pricingDate)];
         }
 
         public ValueWithPrecision GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            ValueWithPrecision centralValue = resultsByShift[marketDatas[0]];
-            ValueWithPrecision shiftedValue = resultsByShift[marketDatas[1]];
-            double rho = (shiftedValue.Value - centralValue.Value) / _bump;
-            double precision = (shiftedValue.Precision + centralValue.Precision) / 2;
+            ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
+            ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
+            double rho = (plusValue.Value - minusValue.Value) / (2 * _bump);
+            double precision = (plusValue.Precision + minusValue.Precision) / 2;
             return new ValueWithPrecision { Value = rho, Precision = precision };
         }
 

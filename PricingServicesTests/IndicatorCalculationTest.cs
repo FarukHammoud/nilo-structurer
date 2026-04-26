@@ -119,17 +119,17 @@ namespace PricingServices.Tests {
 
             // Theotetical rho using Black-Scholes
             double theoreticalRho = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Rho;
-
+            IIndicator rho = new Rho();
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Rho(0.0001) },
+                Indicators = [rho],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
             Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Rho()];
+            ValueWithPrecision monteCarloResult = results[contract][rho];
 
 
             Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
@@ -150,7 +150,7 @@ namespace PricingServices.Tests {
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
-
+           
             MarketData marketData = new MarketData()
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
@@ -163,15 +163,16 @@ namespace PricingServices.Tests {
             double theoreticalTheta = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Theta;
 
             // Price using General Diffusion
+            IIndicator theta = new Theta();
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = [new Theta()],
+                Indicators = [theta],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
             var results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Theta()];
+            ValueWithPrecision monteCarloResult = results[contract][theta];
 
 
             Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
