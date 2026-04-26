@@ -34,7 +34,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double theoreticalPrice = BlackScholes.DigitalCallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).DigitalCallPrice();
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -71,7 +71,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.DigitalPutPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).DigitalPutPrice();
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -108,7 +108,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.CallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -145,7 +145,7 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.PutPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -231,8 +231,8 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.CallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility)
-                + BlackScholes.PutPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium
+                + new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -272,8 +272,8 @@ namespace PricingServices.Tests {
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
-            double theoreticalPrice = BlackScholes.CallPrice(spotPrice, contract.Strike2, timeToMaturity, riskFreeRate, volatility)
-                + BlackScholes.PutPrice(spotPrice, contract.Strike1, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike2, timeToMaturity, riskFreeRate, volatility).Premium
+                + new BlackScholes(OptionType.Put, spotPrice, contract.Strike1, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {

@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class Delta : IIndicator {
+    public class Gamma : IIndicator {
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
             return GetShiftedMarketDataByUnderlying(marketData, pricingDate).Values
                 .SelectMany(marketDataList => marketDataList)
@@ -13,6 +13,7 @@ namespace Application {
                 underlying => new List<(IMarketData, DateTime)>() {
                     (new ShiftedMarketData(marketData)
                         .ShiftSpot(underlying, 0.99), pricingDate),
+                    (marketData, pricingDate),
                     (new ShiftedMarketData(marketData)
                         .ShiftSpot(underlying, 1.01), pricingDate)
                 });
@@ -23,10 +24,11 @@ namespace Application {
             if (marketDataByUnderlying.Keys.Count == 1) {
                 Underlying underlying = marketDataByUnderlying.Keys.First();
                 ValueWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
-                ValueWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
-                double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * unshiftedMarketData.GetSpot(underlying));
-                double deltaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                return new ValueWithPrecision { Value = deltaValue, Precision = deltaPrecision };
+                ValueWithPrecision centralValue = resultsByShift[marketDataByUnderlying[underlying][1]];
+                ValueWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][2]];
+                double gammaValue = (valueUp.Value - 2 * centralValue.Value + valueDown.Value) / Math.Pow(0.02 * unshiftedMarketData.GetSpot(underlying), 2);
+                double gammaPrecision = Math.Sqrt(Math.Pow(valueUp.Precision, 2) + 4 * Math.Pow(centralValue.Precision, 2) + Math.Pow(valueDown.Precision, 2)) / Math.Pow(0.02 * unshiftedMarketData.GetSpot(underlying), 2);
+                return new ValueWithPrecision { Value = gammaValue, Precision = gammaPrecision };
             }
             return new ValueWithPrecision { Value = double.NaN, Precision = double.NaN };
         }

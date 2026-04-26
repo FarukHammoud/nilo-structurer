@@ -2,10 +2,10 @@
 
 namespace Application {
     public class Premium : IIndicator {
-        public IList<IMarketData> GetShiftedMarketData(IMarketData marketData) => [marketData];
+        public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) => [(marketData, pricingDate)];
 
-        public ValueWithPrecision GetResult(IMarketData unshiftedMarketData, Dictionary<IMarketData, ValueWithPrecision> resultsByShift) {
-            return resultsByShift[unshiftedMarketData];
+        public ValueWithPrecision GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+            return resultsByShift[(unshiftedMarketData, pricingDate)];
         }
         public override bool Equals(object? obj) => obj?.GetType() == GetType();
 

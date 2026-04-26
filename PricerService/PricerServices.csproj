@@ -16,4 +16,8 @@
     <ProjectReference Include="..\MarketDataService\MarketDataServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Definition\" />
+  </ItemGroup>
+
 </Project>

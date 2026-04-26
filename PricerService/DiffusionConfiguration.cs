@@ -10,5 +10,13 @@ namespace PricerServices {
         required public List<DateTime> TimeDiscretization { get; set; }
         required public Double[,] CorrelationMatrix;
         required public int NumberOfDrawings = 1000;
+
+        public BrowniansConfiguration BrowniansConfiguration =>
+            new BrowniansConfiguration {
+                Underlyings = Underlyings,
+                CorrelationMatrix = CorrelationMatrix,
+                NumberOfDrawings = NumberOfDrawings,
+                NumberOfSteps = TimeDiscretization.Count
+            };
     }
 }

@@ -19,7 +19,7 @@ namespace PricingServices.Tests {
             ReinerRubinstein ko_model = new(spotPrice, strike, barrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut);
             double koPrice = ko_model.Price();
 
-            double bsPrice = BlackScholes.CallPrice(spotPrice, strike, timeToMaturity, riskFreeRate, volatility);
+            double bsPrice = new BlackScholes(OptionType.Call, spotPrice, strike, timeToMaturity, riskFreeRate, volatility).Premium;
             Assert.AreEqual(bsPrice, kiPrice + koPrice, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
@@ -38,7 +38,7 @@ namespace PricingServices.Tests {
             ReinerRubinstein ko_model = new(spotPrice, strike, barrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockOut);
             double koPrice = ko_model.Price();
 
-            double bsPrice = BlackScholes.CallPrice(spotPrice, strike, timeToMaturity, riskFreeRate, volatility);
+            double bsPrice = new BlackScholes(OptionType.Call, spotPrice, strike, timeToMaturity, riskFreeRate, volatility).Premium;
             Assert.AreEqual(bsPrice, kiPrice + koPrice, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
@@ -57,7 +57,7 @@ namespace PricingServices.Tests {
             ReinerRubinstein ko_model = new(spotPrice, strike, barrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockOut);
             double koPrice = ko_model.Price();
 
-            double bsPrice = BlackScholes.PutPrice(spotPrice, strike, timeToMaturity, riskFreeRate, volatility);
+            double bsPrice = new BlackScholes(OptionType.Put, spotPrice, strike, timeToMaturity, riskFreeRate, volatility).Premium;
             Assert.AreEqual(bsPrice, kiPrice + koPrice, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
@@ -76,7 +76,7 @@ namespace PricingServices.Tests {
             ReinerRubinstein ko_model = new(spotPrice, strike, barrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockOut);
             double koPrice = ko_model.Price();
 
-            double bsPrice = BlackScholes.PutPrice(spotPrice, strike, timeToMaturity, riskFreeRate, volatility);
+            double bsPrice = new BlackScholes(OptionType.Put, spotPrice, strike, timeToMaturity, riskFreeRate, volatility).Premium;
             Assert.AreEqual(bsPrice, kiPrice + koPrice, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
@@ -121,7 +121,7 @@ namespace PricingServices.Tests {
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein ko_model = new(spotPrice, strike, barrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut);
             double koPrice = ko_model.Price();
-            double bsPrice = BlackScholes.CallPrice(spotPrice, strike, timeToMaturity, riskFreeRate, volatility);
+            double bsPrice = new BlackScholes(OptionType.Call, spotPrice, strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             Assert.AreEqual(bsPrice, koPrice, 1e-6, "The price of a call up-and-out with barrier at infinity should match the Black-Scholes price");
         }

@@ -11,7 +11,6 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void DeltaBSvsMonteCarlo() {
-            PricingEngine monteCarloEngine = new(); // LocalVolatilityDiffusion as parameters
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
             Equity MSFT = new("MSFT");
@@ -35,7 +34,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical delta using Black-Scholes
-            double theoreticalDelta = BlackScholes.CallDelta(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalDelta = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Delta;
 
             // Price using General Diffusion
             PricingRequest request = new () {
@@ -49,7 +48,133 @@ namespace PricingServices.Tests {
             ValueWithPrecision monteCarloResult = results[contract][new Delta()];   
 
 
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
+        }
+
+        [TestMethod]
+        public void GammaBSvsMonteCarlo() {
+
+            Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
+            Equity MSFT = new("MSFT");
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
+
+            MarketData marketData = new MarketData()
+                .SetUnderlyings(new List<Underlying>() { MSFT })
+                .SetSpot(MSFT, spotPrice)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetVolatility(MSFT, volatility)
+                .SetDiscountCurve(discountCurve)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+            // Theotetical gamma using Black-Scholes
+            double theoreticalGamma = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Gamma;
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Gamma() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
+            ValueWithPrecision monteCarloResult = results[contract][new Gamma()];
+
+
+            Assert.AreEqual(theoreticalGamma, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
+        }
+
+        [TestMethod]
+        public void RhoBSvsMonteCarlo() {
+
+            Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
+            Equity MSFT = new("MSFT");
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
+
+            MarketData marketData = new MarketData()
+                .SetUnderlyings(new List<Underlying>() { MSFT })
+                .SetSpot(MSFT, spotPrice)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetVolatility(MSFT, volatility)
+                .SetDiscountCurve(discountCurve)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+            // Theotetical rho using Black-Scholes
+            double theoreticalRho = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Rho;
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Rho(0.0001) },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
+            ValueWithPrecision monteCarloResult = results[contract][new Rho()];
+
+
+            Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
+        }
+
+        [TestMethod]
+        public void ThetaBSvsMonteCarlo() {
+
+            Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
+            Equity MSFT = new("MSFT");
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
+
+            MarketData marketData = new MarketData()
+                .SetUnderlyings(new List<Underlying>() { MSFT })
+                .SetSpot(MSFT, spotPrice)
+                .SetDrift(MSFT, riskFreeRate)
+                .SetVolatility(MSFT, volatility)
+                .SetDiscountCurve(discountCurve)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+            // Theotetical theta using Black-Scholes
+            double theoreticalTheta = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Theta;
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [new Theta()],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            var results = PricingEngine.Run(request);
+            ValueWithPrecision monteCarloResult = results[contract][new Theta()];
+
+
+            Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
         }
     }
 }

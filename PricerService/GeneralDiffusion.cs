@@ -1,45 +1,46 @@
 ﻿using BrownianServices;
 using Domain;
+using Application;
 
 namespace PricerServices {
     public class GeneralDiffusion {
 
         public static DiffusionResult DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
-            Dictionary<Underlying, Realizations> diffusionValues = new();
+            BrowniansResult noises = new BrowniansService()
+                .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
+            Dictionary<Underlying, Realizations> diffusionValues = configuration.Underlyings
+                .ToDictionary(
+                    underlying => underlying, 
+                    underlying => DiffuseUnderlying(configuration, underlying, noises));
+            return new DiffusionResult { DiffusionValues = diffusionValues };
+        }
+
+        private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
             int steps = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
-            BrowniansConfiguration brownianConfiguration = new() {
-                Underlyings = configuration.Underlyings,
-                NumberOfSteps = steps,
-                CorrelationMatrix = configuration.CorrelationMatrix,
-                NumberOfDrawings = configuration.NumberOfDrawings
-            };
-            BrowniansService browniansService = new();
-            BrowniansResult noises = browniansService.CreateCorrelatedBrownians(brownianConfiguration);
-            foreach (Underlying underlying in configuration.Underlyings) {
-                double drift = configuration.Drifts[underlying];
-                double mu = drift;
-                double spot = configuration.Spots[underlying];
-                DateTime maturity = configuration.TimeDiscretization.LastOrDefault();
-                ILocalVolatilityModel volatility = configuration.Volatilities[underlying];
-                List<double[]> paths = new();
-                for (int eventId = 0; eventId < drawings; eventId++) {
-                    double[] path = new double[steps];
-                    path[0] = spot;
-                    double[] dW = noises.paths[underlying][eventId];
-                    for (int step = 1; step < steps; step++) {
-                        DateTime T = maturity;
-                        DateTime t = configuration.TimeDiscretization[step];
-                        double sigma = volatility.getVolatility(path[step - 1], (T - t).TotalDays / 365.0);
-                        double dt = (configuration.TimeDiscretization[step] - configuration.TimeDiscretization[step - 1]).TotalDays / 365.0;
-                        path[step] = path[step-1] * Math.Exp((mu - 0.5 * sigma * sigma) * dt + sigma * Math.Sqrt(dt) * dW[step]);
-                    }
-                    paths.Add(path);
+            double μ = configuration.Drifts[underlying];
+            double spot = configuration.Spots[underlying];
+            DateTime T = configuration.TimeDiscretization.LastOrDefault();
+            ILocalVolatilityModel volatility = configuration.Volatilities[underlying];
+            List<double[]> paths = new();
+            for (int ω = 0; ω < drawings; ω++) {
+                double[] path = new double[steps];
+                path[0] = spot;
+                double[] dW = noises.paths[underlying][ω];
+                for (int step = 1; step < steps; step++) {
+                    DateTime t = configuration.TimeDiscretization[step];
+                    DateTime t_1 = configuration.TimeDiscretization[step - 1];
+                    double timeToMaturity = (T - t).TotalDays / 365.0;
+                    double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
+                    double dt = (t - t_1).TotalDays / 365.0;
+                    path[step] = new LogEulerScheme().Evolve(path[step - 1], timeToMaturity, dt, dW[step], new StochasticDifferentialEquationDefinition(
+                        (s, t) => μ * s,
+                        (s, t) => σ * s
+                    ));
                 }
-                diffusionValues[underlying] = new Realizations { Paths = paths };
+                paths.Add(path);
             }
-
-            return new DiffusionResult { DiffusionValues = diffusionValues };
+            return new Realizations { Paths = paths };
         }
     }
 }

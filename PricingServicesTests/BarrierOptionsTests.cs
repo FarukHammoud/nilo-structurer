@@ -32,7 +32,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double theoreticalPrice = BlackScholes.CallPrice(spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility);
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {

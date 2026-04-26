@@ -24,8 +24,8 @@ namespace PricerServices {
 
         public static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> Run(PricingRequest request) {
             PricingEngine engine = new PricingEngine();
-            HashSet<IMarketData> shiftedMarketData = request.Indicators
-                .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData))
+            HashSet<(IMarketData, DateTime)> shiftedMarketData = request.Indicators
+                .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
                 .ToHashSet();
             
             IEnumerable<INonPathDependentContract> nonPathDependentContracts = request.Position.OfType<INonPathDependentContract>();
@@ -33,31 +33,31 @@ namespace PricerServices {
 
             IEnumerable<DateTime> maturities = nonPathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Item1)).Distinct();
             IEnumerable<DateTime> pathDependentMaturities = pathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Item1)).Distinct();
-            Dictionary<IMarketData, Dictionary<IContract, ValueWithPrecision>> subResults = new();
+            Dictionary<(IMarketData, DateTime), Dictionary<IContract, ValueWithPrecision>> subResults = new();
             if (request.ModelConfiguration.Pricing is MonteCarlo) {
                 if (nonPathDependentContracts.Any()) {
                     INonPathDependentPricer pricer = new NonPathDependentDiffusionPricer();
-                    foreach (IMarketData marketData in shiftedMarketData) {
+                    foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
                         pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate));
                         Dictionary<IContract, ValueWithPrecision> resultByContract = nonPathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PriceContract(request, pricer, contract));
-                        subResults.Add(marketData, resultByContract);
+                        subResults.Add((marketData, pricingDate), resultByContract);
                     }
                 }
                 if (pathDependentContracts.Any()) {
                     IPathDependentPricer pathDependentPricer = new PathDependentDiffusionPricer();
-                    foreach (IMarketData marketData in shiftedMarketData) {
+                    foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
                         pathDependentPricer.Initialize(marketData, TimeDiscretizationFactory(pathDependentMaturities, request.PricingDate));
                         Dictionary<IContract, ValueWithPrecision> resultByContract = pathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PricePathDependentContract(request, pathDependentPricer, contract));
-                        subResults.Add(marketData, resultByContract);
+                        subResults.Add((marketData, pricingDate), resultByContract);
                     }
                 }
             }
             if (request.ModelConfiguration.Pricing is BinaryTree) {
                 INonPathDependentPricer pricer = new BinaryTreePricer();
-                foreach (IMarketData marketData in shiftedMarketData) {
+                foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
                     pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate));
                     Dictionary<IContract, ValueWithPrecision> resultByContract = nonPathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PriceContract(request, pricer, contract));
-                    subResults.Add(marketData, resultByContract);
+                    subResults.Add((marketData, pricingDate), resultByContract);
                 }
             }
 
@@ -84,14 +84,14 @@ namespace PricerServices {
             return aggregatedPayoffValue;
         }
 
-        private static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> GetIndicatorResults(PricingRequest request, Dictionary<IMarketData, Dictionary<IContract, ValueWithPrecision>> subResults) {
+        private static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, ValueWithPrecision>> subResults) {
             // Transform subResults to the desired output format
-            Dictionary<IContract, Dictionary<IMarketData, ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
+            Dictionary<IContract, Dictionary<(IMarketData, DateTime), ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
             Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> indicatorResult = new();
             foreach (IContract contract in request.Position) {
                 indicatorResult.Add(contract, new());
                 foreach (IIndicator indicator in request.Indicators) {
-                    indicatorResult[contract].Add(indicator, indicator.GetResult(request.MarketData, pivotedSubResults[contract]));
+                    indicatorResult[contract].Add(indicator, indicator.GetResult(request.MarketData, request.PricingDate, pivotedSubResults[contract]));
                 }
             }
             return indicatorResult;

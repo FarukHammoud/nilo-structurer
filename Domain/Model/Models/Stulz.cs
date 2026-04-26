@@ -23,23 +23,23 @@ namespace Domain {
         public static double CallBestOf(double S1, double S2, double K,
                                double r, double σ1, double σ2,
                                double ρ, double T) {
-            double C1 = BlackScholes.CallPrice(S1, K, T, r, σ1);
-            double C2 = BlackScholes.CallPrice(S2, K, T, r, σ2);
+            double C1 = new BlackScholes(OptionType.Call, S1, K, T, r, σ1).Premium;
+            double C2 = new BlackScholes(OptionType.Call, S2, K, T, r, σ2).Premium;
             return C1 + C2 - CallWorstOf(S1, S2, K, r, σ1, σ2, ρ, T);
         }
 
         public static double CallWorstOf(double S1, double S2, double K,
                                double r, double σ1, double σ2,
                                double ρ, double T) {
-            double D1_1 = BlackScholes.d1(S1, K, T, r, σ1);
-            double D2_1 = BlackScholes.d2(S1, K, T, r, σ1);
-            double D1_2 = BlackScholes.d1(S2, K, T, r, σ2);
-            double D2_2 = BlackScholes.d2(S2, K, T, r, σ2);
-            double sigmaRatio = Math.Sqrt(σ1 * σ1 + σ2 * σ2 - 2 * ρ * σ1 * σ2);
-            double e1 = BlackScholes.d1(S1, S2, T, 0, sigmaRatio);
-            double e2 = -BlackScholes.d2(S1, S2, T, 0, sigmaRatio);
-            double ρS1Ratio = (σ1 - ρ * σ2) / sigmaRatio;
-            double ρS2Ratio = (σ2 - ρ * σ1) / sigmaRatio;
+            double D1_1 = new BlackScholes(OptionType.Call, S1, K, T, r, σ1).d1;
+            double D2_1 = new BlackScholes(OptionType.Call, S1, K, T, r, σ1).d2;
+            double D1_2 = new BlackScholes(OptionType.Call, S2, K, T, r, σ2).d1;
+            double D2_2 = new BlackScholes(OptionType.Call, S2, K, T, r, σ2).d2;
+            double σRatio = Math.Sqrt(σ1 * σ1 + σ2 * σ2 - 2 * ρ * σ1 * σ2);
+            double e1 = new BlackScholes(OptionType.Call, S1, S2, T, 0, σRatio).d1;
+            double e2 = -new BlackScholes(OptionType.Call, S1, S2, T, 0, σRatio).d2;
+            double ρS1Ratio = (σ1 - ρ * σ2) / σRatio;
+            double ρS2Ratio = (σ2 - ρ * σ1) / σRatio;
             return S1 * N2(D1_1, -e1, -ρS1Ratio) + S2 * N2(D1_2, -e2, -ρS2Ratio)
                  - K * Exp(-r * T) * N2(D2_1, D2_2, ρ);
         }
