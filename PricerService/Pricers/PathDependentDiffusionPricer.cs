@@ -36,12 +36,8 @@ namespace PricerServices.Pricers {
             List<Underlying> underlyings = marketData.GetUnderlyings();
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
-                CorrelationMatrix = marketData.GetCorrelationMatrix(underlyings),
-                Underlyings = underlyings,
-                Drifts = underlyings.ToDictionary(x => x, marketData.GetDrift),
-                Spots = underlyings.ToDictionary(x => x, marketData.GetSpot),
-                TimeDiscretization = timeDiscretization,
-                Volatilities = underlyings.ToDictionary(x => x, marketData.GetVolatility)
+                MarketData = marketData,
+                TimeDiscretization = timeDiscretization
             };
         }
 

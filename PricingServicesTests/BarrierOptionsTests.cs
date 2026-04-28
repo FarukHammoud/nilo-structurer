@@ -26,7 +26,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -42,8 +41,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -67,7 +66,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -80,8 +78,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(0, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -105,7 +103,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -122,8 +119,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -148,7 +145,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -165,8 +161,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -191,7 +187,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -208,8 +203,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -234,7 +229,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -251,8 +245,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -275,7 +269,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -292,8 +285,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -318,7 +311,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -335,8 +327,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -361,7 +353,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -378,8 +369,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -404,7 +395,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -421,8 +411,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }

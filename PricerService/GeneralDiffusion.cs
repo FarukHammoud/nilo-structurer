@@ -8,7 +8,7 @@ namespace PricerServices {
         public static DiffusionResult DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
-            Dictionary<Underlying, Realizations> diffusionValues = configuration.Underlyings
+            Dictionary<Underlying, Realizations> diffusionValues = configuration.MarketData.GetUnderlyings()
                 .ToDictionary(
                     underlying => underlying, 
                     underlying => DiffuseUnderlying(configuration, underlying, noises));
@@ -18,10 +18,10 @@ namespace PricerServices {
         private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
             int steps = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
-            double μ = configuration.Drifts[underlying];
-            double spot = configuration.Spots[underlying];
+            IUnderlyingMarketData underlyingMarketData = configuration.MarketData.GetUnderlyingMarketData(underlying);
+            double spot = underlyingMarketData.GetSpot();
             DateTime T = configuration.TimeDiscretization.LastOrDefault();
-            ILocalVolatilityModel volatility = configuration.Volatilities[underlying];
+            ILocalVolatilityModel volatility = underlyingMarketData.GetVolatility();
             List<double[]> paths = new();
             for (int ω = 0; ω < drawings; ω++) {
                 double[] path = new double[steps];
@@ -30,6 +30,7 @@ namespace PricerServices {
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
+                    double μ = GetForwardRate(configuration.MarketData, t_1, t);
                     double timeToMaturity = (T - t).TotalDays / 365.0;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalDays / 365.0;
@@ -42,5 +43,10 @@ namespace PricerServices {
             }
             return new Realizations { Paths = paths };
         }
+        private static double GetForwardRate(IDiscounter discounter, DateTime from, DateTime to) {
+            double dt = (to - from).TotalDays / 365.0;
+            return Math.Log(discounter.GetDiscountFactor(from, to)) / dt;
+        }
     }
+
 }

@@ -13,6 +13,6 @@
         /// <param name="unshiftedMarketData">The unshifted market data.</param>
         /// <param name="resultsByShift">A dictionary mapping shifted market data scenarios to their corresponding results.</param>
         /// <returns>The calculated result of the indicator.</returns>
-        ValueWithPrecision GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift);
+        IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift);
     }
 }

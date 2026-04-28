@@ -14,22 +14,39 @@ namespace Domain {
         private readonly double T;
         private readonly double r;
         private readonly double σ;
-        public double d1 => (Math.Log(S / K) + (r + 0.5 * σ * σ) * T) / (σ * Math.Sqrt(T));
+        private readonly double b;
+        public double d1 => (Math.Log(S / K) + (b + 0.5 * σ * σ) * T) / (σ * Math.Sqrt(T));
         public double d2 => d1 - σ * Math.Sqrt(T);
 
-        public double Theta => -S * n(d1) * σ / (2 * Math.Sqrt(T)) - r * K * Exp(-r * T) * N(d2);
-        public double Rho => _optionType == OptionType.Call ? K * T * Exp(-r * T) * N(d2) : - K * T * Exp(-r * T) * N(-d2);
-        public double Gamma => n(d1) / (S * σ * Math.Sqrt(T));
-        public double Delta => _optionType == OptionType.Call ? N(d1) : 1 - N(d1);
-        public double Premium => _optionType == OptionType.Call ? S * N(d1) - K * Exp(-r * T) * N(d2) : K * Exp(-r* T) * N(-d2) - S * N(-d1);
+        public double Theta {
+            get {
+                double term1 = -(S * σ * Exp((b - r) * T) * n(d1)) / (2 * Math.Sqrt(T));
+                if (_optionType == OptionType.Call)
+                    return term1 + (r - b) * S * Exp((b - r) * T) * N(+d1) - r * K * Exp(-r * T) * N(+d2);
+                else
+                    return term1 + (b - r) * S * Exp((b - r) * T) * N(-d1) + r * K * Exp(-r * T) * N(-d2);
+            }
+        }
+        public double Rho => _optionType == OptionType.Call 
+            ? +K * T * Exp(-r * T) * N(+d2) 
+            : -K * T * Exp(-r * T) * N(-d2);
+        public double Gamma => Exp((b - r) * T) * n(d1) / (S * σ * Math.Sqrt(T));
+        public double Delta => _optionType == OptionType.Call 
+            ? Exp((b - r) * T) * N(d1) 
+            : Exp((b - r) * T) * (N(d1) - 1);
+        public double Premium => _optionType == OptionType.Call 
+            ? S * Exp((b - r) * T) * N(+d1) - K * Exp(-r * T) * N(+d2) 
+            : K * Exp(-r * T) * N(-d2) - S * Exp((b - r) * T) * N(-d1);
+        public double Vega => S * Exp((b - r) * T) * Math.Sqrt(T) * n(d1); 
 
-        public BlackScholes(OptionType optionType, double spot, double strike, double timeToMaturity, double riskFreeRate, double volatility) {
+        public BlackScholes(OptionType optionType, double spot, double strike, double timeToMaturity, double riskFreeRate, double volatility, double? costOfCarry = null) {
             _optionType = optionType;
             S = spot;
             K = strike;
             T = timeToMaturity;
             r = riskFreeRate;
             σ = volatility;
+            b = costOfCarry.HasValue ? costOfCarry.Value : riskFreeRate;
         }
 
         public double DigitalCallPrice() {
@@ -37,7 +54,7 @@ namespace Domain {
         }
 
         public double DigitalPutPrice() {
-            return Exp(-r * T) * (1 - N(d2));
+            return Exp(-r * T) * N(-d2);
         }
     }
 }

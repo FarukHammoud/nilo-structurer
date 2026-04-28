@@ -10,12 +10,8 @@ namespace PricerServices.Pricers {
         
         private Func<IMarketData, List<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
             NumberOfDrawings = 50000,
-            CorrelationMatrix = marketData.GetCorrelationMatrix(marketData.GetUnderlyings()),
-            Underlyings = marketData.GetUnderlyings(),
-            Drifts = marketData.GetUnderlyings().ToDictionary(x => x, x => marketData.GetDrift(x)),
-            Spots = marketData.GetUnderlyings().ToDictionary(x => x, x => marketData.GetSpot(x)),
-            TimeDiscretization = timeDiscretization,
-            Volatilities = marketData.GetUnderlyings().ToDictionary(x => x, x => marketData.GetVolatility(x))
+            MarketData = marketData,
+            TimeDiscretization = timeDiscretization
         };
 
         public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization) {

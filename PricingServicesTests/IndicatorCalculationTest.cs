@@ -28,7 +28,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetDiscountCurve(discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -44,11 +43,11 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Delta()];   
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Delta()];   
 
 
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
+            Assert.AreEqual(theoreticalDelta, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
         }
 
         [TestMethod]
@@ -70,7 +69,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetDiscountCurve(discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -86,11 +84,10 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][new Gamma()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Gamma()];
 
-
-            Assert.AreEqual(theoreticalGamma, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
+            Assert.AreEqual(theoreticalGamma, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
         }
 
         [TestMethod]
@@ -112,7 +109,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetDiscountCurve(discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -128,9 +124,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][rho];
-
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][rho];
 
             Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
         }
@@ -154,7 +149,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetDiscountCurve(discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -171,11 +165,50 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today
             };
-            var results = PricingEngine.Run(request);
-            ValueWithPrecision monteCarloResult = results[contract][theta];
-
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][theta];
 
             Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
+        }
+
+        [TestMethod]
+        public void VegaBSvsMonteCarlo() {
+            Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
+            Equity MSFT = new("MSFT");
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
+
+            MarketData marketData = new MarketData()
+                .SetUnderlyings(new List<Underlying>() { MSFT })
+                .SetSpot(MSFT, spotPrice)
+                .SetVolatility(MSFT, volatility)
+                .SetDiscountCurve(discountCurve)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+            // Theotetical vega using Black-Scholes
+            double theoreticalVega = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Vega;
+
+            // Price using General Diffusion
+            IIndicator vega = new Vega();
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [vega],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][vega];
+
+            Assert.AreEqual(theoreticalVega, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
         }
     }
 }

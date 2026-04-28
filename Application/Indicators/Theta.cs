@@ -15,13 +15,13 @@ namespace Application {
                 (marketData, pricingDate.AddDays(_bump))];
         }
 
-        public ValueWithPrecision GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
             ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
             ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
             double theta = - 365 * (plusValue.Value - minusValue.Value) / (2 * _bump);
             double precision = 365 * (plusValue.Precision + minusValue.Precision) / 2;
-            return new ValueWithPrecision { Value = theta, Precision = precision };
+            return new GlobalIndicatorResult() { Value = theta, Precision = precision };
         }
 
         public override bool Equals(object? obj) => obj?.GetType() == GetType();

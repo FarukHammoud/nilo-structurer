@@ -6,38 +6,27 @@ namespace Application {
         private Double? _riskFreeRate = null;
         private Curve _discountCurve = new();
         private List<Underlying> _underlyings = new();
-        private Dictionary<Underlying, double> _spots = new();
-        private Dictionary<Underlying, double> _drifts = new();
-        private Dictionary<Underlying, ILocalVolatilityModel> _volatilities = new();
+        private Dictionary<Underlying, UnderlyingMarketData> _underlyingMarketData = new();
         private Double[,]? _correlationMatrix = null;
         public double[,] GetCorrelationMatrix(List<Underlying> underlyings) {
             return _correlationMatrix;
         }
 
         public double GetSpot(Underlying underlying) {
-            return _spots[underlying];
-        }
-
-        public double GetDrift(Underlying underlying) {
-            return _drifts[underlying];
+            return _underlyingMarketData[underlying].GetSpot();
         }
 
         public ILocalVolatilityModel GetVolatility(Underlying underlying) {
-            return _volatilities[underlying];
+            return _underlyingMarketData[underlying].GetVolatility();
         }
 
         public MarketData SetSpot(Underlying underlying, double spot) {
-            _spots[underlying] = spot;
-            return this;
-        }
-
-        public MarketData SetDrift(Underlying underlying, double drift) {
-            _drifts[underlying] = drift;
+            _underlyingMarketData[underlying].SetSpot(spot);
             return this;
         }
 
         public MarketData SetVolatility(Underlying underlying, ILocalVolatilityModel volatilityModel) {
-            _volatilities[underlying] = volatilityModel;
+            _underlyingMarketData[underlying].SetVolatility(volatilityModel);
             return this;
         }
         public MarketData SetVolatility(Underlying underlying, double volatility) {
@@ -73,6 +62,10 @@ namespace Application {
 
         public List<Underlying> GetUnderlyings() {
             return _underlyings;
+        }
+
+        public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
+            return _underlyingMarketData[underlying];
         }
     }
 }

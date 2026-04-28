@@ -21,7 +21,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -38,8 +37,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.BinaryTree,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision binaryTreeResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult binaryTreeResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, binaryTreeResult.Value, 3.09 * binaryTreeResult.Precision, "The Binary Tree price should be close to the theoretical Black-Scholes price");
         }
@@ -58,7 +57,6 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetDrift(MSFT, riskFreeRate)
                 .SetRiskFreeRate(riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
@@ -75,8 +73,8 @@ namespace PricingServices.Tests {
                 ModelConfiguration = ModelConfiguration.BinaryTree,
                 PricingDate = DateTime.Today
             };
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> results = PricingEngine.Run(request);
-            ValueWithPrecision binaryTreeResult = results[contract][new Premium()];
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult binaryTreeResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, binaryTreeResult.Value, 3.09 * binaryTreeResult.Precision, "The Binary Tree price should be close to the theoretical Black-Scholes price");
         }

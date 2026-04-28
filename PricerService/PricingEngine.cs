@@ -5,7 +5,7 @@ using PricerServices.Pricers;
 namespace PricerServices {
     public class PricingEngine : IPricingEngine {
 
-        private static Func<IEnumerable<DateTime>, DateTime, List<DateTime>> TimeDiscretizationFactory = (maturities, pricingDate) => Enumerable.Range(0, (int)(maturities.Max() - pricingDate).TotalDays + 1)
+        private Func<IEnumerable<DateTime>, DateTime, List<DateTime>> TimeDiscretizationFactory = (maturities, pricingDate) => Enumerable.Range(0, (int)(maturities.Max() - pricingDate).TotalDays + 1)
                         .Select(i => pricingDate.AddDays(i))
                         .ToList();
 
@@ -22,7 +22,7 @@ namespace PricerServices {
             };
         }
 
-        public static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> Run(PricingRequest request) {
+        public Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> Run(PricingRequest request) {
             PricingEngine engine = new PricingEngine();
             HashSet<(IMarketData, DateTime)> shiftedMarketData = request.Indicators
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
@@ -64,7 +64,7 @@ namespace PricerServices {
             return GetIndicatorResults(request, subResults);
         }
 
-        private static ValueWithPrecision PriceContract(INonPathDependentPricer pricer, INonPathDependentContract nonPathDependentContract, IDiscounter discounter, DateTime pricingDate) {
+        private ValueWithPrecision PriceContract(INonPathDependentPricer pricer, INonPathDependentContract nonPathDependentContract, IDiscounter discounter, DateTime pricingDate) {
             IEnumerable<ValueWithPrecision> payoffsValues = nonPathDependentContract.Payoffs.Select(
                                             payoff => pricer.Price(payoff.Item2, discounter, payoff.Item1, pricingDate)).ToList();
             ValueWithPrecision aggregatedPayoffValue = new ValueWithPrecision {
@@ -74,7 +74,7 @@ namespace PricerServices {
             return aggregatedPayoffValue;
         }
 
-        private static ValueWithPrecision PricePathDependentContract(IPathDependentPricer pricer, IPathDependentContract pathDependentContract, IDiscounter discounter, DateTime pricingDate) {
+        private ValueWithPrecision PricePathDependentContract(IPathDependentPricer pricer, IPathDependentContract pathDependentContract, IDiscounter discounter, DateTime pricingDate) {
             IEnumerable<ValueWithPrecision> payoffsValues = pathDependentContract.Payoffs.Select(
                                             payoff => pricer.Price(payoff.Item2, discounter, payoff.Item1, pricingDate)).ToList();
             ValueWithPrecision aggregatedPayoffValue = new ValueWithPrecision {
@@ -84,10 +84,10 @@ namespace PricerServices {
             return aggregatedPayoffValue;
         }
 
-        private static Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, ValueWithPrecision>> subResults) {
+        private Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, ValueWithPrecision>> subResults) {
             // Transform subResults to the desired output format
             Dictionary<IContract, Dictionary<(IMarketData, DateTime), ValueWithPrecision>> pivotedSubResults = subResults.Pivot();
-            Dictionary<IContract, Dictionary<IIndicator, ValueWithPrecision>> indicatorResult = new();
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> indicatorResult = new();
             foreach (IContract contract in request.Position) {
                 indicatorResult.Add(contract, new());
                 foreach (IIndicator indicator in request.Indicators) {

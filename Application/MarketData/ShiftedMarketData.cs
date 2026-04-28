@@ -4,19 +4,35 @@ namespace Application {
     public class ShiftedMarketData : IMarketData {
 
         private IMarketData _marketData;
-        private Dictionary<Underlying, double> _spotShifts = new Dictionary<Underlying, double>();
+        private Dictionary<Underlying, ShiftedUnderlyingMarketData> _shifts = new();
         private double? _discountRateShift;
+        private double? _volatilityShift;
         public ShiftedMarketData(IMarketData marketData) {
             _marketData = marketData;
         }
 
         public ShiftedMarketData ShiftSpot(Underlying underlying, double shift) {
-            _spotShifts[underlying] = shift;
+            GetOrCreate(underlying).ShiftSpot(shift);
             return this;
         }
 
         public ShiftedMarketData ShiftDiscountRate(double shift) {
             _discountRateShift = shift;
+            return this;
+        }
+
+        public ShiftedMarketData ShiftVolatility(double shift) {
+            _volatilityShift = shift;
+            return this;
+        }
+
+        public ShiftedMarketData ShiftRepo(Underlying underlying, double shift) {
+            GetOrCreate(underlying).ShiftRepo(shift);
+            return this;
+        }
+
+        public ShiftedMarketData ShiftDividend(Underlying underlying, double shift) {
+            GetOrCreate(underlying).ShiftDividend(shift);
             return this;
         }
 
@@ -32,38 +48,38 @@ namespace Application {
             return discountFactor;
         }
 
-        public double GetDrift(Underlying underlying) {
-            if (_discountRateShift.HasValue) {
-                return _marketData.GetDrift(underlying) + _discountRateShift.Value;
-            } 
-            return _marketData.GetDrift(underlying);
-        }
-
-        public double GetSpot(Underlying underlying) {
-            double spot = _marketData.GetSpot(underlying);
-            if (_spotShifts.ContainsKey(underlying)) {
-                spot *= _spotShifts[underlying];
-            }
-            return spot;
-        }
-
-        public ILocalVolatilityModel GetVolatility(Underlying underlying) {
-            return _marketData.GetVolatility(underlying);
-        }
-
         public List<Underlying> GetUnderlyings() {
             return _marketData.GetUnderlyings();
         }
 
         public override int GetHashCode() {
-            return _marketData.GetHashCode() + _spotShifts.GetContentHashCode();
+            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountRateShift, _volatilityShift);
         }
 
         public override bool Equals(object? obj) {
             if (obj is ShiftedMarketData other) {
-                return _marketData.Equals(other._marketData) && _spotShifts.SequenceEqual(other._spotShifts) && _discountRateShift == other._discountRateShift;
+                return _marketData.Equals(other._marketData)
+                    && _shifts.SequenceEqual(other._shifts)
+                    && _discountRateShift == other._discountRateShift
+                    && _volatilityShift == other._volatilityShift;
             }
             return false;
         }
+
+        public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
+            if (_shifts.TryGetValue(underlying, out var shifted)) {
+                return shifted;
+            }
+            return _marketData.GetUnderlyingMarketData(underlying);
+        }
+
+        private ShiftedUnderlyingMarketData GetOrCreate(Underlying underlying) {
+            if (!_shifts.TryGetValue(underlying, out var shifted)) {
+                shifted = new ShiftedUnderlyingMarketData(_marketData.GetUnderlyingMarketData(underlying));
+                _shifts[underlying] = shifted;
+            }
+            return shifted;
+        }
+
     }
 }

@@ -81,8 +81,9 @@ namespace PricerServices.Pricers {
                 throw new ArgumentException("Binary tree pricer only supports single underlying payoffs");
             }
             Underlying underlying = underlyings[0];
-            double spot = marketData.GetSpot(underlying);
-            double volatility = marketData.GetVolatility(underlying).getVolatility(spot, 0);
+            IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
+            double spot = underlyingMarketData.GetSpot();
+            double volatility = underlyingMarketData.GetVolatility().getVolatility(spot, 0);
             _root = new TreeNode(spot, volatility, timeDiscretization);
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
