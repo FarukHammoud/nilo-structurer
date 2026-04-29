@@ -10,22 +10,26 @@ namespace PositionServices {
                 new EuropeanCall() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Equity("MSFT") 
+                    Underlying = new Equity("MSFT"),
+                    Currency = Currencies.USD
                 },
                 new EuropeanPut() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Equity("MSFT")
+                    Underlying = new Equity("MSFT"),
+                    Currency = Currencies.USD
                 },
                 new AmericanCall() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Equity("MSFT")
+                    Underlying = new Equity("MSFT"),
+                    Currency = Currencies.USD
                 },
                 new AmericanPut() {
                     Maturity = DateTime.Today,
                     Strike = 10,
-                    Underlying = new Equity("MSFT")
+                    Underlying = new Equity("MSFT"),
+                    Currency = Currencies.USD
                 },
             };
         }

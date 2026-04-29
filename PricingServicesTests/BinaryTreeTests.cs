@@ -16,7 +16,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -35,7 +36,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.BinaryTree,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult binaryTreeResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -52,7 +54,8 @@ namespace PricingServices.Tests {
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -71,7 +74,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.BinaryTree,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult binaryTreeResult = (GlobalIndicatorResult)results[contract][new Premium()];

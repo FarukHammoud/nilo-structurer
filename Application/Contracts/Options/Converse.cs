@@ -6,6 +6,6 @@ namespace Application {
         public required double Strike { get; set; }
         public override INonPathDependentPayoff Payoff =>
             new MonoUnderlyingNonPathDependentPayoff(
-                spot => Notional * (spot - Strike), Underlying);
+                spot => Notional * (spot - Strike), Underlying, Currency);
     }
 }

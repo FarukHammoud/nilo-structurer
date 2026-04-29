@@ -1,6 +1,7 @@
 ﻿namespace Domain {
     public abstract class SinglePayoffNonPathDependentContract : INonPathDependentContract {
         public abstract INonPathDependentPayoff Payoff { get; }
+        public required Currency Currency { get; set; }
         public required DateTime Maturity { get; set; }
         public double Notional { get; set; } = 1.0;
 

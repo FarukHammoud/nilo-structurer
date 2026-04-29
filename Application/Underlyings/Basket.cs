@@ -14,11 +14,10 @@ namespace Application {
             return _components.Sum(c => c.Item2 * prices[c.Item1]);
         }
 
-        public override List<Underlying> GetUnderlyingDependencyList() {
-            return _components.Select(c => c.Item1)
-                .SelectMany(u => u.GetUnderlyingDependencyList())
-                .Distinct()
-                .ToList();
-        }
+        public override IEnumerable<Underlying> Dependencies =>
+             _components.Select(c => c.Item1)
+                .SelectMany(u => u.Dependencies)
+                .Distinct();
+        
     }
 }

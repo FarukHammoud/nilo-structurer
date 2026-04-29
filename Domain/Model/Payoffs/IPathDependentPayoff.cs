@@ -1,7 +1,7 @@
 ﻿namespace Domain {
     public interface IPathDependentPayoff : IPayoff {
         double GetPayoffAtMaturity(Dictionary<DateTime, Dictionary<Underlying, double>> prices);
-        IReadOnlyList<Underlying> GetUnderlyingDependencyList();
+        IEnumerable<Underlying> Dependencies { get; }
         List<DateTime> GetObservationDates();
         MonitoringFrequency GetMonitoringFrequency();
 

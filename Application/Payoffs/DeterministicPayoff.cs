@@ -3,15 +3,17 @@
 namespace Application {
     public class DeterministicPayoff : INonPathDependentPayoff {
         private readonly double _payoffValue;
-        public DeterministicPayoff(double payoffValue) {
+        private readonly Currency _currency;
+        public DeterministicPayoff(double payoffValue, Currency currency) {
             _payoffValue = payoffValue;
+            _currency = currency;
         }
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
             return _payoffValue;
         }
 
-        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
-            return [];
-        }
+        public IEnumerable<Underlying> Dependencies => Enumerable.Empty<Underlying>();
+
+        public Currency Currency => _currency;
     }
 }

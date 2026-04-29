@@ -6,7 +6,6 @@ namespace Application {
         private IMarketData _marketData;
         private Dictionary<Underlying, ShiftedUnderlyingMarketData> _shifts = new();
         private double? _discountRateShift;
-        private double? _volatilityShift;
         public ShiftedMarketData(IMarketData marketData) {
             _marketData = marketData;
         }
@@ -21,8 +20,8 @@ namespace Application {
             return this;
         }
 
-        public ShiftedMarketData ShiftVolatility(double shift) {
-            _volatilityShift = shift;
+        public ShiftedMarketData ShiftVolatility(Underlying underlying, double shift) {
+            GetOrCreate(underlying).ShiftVolatility(shift);
             return this;
         }
 
@@ -53,15 +52,14 @@ namespace Application {
         }
 
         public override int GetHashCode() {
-            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountRateShift, _volatilityShift);
+            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountRateShift);
         }
 
         public override bool Equals(object? obj) {
             if (obj is ShiftedMarketData other) {
                 return _marketData.Equals(other._marketData)
                     && _shifts.SequenceEqual(other._shifts)
-                    && _discountRateShift == other._discountRateShift
-                    && _volatilityShift == other._volatilityShift;
+                    && _discountRateShift == other._discountRateShift;
             }
             return false;
         }
@@ -81,5 +79,8 @@ namespace Application {
             return shifted;
         }
 
+        public double GetFxRate(Currency from, Currency to) {
+            return _marketData.GetFxRate(from, to);
+        }
     }
 }

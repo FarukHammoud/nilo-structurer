@@ -3,7 +3,6 @@ using Domain;
 using FixedIncomeServices;
 using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
-using PricerServices.Pricers;
 
 namespace PricingServices.Tests {
     [TestClass]
@@ -19,7 +18,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -41,7 +41,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Delta() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Delta()];   
@@ -60,7 +61,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -82,7 +84,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Gamma() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Gamma()];
@@ -100,7 +103,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -122,7 +126,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = [rho],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][rho];
@@ -140,7 +145,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -163,7 +169,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = [theta],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][theta];
@@ -180,7 +187,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -203,12 +211,13 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = [vega],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][vega];
+            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult) results[contract][vega];
 
-            Assert.AreEqual(theoreticalVega, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
+            Assert.AreEqual(theoreticalVega, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo vega should be close to the theoretical Black-Scholes vega");
         }
     }
 }

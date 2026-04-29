@@ -5,8 +5,6 @@
             Name = code;
         }
 
-        public override List<Underlying> GetUnderlyingDependencyList() {
-            return new List<Underlying>() { this };
-        }
+        public override IEnumerable<Underlying> Dependencies => [this];
     }
 }

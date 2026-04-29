@@ -3,18 +3,20 @@
 namespace Application {
     public class ProductNonPathDependentPayoff : INonPathDependentPayoff {
 
-        private List<INonPathDependentPayoff> _payoffs;
+        private IEnumerable<INonPathDependentPayoff> _payoffs;
+        private Currency _currency;
 
-        public ProductNonPathDependentPayoff(List<INonPathDependentPayoff> payoffs) {
+        public ProductNonPathDependentPayoff(IEnumerable<INonPathDependentPayoff> payoffs, Currency currency) {
             _payoffs = payoffs;
+            _currency = currency;
         }
          
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
             return _payoffs.Aggregate(1.0, (product, payoff) => product * payoff.GetPayoffAtMaturity(pricesAtMaturity));
         }
 
-        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
-            return _payoffs.SelectMany(payoff => payoff.GetUnderlyingDependencyList()).Distinct().ToList();
-        }
+        public IEnumerable<Underlying> Dependencies => _payoffs.SelectMany(payoff => payoff.Dependencies).Distinct();
+
+        public Currency Currency => _currency;
     }
 }

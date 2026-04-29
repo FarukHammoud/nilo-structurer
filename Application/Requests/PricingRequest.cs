@@ -7,5 +7,6 @@ namespace Application {
         public required IMarketData MarketData { get; set; }
         public required List<IIndicator> Indicators { get; set; }
         public required DateTime PricingDate { get; set; }
+        public required Currency PricingCurrency { get; set; } 
     }
 }

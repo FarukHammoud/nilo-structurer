@@ -39,7 +39,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -76,7 +77,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -117,7 +119,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -159,7 +162,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -201,7 +205,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -243,7 +248,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -257,6 +263,8 @@ namespace PricingServices.Tests {
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
+            double barrierLevel = 400.0;
+            double adjustedBarrier = barrierLevel * Math.Exp(0.5826 * volatility * Math.Sqrt(1 / 365.0));
             PutUpAndIn contract = new() {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
@@ -274,7 +282,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, contract.BarrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockIn);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockIn);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -283,7 +291,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -325,7 +334,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -367,7 +377,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -409,7 +420,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];

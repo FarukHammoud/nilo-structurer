@@ -10,6 +10,7 @@ namespace Application {
         public override INonPathDependentPayoff Payoff => new BiUnderlyingNonPathDependentPayoff(
             (spot1, spot2) => Notional * (spot1 > FirstStrike && spot2 > SecondStrike ? 1 : 0), 
             FirstUnderlying, 
-            SecondUnderlying);
+            SecondUnderlying,
+            Currency);
     }
 }

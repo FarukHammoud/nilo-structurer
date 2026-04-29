@@ -54,7 +54,7 @@ namespace PricerServices.Pricers {
                 }
                 double value;
                 if (Up == null || Down == null) {
-                    Underlying underlying = payoff.GetUnderlyingDependencyList()[0];
+                    Underlying underlying = payoff.Dependencies.First();
                     value = payoff.GetPayoffAtMaturity(new Dictionary<Underlying, double> { { underlying, Price } });
                 } else {
                     double p = GetUpProbability(_volatility, discounter);

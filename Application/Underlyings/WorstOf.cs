@@ -14,10 +14,10 @@ namespace Application {
             return Math.Min(prices[FirstUnderlying], prices[SecondUnderlying]);
         }
 
-        public override List<Underlying> GetUnderlyingDependencyList() {
-            return FirstUnderlying.GetUnderlyingDependencyList()
-                .Union(SecondUnderlying.GetUnderlyingDependencyList())
-                .ToList();
-        }
+        public override IEnumerable<Underlying> Dependencies => 
+            FirstUnderlying.Dependencies
+                    .Union(SecondUnderlying.Dependencies)
+                    .Distinct();
+            
     }
 }

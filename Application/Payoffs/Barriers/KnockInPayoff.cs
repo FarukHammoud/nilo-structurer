@@ -24,9 +24,7 @@ namespace Application{
             return 0;
         }
 
-        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
-            return _basePayoff.GetUnderlyingDependencyList().Append(Underlying).ToList();
-        }
+        public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);
 
         public MonitoringFrequency GetMonitoringFrequency() {
             return MonitoringFrequency.Continuous;

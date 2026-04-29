@@ -21,12 +21,12 @@ namespace Application {
         }
 
         public MarketData SetSpot(Underlying underlying, double spot) {
-            _underlyingMarketData[underlying].SetSpot(spot);
+            GetOrCreate(underlying).SetSpot(spot);
             return this;
         }
 
         public MarketData SetVolatility(Underlying underlying, ILocalVolatilityModel volatilityModel) {
-            _underlyingMarketData[underlying].SetVolatility(volatilityModel);
+            GetOrCreate(underlying).SetVolatility(volatilityModel);
             return this;
         }
         public MarketData SetVolatility(Underlying underlying, double volatility) {
@@ -66,6 +66,47 @@ namespace Application {
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
             return _underlyingMarketData[underlying];
+        }
+
+        private UnderlyingMarketData GetOrCreate(Underlying underlying) {
+            if (!_underlyingMarketData.TryGetValue(underlying, out var marketData)) {
+                marketData = new UnderlyingMarketData();
+                _underlyingMarketData[underlying] = marketData;
+            }
+            return marketData;
+        }
+
+        public double GetFxRate(Currency from, Currency to) {
+            if (from.Equals(to)) {
+                return 1.0;
+            }
+
+            // Direct pair
+            CurrencyPair direct = new(from, to);
+            if (_underlyingMarketData.ContainsKey(direct)) {
+                return _underlyingMarketData[direct].GetSpot();
+            }
+
+            // Inverse pair
+            CurrencyPair inverse = new(to, from);
+            if (_underlyingMarketData.ContainsKey(inverse)) {
+                return 1.0 / _underlyingMarketData[inverse].GetSpot();
+            }
+
+            // Triangulation through domestic currency
+            // e.g. EURGBP = EURUSD / GBPUSD
+            foreach (var spot in _underlyingMarketData) {
+                if (spot.Key is CurrencyPair pair) {
+                    if (pair.Base.Equals(from)) {
+                        double leg1 = spot.Value.GetSpot(); // from → pair.Quote
+                        double leg2 = GetFxRate(pair.Quote, to);
+                        return leg1 * leg2;
+                    }
+                }
+            }
+
+            throw new InvalidOperationException(
+                $"No FX rate found for {from.Code}/{to.Code}");
         }
     }
 }

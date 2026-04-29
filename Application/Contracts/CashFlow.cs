@@ -12,7 +12,7 @@ namespace Application {
         public IEnumerable<Double> Values => _cashFlows.Select(e => e.Item2);
         public required Currency Currency { get; set; } // ignored for the moment
         public IEnumerable<Tuple<DateTime, INonPathDependentPayoff>> Payoffs =>
-            _cashFlows.Select(e => Tuple.Create(e.Item1, (INonPathDependentPayoff) new DeterministicPayoff(e.Item2))).ToList();
+            _cashFlows.Select(e => Tuple.Create(e.Item1, (INonPathDependentPayoff) new DeterministicPayoff(e.Item2, Currency)));
         public double Notional { get; set; } = 1.0;
     }
 }

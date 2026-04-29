@@ -20,8 +20,6 @@ namespace Application {
             return PayoffMap(underlyingValues);
         }
 
-        public IReadOnlyList<Underlying> GetUnderlyingDependencyList() {
-            return Underlying.GetUnderlyingDependencyList();
-        }
+        public IEnumerable<Underlying> Dependencies => Underlying.Dependencies;
     }
 }

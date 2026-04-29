@@ -19,7 +19,8 @@ namespace PricingServices.Tests {
             BinaryCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -41,7 +42,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -58,7 +60,8 @@ namespace PricingServices.Tests {
             BinaryPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -77,7 +80,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -94,7 +98,8 @@ namespace PricingServices.Tests {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -113,7 +118,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -130,7 +136,8 @@ namespace PricingServices.Tests {
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -149,7 +156,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -168,14 +176,16 @@ namespace PricingServices.Tests {
             double strike = spotPrice * 1.1;
             EuropeanCall call = new() {
                 Maturity = DateTime.Today.AddMonths(4),
-                Strike = strike,
-                Underlying = MSFT
+                Strike = strike,    
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             EuropeanPut put = new() {
                 Maturity = DateTime.Today.AddMonths(4),
                 Strike = strike,
                 Underlying = MSFT,
-                Notional = -1.0
+                Notional = -1.0,
+                Currency = Currencies.USD,
             };
             CashFlow cashFlow = new([ 
                 Tuple.Create(DateTime.Today, -spotPrice), 
@@ -198,7 +208,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[book][new Premium()];
@@ -214,7 +225,8 @@ namespace PricingServices.Tests {
             Straddle contract = new() {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -234,7 +246,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -254,7 +267,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike1 = strike1,
                 Strike2 = strike2,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -274,7 +288,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -299,7 +314,8 @@ namespace PricingServices.Tests {
                 FirstUnderlying = MSFT,
                 SecondUnderlying = AAPL,
                 FirstStrike = strike1,
-                SecondStrike = strike2
+                SecondStrike = strike2,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT, AAPL])
@@ -323,7 +339,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -346,6 +363,7 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(12),
                 Underlying = new BestOf(MSFT, AAPL),
                 Strike = strike,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT, AAPL])
@@ -369,7 +387,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
@@ -392,6 +411,7 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(12),
                 Underlying = new WorstOf(MSFT, AAPL),
                 Strike = strike,
+                Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT, AAPL])
@@ -415,7 +435,8 @@ namespace PricingServices.Tests {
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
-                PricingDate = DateTime.Today
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];

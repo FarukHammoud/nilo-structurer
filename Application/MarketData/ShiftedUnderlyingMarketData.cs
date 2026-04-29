@@ -48,5 +48,18 @@ namespace Application {
             _volatilityShift = shift;
             return this;
         }
+
+        public override bool Equals(object? obj) {
+            return obj is ShiftedUnderlyingMarketData data &&
+                   EqualityComparer<IUnderlyingMarketData>.Default.Equals(_base, data._base) &&
+                   _spotShift == data._spotShift &&
+                   _volatilityShift == data._volatilityShift &&
+                   _repoShift == data._repoShift &&
+                   _dividendShift == data._dividendShift;
+        }
+
+        public override int GetHashCode() {
+            return HashCode.Combine(_base, _spotShift, _volatilityShift, _repoShift, _dividendShift);
+        }
     }
 }

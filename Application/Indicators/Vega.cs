@@ -9,19 +9,34 @@ namespace Application {
             _bump = bump;
         }
 
-        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
-            IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
-            ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
-            double vega = (plusValue.Value - minusValue.Value) / (2 * _bump);
-            double precision = (plusValue.Precision + minusValue.Precision) / 2;
-            return new GlobalIndicatorResult() { Value = vega, Precision = precision };
+        public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
+            return GetShiftedMarketDataByUnderlying(marketData, pricingDate).Values
+                .SelectMany(marketDataList => marketDataList)
+                .ToList();
         }
 
-        public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
-            return [
-                (new ShiftedMarketData(marketData).ShiftVolatility(-_bump), pricingDate),
-                (new ShiftedMarketData(marketData).ShiftVolatility(+_bump), pricingDate)];
+        private Dictionary<Underlying, List<(IMarketData, DateTime)>> GetShiftedMarketDataByUnderlying(IMarketData marketData, DateTime pricingDate) {
+            return marketData.GetUnderlyings().ToDictionary(underlying => underlying,
+                underlying => new List<(IMarketData, DateTime)>() {
+                    (new ShiftedMarketData(marketData)
+                        .ShiftVolatility(underlying, -_bump), pricingDate),
+                    (new ShiftedMarketData(marketData)
+                        .ShiftVolatility(underlying, +_bump), pricingDate)
+                });
+        }
+
+        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+            Dictionary<Underlying, List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlying(unshiftedMarketData, pricingDate);
+            ByUnderlyingIndicatorResult result = new();
+            foreach (Underlying underlying in marketDataByUnderlying.Keys) {
+                IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
+                ValueWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
+                ValueWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
+                double vegaValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
+                double vegaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
+                result.Result[underlying] = new ValueWithPrecision() { Value = vegaValue, Precision = vegaPrecision };
+            }
+            return result;
         }
 
         public override bool Equals(object? obj) => obj?.GetType() == GetType();
