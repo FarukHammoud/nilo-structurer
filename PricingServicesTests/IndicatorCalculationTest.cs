@@ -29,7 +29,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical delta using Black-Scholes
@@ -72,7 +72,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical gamma using Black-Scholes
@@ -111,10 +111,10 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings(new List<Underlying>() { MSFT })
+                .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical rho using Black-Scholes
@@ -156,7 +156,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical theta using Black-Scholes
@@ -198,7 +198,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings(new List<Underlying>() { MSFT })
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical vega using Black-Scholes

@@ -19,7 +19,7 @@ namespace PricerServices.Pricers {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public ValueWithPrecision Price(INonPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public PriceWithPrecision Price(INonPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
@@ -29,9 +29,10 @@ namespace PricerServices.Pricers {
                 Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[event_id]);
                 payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(priceAtMaturity);
             }
-            return new ValueWithPrecision() {
+            return new PriceWithPrecision() {
                 Value = discounter.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
-                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings)
+                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings),
+                Currency = payoff.Currency
             };
         }
     }

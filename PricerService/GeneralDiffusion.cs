@@ -30,12 +30,13 @@ namespace PricerServices {
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
-                    double μ = GetForwardRate(configuration.MarketData, t_1, t);
+                    double μ = GetForwardRate(configuration.MarketData.GetDiscounter(Currencies.USD), t_1, t);
+                    double b = underlyingMarketData.GetDividend() + underlyingMarketData.GetRepo();
                     double timeToMaturity = (T - t).TotalDays / 365.0;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalDays / 365.0;
                     path[step] = new LogEulerScheme().Evolve(path[step - 1], timeToMaturity, dt, dW[step], new StochasticDifferentialEquationDefinition(
-                        (s, t) => μ * s,
+                        (s, t) => (μ - b) * s,
                         (s, t) => σ * s
                     ));
                 }

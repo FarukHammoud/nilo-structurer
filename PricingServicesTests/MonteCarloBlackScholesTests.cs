@@ -30,7 +30,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(discountCurve)
+                .SetDiscountCurve(Currencies.USD, discountCurve)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -66,7 +66,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -104,7 +104,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -142,7 +142,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -190,14 +190,14 @@ namespace PricingServices.Tests {
             CashFlow cashFlow = new([ 
                 Tuple.Create(DateTime.Today, -spotPrice), 
                 Tuple.Create(DateTime.Today.AddMonths(4), strike) ]) {
-                 Currency = new Currency("EUR")
+                 Currency = Currencies.USD
             };
             Book book = new([ call, put, cashFlow ]);
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -231,7 +231,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -273,7 +273,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -321,7 +321,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT, AAPL])
                 .SetSpot(MSFT, spotMSFT)
                 .SetSpot(AAPL, spotAAPL)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatilityMSFT)
                 .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {
@@ -369,7 +369,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT, AAPL])
                 .SetSpot(MSFT, spotMSFT)
                 .SetSpot(AAPL, spotAAPL)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatilityMSFT)
                 .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {
@@ -417,7 +417,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT, AAPL])
                 .SetSpot(MSFT, spotMSFT)
                 .SetSpot(AAPL, spotAAPL)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatilityMSFT)
                 .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {

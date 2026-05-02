@@ -18,7 +18,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 1e9,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -27,7 +28,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -59,7 +60,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 1e-6,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -68,7 +70,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Price using General Diffusion
@@ -97,7 +99,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 400.0,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -106,7 +109,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -140,7 +143,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -149,7 +153,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -183,7 +187,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -192,7 +197,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -226,7 +231,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -235,7 +241,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -269,7 +275,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 400.0,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -278,7 +285,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -312,7 +319,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -321,7 +329,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -355,7 +363,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -364,7 +373,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
@@ -398,7 +407,8 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
-                Underlying = MSFT
+                Underlying = MSFT,
+                Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
@@ -407,7 +417,7 @@ namespace PricingServices.Tests {
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
                 .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula

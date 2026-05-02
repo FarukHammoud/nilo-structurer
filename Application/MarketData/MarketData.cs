@@ -2,9 +2,7 @@
 
 namespace Application {
     public class MarketData : IMarketData {
-
-        private Double? _riskFreeRate = null;
-        private Curve _discountCurve = new();
+        private Dictionary<Currency, IDiscounter> _discounters = new();
         private List<Underlying> _underlyings = new();
         private Dictionary<Underlying, UnderlyingMarketData> _underlyingMarketData = new();
         private Double[,]? _correlationMatrix = null;
@@ -38,21 +36,18 @@ namespace Application {
             return this;
         }
 
-        public MarketData SetRiskFreeRate(double riskFreeRate) {
-            _riskFreeRate = riskFreeRate;
+        public MarketData SetRiskFreeRate(Currency currency, double riskFreeRate) {
+            _discounters[currency] = new FixedRateDiscounter() { Rate = riskFreeRate };
             return this;
         }
 
-        public MarketData SetDiscountCurve(Curve discountCurve) {
-            _discountCurve = discountCurve;
+        public MarketData SetDiscountCurve(Currency currency, Curve discountCurve) {
+            _discounters[currency] = new CurveDiscounter() { Curve = discountCurve };
             return this;
         }
 
-        public double GetDiscountFactor(DateTime date, DateTime today) {
-            if (_riskFreeRate.HasValue) {
-                return Math.Exp(-_riskFreeRate.Value * (date - today).TotalDays / 365.0);
-            }
-            return _discountCurve.GetValue(date) / _discountCurve.GetValue(today);          
+        public IDiscounter GetDiscounter(Currency currency) {
+            return _discounters[currency];
         }
 
         public MarketData SetUnderlyings(List<Underlying> underlyings) {

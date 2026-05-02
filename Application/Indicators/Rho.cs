@@ -9,15 +9,16 @@ namespace Application {
             _bump = bump;
         }
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
-            return [
-                (new ShiftedMarketData(marketData).ShiftDiscountRate(-_bump), pricingDate),
-                (new ShiftedMarketData(marketData).ShiftDiscountRate(+_bump), pricingDate)];
+            IEnumerable<Currency> currencies = [Currencies.USD];//marketData.GetUnderlyings().OfType<Currency>();
+            return currencies.SelectMany(currency => new List<(IMarketData, DateTime)>() {
+                (new ShiftedMarketData(marketData).ShiftDiscountRate(currency, -_bump), pricingDate),
+                (new ShiftedMarketData(marketData).ShiftDiscountRate(currency, +_bump), pricingDate)}).ToList();
         }
 
-        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
-            ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
+            PriceWithPrecision minusValue = resultsByShift[marketDatas[0]];
+            PriceWithPrecision plusValue = resultsByShift[marketDatas[1]];
             double rho = (plusValue.Value - minusValue.Value) / (2 * _bump);
             double precision = (plusValue.Precision + minusValue.Precision) / 2;
             return new GlobalIndicatorResult() { Value = rho, Precision = precision };

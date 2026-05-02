@@ -6,6 +6,7 @@ namespace Application {
         public double Level { get; set; }
         public double Rebate { get; set; }
         public Underlying Underlying { get; set; }
+        public Currency Currency => _basePayoff.Currency;
         public abstract Func<Dictionary<DateTime, double>, bool> IsTouched { get; }
         public KnockOutPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying, double rebate = 0) {
             _basePayoff = basePayoff;

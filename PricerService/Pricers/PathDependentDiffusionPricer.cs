@@ -8,7 +8,13 @@ namespace PricerServices.Pricers {
         private DiffusionConfiguration? _diffusionConfiguration;
         private DiffusionResult? _diffusion;
 
-        public ValueWithPrecision Price(IPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public  PriceWithPrecision Price(
+            IPathDependentPayoff payoff, 
+            IDiscounter discounter, 
+            IFxConverter fxConverter, 
+            DateTime maturity, 
+            DateTime today,
+            Currency pricingCurrency) {
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
@@ -26,9 +32,10 @@ namespace PricerServices.Pricers {
                 Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[event_id]));
                 payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(pricesAtInterestDates);
             }
-            return new ValueWithPrecision() {
+            return new PriceWithPrecision() {
                 Value = discounter.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
-                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusion.NumberOfEvents)
+                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusion.NumberOfEvents),
+                Currency = payoff.Currency  
             };
         }
 

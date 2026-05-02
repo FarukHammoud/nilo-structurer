@@ -3,6 +3,7 @@
 namespace Application {
     public class VarianceSwap : SinglePayoffPathDependentContract {
         public required Underlying Underlying { get; set; }
+        public required Currency Currency { get; set; }
         public required double VarianceStrike { get; set; }
         public required DateTime StartDate { get; set; }
         public override IPathDependentPayoff Payoff =>
@@ -10,7 +11,8 @@ namespace Application {
                 PayoffMap = GetPayoff,
                 ObservationDates = FixingDates,
                 Underlying = Underlying,
-                MonitoringFrequency = MonitoringFrequency.Daily
+                MonitoringFrequency = MonitoringFrequency.Daily,
+                Currency = Currency,
             };
         
         private List<DateTime> FixingDates => Enumerable.Range(0, (int)(Maturity - StartDate).TotalDays).Select(i => StartDate.AddDays(i)).ToList();

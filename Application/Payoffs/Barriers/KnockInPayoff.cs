@@ -5,6 +5,7 @@ namespace Application{
         private readonly IPathDependentPayoff _basePayoff;
         public double Level { get; set; }
         public Underlying Underlying { get; set; }
+        public Currency Currency => _basePayoff.Currency;
         public abstract Func<Dictionary<DateTime, double>, bool> IsTouched { get; }
         public KnockInPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying) {
             _basePayoff = basePayoff;

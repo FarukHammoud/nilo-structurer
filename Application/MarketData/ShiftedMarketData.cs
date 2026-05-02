@@ -5,7 +5,7 @@ namespace Application {
 
         private IMarketData _marketData;
         private Dictionary<Underlying, ShiftedUnderlyingMarketData> _shifts = new();
-        private double? _discountRateShift;
+        private Dictionary<Currency, double> _discountShifts = new();
         public ShiftedMarketData(IMarketData marketData) {
             _marketData = marketData;
         }
@@ -15,8 +15,8 @@ namespace Application {
             return this;
         }
 
-        public ShiftedMarketData ShiftDiscountRate(double shift) {
-            _discountRateShift = shift;
+        public ShiftedMarketData ShiftDiscountRate(Currency currency, double shift) {
+            _discountShifts[currency] = shift;
             return this;
         }
 
@@ -39,27 +39,19 @@ namespace Application {
             return _marketData.GetCorrelationMatrix(underlyings);
         }
 
-        public double GetDiscountFactor(DateTime date, DateTime today) {
-            double discountFactor = _marketData.GetDiscountFactor(date, today);
-            if (_discountRateShift.HasValue) {
-                discountFactor *= Math.Exp(-_discountRateShift.Value * (date - today).TotalDays / 365.0);
-            }
-            return discountFactor;
-        }
-
         public List<Underlying> GetUnderlyings() {
             return _marketData.GetUnderlyings();
         }
 
         public override int GetHashCode() {
-            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountRateShift);
+            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode());
         }
 
         public override bool Equals(object? obj) {
             if (obj is ShiftedMarketData other) {
                 return _marketData.Equals(other._marketData)
                     && _shifts.SequenceEqual(other._shifts)
-                    && _discountRateShift == other._discountRateShift;
+                    && _discountShifts.SequenceEqual(other._discountShifts);
             }
             return false;
         }
@@ -81,6 +73,13 @@ namespace Application {
 
         public double GetFxRate(Currency from, Currency to) {
             return _marketData.GetFxRate(from, to);
+        }
+
+        public IDiscounter GetDiscounter(Currency currency) {
+            if (!_discountShifts.ContainsKey(currency)) {
+                return _marketData.GetDiscounter(currency);
+            }
+            return new ShiftedDiscounter(_marketData.GetDiscounter(currency), _discountShifts[currency]);
         }
     }
 }

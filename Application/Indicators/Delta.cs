@@ -18,13 +18,13 @@ namespace Application {
                 });
         }
 
-        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
             Dictionary<Underlying, List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlying(unshiftedMarketData, pricingDate);
             ByUnderlyingIndicatorResult result = new();
             foreach (Underlying underlying in marketDataByUnderlying.Keys) {
                 IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
-                ValueWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
-                ValueWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
+                PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
+                PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
                 double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * underlyingMarketData.GetSpot());
                 double deltaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
                 result.Result[underlying] = new ValueWithPrecision() { Value = deltaValue, Precision = deltaPrecision };

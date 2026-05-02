@@ -5,6 +5,7 @@ namespace Application {
         public required Underlying Underlying { get; set; }
         public required double VarianceStrike { get; set; }
         public required DateTime StartDate { get; set; }
+        public required Currency Currency { get; set; }
         public double UpperBound { get; set; } = double.MaxValue;
         public double LowerBound { get; set; } = 0.0;
         public override IPathDependentPayoff Payoff => 
@@ -12,7 +13,8 @@ namespace Application {
                 PayoffMap = GetPayoff,
                 ObservationDates = FixingDates,
                 Underlying = Underlying,
-                MonitoringFrequency = MonitoringFrequency.Daily
+                MonitoringFrequency = MonitoringFrequency.Daily,
+                Currency = Currency,
             };
         
         private List<DateTime> FixingDates => Enumerable.Range(0, (int)(Maturity - StartDate).TotalDays).Select(i => StartDate.AddDays(i)).ToList();

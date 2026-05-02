@@ -15,10 +15,10 @@ namespace Application {
                 (marketData, pricingDate.AddDays(_bump))];
         }
 
-        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), ValueWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            ValueWithPrecision minusValue = resultsByShift[marketDatas[0]];
-            ValueWithPrecision plusValue = resultsByShift[marketDatas[1]];
+            PriceWithPrecision minusValue = resultsByShift[marketDatas[0]];
+            PriceWithPrecision plusValue = resultsByShift[marketDatas[1]];
             double theta = - 365 * (plusValue.Value - minusValue.Value) / (2 * _bump);
             double precision = 365 * (plusValue.Precision + minusValue.Precision) / 2;
             return new GlobalIndicatorResult() { Value = theta, Precision = precision };

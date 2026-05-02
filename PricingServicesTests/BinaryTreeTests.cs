@@ -22,7 +22,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
@@ -60,7 +60,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
                 .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(riskFreeRate)
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetVolatility(MSFT, volatility)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 

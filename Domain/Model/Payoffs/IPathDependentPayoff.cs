@@ -4,6 +4,7 @@
         IEnumerable<Underlying> Dependencies { get; }
         List<DateTime> GetObservationDates();
         MonitoringFrequency GetMonitoringFrequency();
+        Currency Currency { get; }
 
         public Dictionary<DateTime, double> GetUnderlyingValues(Underlying underlying, Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
             Dictionary<DateTime, double> underlyingValues = new Dictionary<DateTime, double>();
