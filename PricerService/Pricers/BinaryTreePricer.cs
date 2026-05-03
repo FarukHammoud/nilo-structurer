@@ -21,7 +21,7 @@ namespace PricerServices.Pricers {
             public TreeNode? Up { get; set; }
             public TreeNode? Down { get; set; }
             private DateTime? NextDate => Up?.Date;
-            private double TimeSpan => NextDate.HasValue ? (NextDate.Value - Date).TotalDays / 365.0 : 0;
+            private double TimeSpan => NextDate.HasValue ? (NextDate.Value - Date).TotalYears : 0;
             // How to improve it to local volatility ? ud != du so no cache possible, see The Volatility Smile and Its Implied Tree by Derman and Kani
             private readonly double _volatility;
 
@@ -33,7 +33,7 @@ namespace PricerServices.Pricers {
                 IEnumerable<DateTime> remainingDates = dates.Skip(1);
                 _volatility = volatility;
                 if (remainingDates.Any()) {
-                    double timeSpan = (remainingDates.First() - Date).TotalDays / 365.0;
+                    double timeSpan = (remainingDates.First() - Date).TotalYears;
                     double u = GetUpFactor(volatility, timeSpan);
                     double d = 1 / u;
                     if (!cache.TryGetValue((step + 1, upMoves + 1), out var upNode)) {

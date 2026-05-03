@@ -11,7 +11,7 @@ namespace Application {
         }
 
         public double GetDiscountFactor(DateTime date, DateTime today) {
-            return _base.GetDiscountFactor(date, today) * Math.Exp(-_rateShift * ((date-today).TotalDays / 365.0));
+            return _base.GetDiscountFactor(date, today) * Math.Exp(-_rateShift * ((date-today).TotalYears));
         }
 
     }

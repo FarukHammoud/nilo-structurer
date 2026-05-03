@@ -1,4 +1,5 @@
 ﻿using Application;
+using Domain;
 
 namespace FixedIncomeServices {
     public class ZeroCouponBootstrapper {
@@ -9,7 +10,7 @@ namespace FixedIncomeServices {
             OrderedDictionary<DateTime, double> discountNodes = discountCurve.GetNodes();
             foreach (var node in discountNodes) {
                 DateTime date = node.Key;
-                double years = (node.Key - DateTime.Now).TotalDays / 365.0;
+                double years = (node.Key - DateTime.Now).TotalYears;
                 double discountFactor = node.Value;
                 double zeroRate = -Math.Pow(discountFactor, -1 / years) - 1; // annual compounding
                 zeroCouponCurve.setNode(date, zeroRate);
@@ -23,7 +24,7 @@ namespace FixedIncomeServices {
             if (!swapCurve.FirstDate.HasValue || !swapCurve.LastDate.HasValue) {
                 return discountCurve;
             }
-            for (int i = 0; i < (swapCurve.LastDate.Value - swapCurve.FirstDate.Value).TotalDays / 365.0; i++) {
+            for (int i = 0; i < (swapCurve.LastDate.Value - swapCurve.FirstDate.Value).TotalYears; i++) {
                 DateTime date = swapCurve.FirstDate.Value.AddDays(365 * i);
                 double SwapRate = swapCurve.GetValue(date);
                 double sum = 0;

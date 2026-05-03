@@ -6,6 +6,7 @@ namespace PricerServices {
         required public IMarketData MarketData { get; set; }
         required public List<DateTime> TimeDiscretization { get; set; }
         required public int NumberOfDrawings = 1000;
+        public JumpParameters? JumpParameters { get; set; }
 
         public BrowniansConfiguration BrowniansConfiguration =>
             new BrowniansConfiguration {

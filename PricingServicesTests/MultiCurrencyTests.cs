@@ -20,7 +20,7 @@ namespace PricingServicesTests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT, CurrencyPairs.EURUSD])
@@ -64,7 +64,7 @@ namespace PricingServicesTests {
                 Currency = Currencies.EUR,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()

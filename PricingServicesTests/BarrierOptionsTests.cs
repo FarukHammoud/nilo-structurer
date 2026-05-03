@@ -22,7 +22,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -64,7 +64,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -103,7 +103,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -147,7 +147,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -191,7 +191,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -235,7 +235,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -279,7 +279,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -323,7 +323,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -367,7 +367,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])
@@ -411,7 +411,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
                 .SetUnderlyings([MSFT])

@@ -23,7 +23,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -71,7 +71,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).DigitalPutPrice();
 
             // Price using General Diffusion
@@ -109,7 +109,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
@@ -147,7 +147,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
@@ -236,7 +236,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium
                 + new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
@@ -278,7 +278,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike2, timeToMaturity, riskFreeRate, volatility).Premium
                 + new BlackScholes(OptionType.Put, spotPrice, contract.Strike1, timeToMaturity, riskFreeRate, volatility).Premium;
 
@@ -330,7 +330,7 @@ namespace PricingServices.Tests {
                 });
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = Stulz.DoubleDigital2D(spotMSFT, spotAAPL, strike1, strike2, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity );
 
             // Price using General Diffusion
@@ -378,7 +378,7 @@ namespace PricingServices.Tests {
                 });
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
 
             // Price using General Diffusion
@@ -426,7 +426,7 @@ namespace PricingServices.Tests {
                 });
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalDays / 365.0;
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double theoreticalPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
 
             // Price using General Diffusion

@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricingServicesTests", "Pri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FixedIncomeServices", "FixedIncomeServices\FixedIncomeServices.csproj", "{48747E8E-47EA-4CAA-A994-FB4212395FE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FederalReserveEconomicData", "FederalReserveEconomicData\FederalReserveEconomicData.csproj", "{BA7C89C2-234F-4919-AE52-AB9804848518}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{48747E8E-47EA-4CAA-A994-FB4212395FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48747E8E-47EA-4CAA-A994-FB4212395FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48747E8E-47EA-4CAA-A994-FB4212395FE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA7C89C2-234F-4919-AE52-AB9804848518}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA7C89C2-234F-4919-AE52-AB9804848518}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA7C89C2-234F-4919-AE52-AB9804848518}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA7C89C2-234F-4919-AE52-AB9804848518}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -111,6 +117,7 @@ Global
 		{F33D6269-3ADD-462E-887A-EB4EFBFD1BD5} = {B351EECB-28C2-4192-880E-0F3B8D2A7BDD}
 		{D05AE97E-0E5A-47D5-989B-0F7DD44A3F2E} = {B351EECB-28C2-4192-880E-0F3B8D2A7BDD}
 		{48747E8E-47EA-4CAA-A994-FB4212395FE0} = {9766AE69-2D75-4F96-9410-C9C451FDEE9F}
+		{BA7C89C2-234F-4919-AE52-AB9804848518} = {9766AE69-2D75-4F96-9410-C9C451FDEE9F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70B934B1-B710-477D-B47C-62541DCCF36D}
