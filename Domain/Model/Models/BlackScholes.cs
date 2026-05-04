@@ -37,7 +37,8 @@ namespace Domain {
         public double Premium => _optionType == OptionType.Call 
             ? S * Exp((b - r) * T) * N(+d1) - K * Exp(-r * T) * N(+d2) 
             : K * Exp(-r * T) * N(-d2) - S * Exp((b - r) * T) * N(-d1);
-        public double Vega => S * Exp((b - r) * T) * Math.Sqrt(T) * n(d1); 
+        public double Vega => S * Exp((b - r) * T) * Math.Sqrt(T) * n(d1);
+        public double Forward => S * Exp(b * T);
 
         public BlackScholes(OptionType optionType, double spot, double strike, double timeToMaturity, double riskFreeRate, double volatility, double? costOfCarry = null) {
             _optionType = optionType;
@@ -46,8 +47,10 @@ namespace Domain {
             T = timeToMaturity;
             r = riskFreeRate;
             σ = volatility;
-            b = costOfCarry.HasValue ? costOfCarry.Value : riskFreeRate;
+            b = costOfCarry.HasValue ? costOfCarry.Value : riskFreeRate; // risk-neutral drift in general
         }
+
+        
 
         public double DigitalCallPrice() {
             return Exp(-r * T) * N(d2);

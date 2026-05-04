@@ -10,7 +10,7 @@ namespace PricingServices.Tests {
         // Limit Cases that should match the price of a vanilla option
         [TestMethod]
         public void CallUpAndOutInfinityBarrierShouldMatchVanillaPrice() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -52,7 +52,7 @@ namespace PricingServices.Tests {
         // Limit Cases that should match the price of a vanilla option
         [TestMethod]
         public void PutDownAndInZeroBarrierShouldHaveZeroValue() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -91,7 +91,7 @@ namespace PricingServices.Tests {
         // Normal Cases
         [TestMethod]
         public void CallUpAndIn() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -133,7 +133,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallUpAndOut() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -177,7 +177,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallDownAndIn() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -221,7 +221,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallDownAndOut() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -265,7 +265,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutUpAndIn() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -309,7 +309,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutUpAndOut() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -353,7 +353,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutDownAndIn() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
@@ -397,7 +397,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutDownAndOut() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;

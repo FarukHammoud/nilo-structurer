@@ -13,7 +13,7 @@ namespace PricingServices.Tests {
         [TestMethod]
         public void DigitalCallPremium() {
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             BinaryCall contract = new() {
@@ -53,7 +53,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void DigitalPutPremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -91,7 +91,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallPremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -129,7 +129,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutPremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -169,7 +169,7 @@ namespace PricingServices.Tests {
         public void CallPutParity() {
             // c = p + S0 - K*exp(-rT)
 
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -218,7 +218,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void StraddlePremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -257,7 +257,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void StranglePremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -299,8 +299,8 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void DoubleDigitPremium() {
-            Equity MSFT = new("MSFT");
-            Equity AAPL = new("AAPL");
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
             double rho = 0.35;
             double riskFreeRate = 0.0175;
             double volatilityMSFT = 0.34;
@@ -350,8 +350,8 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallBestOfPremium() {
-            Equity MSFT = new("MSFT");
-            Equity AAPL = new("AAPL");
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
             double rho = 0.5;
             double riskFreeRate = 0.05;
             double volatilityMSFT = 0.2;
@@ -361,7 +361,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new BestOf(MSFT, AAPL),
+                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -398,8 +398,8 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallWorstOfPremium() {
-            Equity MSFT = new("MSFT");
-            Equity AAPL = new("AAPL");
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
             double rho = 0.5;
             double riskFreeRate = 0.05;
             double volatilityMSFT = 0.2;
@@ -409,7 +409,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new WorstOf(MSFT, AAPL),
+                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };

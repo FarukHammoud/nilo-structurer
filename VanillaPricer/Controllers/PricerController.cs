@@ -30,7 +30,7 @@ namespace VanillaPricer.Controllers {
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today,
                 Strike = 10,
-                Underlying = new Equity("MSFT"),
+                Underlying = new Equity("MSFT", Currencies.USD),
                 Currency = Currencies.USD
             };
             return CreatedAtAction("price", _pricerService.Price(contract));

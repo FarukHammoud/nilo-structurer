@@ -9,7 +9,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void CallPremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -47,7 +47,7 @@ namespace PricingServices.Tests {
 
         [TestMethod]
         public void PutPremium() {
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.0175;
             double volatility = 0.34;
             double spotPrice = 370.17;

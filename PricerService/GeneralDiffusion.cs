@@ -19,7 +19,7 @@ namespace PricerServices {
             int steps = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
             IMarketData marketData = configuration.MarketData;
-            IDiscounter discounter = marketData.GetDiscounter(Currencies.USD);
+            IDiscounter discounter = marketData.GetDiscounter(underlying.Currency);
             IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
             double spot = underlyingMarketData.GetSpot();
             DateTime T = configuration.TimeDiscretization.LastOrDefault();
@@ -43,6 +43,14 @@ namespace PricerServices {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
                     double μ = GetForwardRate(discounter, t_1, t);
+                    if (underlying is CurrencyPair fxPair) {
+                        // For FX pairs: drift = r_base - r_quote (interest rate parity)
+                        IDiscounter baseDiscounter = marketData.GetDiscounter(fxPair.Base);
+                        IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
+                        double r_base = GetForwardRate(baseDiscounter, t_1, t);
+                        double r_quote = GetForwardRate(quoteDiscounter, t_1, t);
+                        μ = r_base - r_quote;
+                    } 
                     μ += μ_adjustment;
                     double b = underlyingMarketData.GetDividend() + underlyingMarketData.GetRepo();
                     double timeToMaturity = (T - t).TotalYears;

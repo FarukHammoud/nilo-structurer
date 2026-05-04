@@ -63,28 +63,21 @@ namespace Domain {
             double dfR = Math.Exp(-r * T);
             double dfB = Math.Exp((b - r) * T);
 
-            // Component A
             double A = ϕ * S * dfB * N(ϕ * x1)
               - ϕ * K * dfR * N(ϕ * x1 - ϕ * σ * sqrtT);
-
-            // Component B
             double B = ϕ * S * dfB * N(ϕ * x2)
               - ϕ * K * dfR * N(ϕ * x2 - ϕ * σ * sqrtT);
-            // Component C
             double C = ϕ * S * dfB * Math.Pow(H / S, 2.0 * (μ + 1)) * N(η * y1)
               - ϕ * K * dfR * Math.Pow(H / S, 2.0 * μ) * N(η * y1 - η * σ * sqrtT);
-            // Component D
             double D = ϕ * S * dfB * Math.Pow(H / S, 2.0 * (μ + 1)) * N(η * y2)
               - ϕ * K * dfR * Math.Pow(H / S, 2.0 * μ) * N(η * y2 - η * σ * sqrtT);
-
-            // Component E
             double E = R * dfR * (N(η * x2 - η * σ * sqrtT)
               - Math.Pow(H / S, 2.0 * μ) * N(η * y2 - η * σ * sqrtT));
-            // Component F
             double F = R * (Math.Pow(H / S, μ + λ) * N(η * z)
               + Math.Pow(H / S, μ - λ) * N(η * z - 2.0 * η * λ * σ * sqrtT));
+
             return (_optionType, _direction, _barrierType) switch {
-                // ── CALLS ──────────────────────────────────────────────────────────────────────────
+                // calls
                 (OptionType.Call, BarrierDirection.Down, BarrierType.KnockIn) =>
                     (_strike >= _barrier) ? C + F : A - B + D + F,
 
@@ -92,12 +85,12 @@ namespace Domain {
                     (_strike >= _barrier) ? A - C + E : B - D + E,
 
                 (OptionType.Call, BarrierDirection.Up, BarrierType.KnockIn) =>
-                    (_strike >= _barrier) ? A + F : B - C + D + F, // <── FIXED: Use B-C+D for K < H
+                    (_strike >= _barrier) ? A + F : B - C + D + F,
 
                 (OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut) =>
-                    (_strike >= _barrier) ? E : A - B + C - D + E, // <── FIXED: If K > H, KO is just the rebate
+                    (_strike >= _barrier) ? E : A - B + C - D + E, 
 
-                // ── PUTS ───────────────────────────────────────────────────────────────────────────
+                // puts
                 (OptionType.Put, BarrierDirection.Down, BarrierType.KnockIn) =>
                     (_strike >= _barrier) ? B - C + D + F : A + F,
 

@@ -12,7 +12,7 @@ namespace PricingServices.Tests {
         public void DeltaBSvsMonteCarlo() {
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             EuropeanCall contract = new() {
@@ -55,7 +55,7 @@ namespace PricingServices.Tests {
         public void GammaBSvsMonteCarlo() {
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             EuropeanCall contract = new() {
@@ -97,7 +97,7 @@ namespace PricingServices.Tests {
         public void RhoBSvsMonteCarlo() {
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             EuropeanCall contract = new() {
@@ -139,7 +139,7 @@ namespace PricingServices.Tests {
         public void ThetaBSvsMonteCarlo() {
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             EuropeanCall contract = new() {
@@ -181,7 +181,7 @@ namespace PricingServices.Tests {
         [TestMethod]
         public void VegaBSvsMonteCarlo() {
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
-            Equity MSFT = new("MSFT");
+            Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
             EuropeanCall contract = new() {

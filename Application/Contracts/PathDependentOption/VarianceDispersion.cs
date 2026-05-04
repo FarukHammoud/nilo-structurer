@@ -7,7 +7,7 @@ namespace Application {
         public required DateTime Maturity { get; set; }
         public required Currency Currency { get; set; }
         public required double VarianceStrike { get; set; }
-        public Underlying Index => new Basket(Underlyings.Select(u => Tuple.Create(u, 1.0/Underlyings.Count)).ToList(), "Index") { };
+        public Underlying Index => new Basket(components: Underlyings.Select(u => Tuple.Create(u, 1.0/Underlyings.Count)).ToList(), name: "Index", Currency) { };
         public override List<IPathDependentContract> Contracts => Underlyings.Select(
             underlying => (IPathDependentContract) new VarianceSwap() { 
                 Underlying = underlying, 
