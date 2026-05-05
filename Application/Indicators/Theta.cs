@@ -15,7 +15,7 @@ namespace Application {
                 (marketData, pricingDate.AddDays(_bump))];
         }
 
-        public IIndicatorResult GetResult(IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
             PriceWithPrecision minusValue = resultsByShift[marketDatas[0]];
             PriceWithPrecision plusValue = resultsByShift[marketDatas[1]];

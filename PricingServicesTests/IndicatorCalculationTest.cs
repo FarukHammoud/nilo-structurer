@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Indicators;
 using Domain;
 using FixedIncomeServices;
 using MathNet.Numerics.LinearAlgebra;
@@ -33,7 +34,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical delta using Black-Scholes
-            double theoreticalDelta = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Delta;
+            double theoreticalDelta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Delta;
 
             // Price using General Diffusion
             PricingRequest request = new () {
@@ -76,7 +77,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical gamma using Black-Scholes
-            double theoreticalGamma = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Gamma;
+            double theoreticalGamma = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Gamma;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -118,7 +119,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical rho using Black-Scholes
-            double theoreticalRho = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Rho;
+            double theoreticalRho = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Rho;
             IIndicator rho = new Rho();
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -160,7 +161,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical theta using Black-Scholes
-            double theoreticalTheta = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Theta;
+            double theoreticalTheta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Theta;
 
             // Price using General Diffusion
             IIndicator theta = new Theta();
@@ -202,7 +203,7 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
 
             // Theotetical vega using Black-Scholes
-            double theoreticalVega = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Vega;
+            double theoreticalVega = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Vega;
 
             // Price using General Diffusion
             IIndicator vega = new Vega();
@@ -218,6 +219,43 @@ namespace PricingServices.Tests {
             ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult) results[contract][vega];
 
             Assert.AreEqual(theoreticalVega, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo vega should be close to the theoretical Black-Scholes vega");
+        }
+
+        [TestMethod]
+        public void ImpliedVolatility() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT,
+                Currency = Currencies.USD
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+
+            MarketData marketData = new MarketData()
+                .SetUnderlyings([MSFT])
+                .SetSpot(MSFT, spotPrice)
+                .SetVolatility(MSFT, volatility)
+                .SetRiskFreeRate(Currencies.USD, 0.0265)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+
+            // Price using General Diffusion
+            IIndicator impliedVolatility = new ImpliedVolatility();
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [impliedVolatility],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][impliedVolatility];
+
+            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
         }
     }
 }

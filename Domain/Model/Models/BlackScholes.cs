@@ -50,7 +50,23 @@ namespace Domain {
             b = costOfCarry.HasValue ? costOfCarry.Value : riskFreeRate; // risk-neutral drift in general
         }
 
-        
+        public double GetImpliedVolatility(double marketPrice, double tolerance = 1e-6, int maxIterations = 1000) {
+            double σLower = 1e-6;
+            double σUpper = 5.0;
+            double σMid = (σLower + σUpper) / 2;
+            for (int i = 0; i < maxIterations; i++) {
+                double priceMid = new BlackScholes(_optionType, S, K, T, r, σMid, b).Premium;
+                if (Math.Abs(priceMid - marketPrice) < tolerance) { 
+                    return σMid;
+                } if (priceMid < marketPrice) {
+                    σLower = σMid;
+                } else {
+                    σUpper = σMid;
+                }
+                σMid = (σLower + σUpper) / 2;
+            }
+            return σMid; 
+        }
 
         public double DigitalCallPrice() {
             return Exp(-r * T) * N(d2);

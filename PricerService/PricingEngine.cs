@@ -100,10 +100,13 @@ namespace PricerServices {
             // Transform subResults to the desired output format
             Dictionary<IContract, Dictionary<(IMarketData, DateTime), PriceWithPrecision>> pivotedSubResults = subResults.Pivot();
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> indicatorResult = new();
+            IMarketData marketData = request.MarketData;
+            DateTime pricingDate = request.PricingDate;
             foreach (IContract contract in request.Position) {
                 indicatorResult.Add(contract, new());
                 foreach (IIndicator indicator in request.Indicators) {
-                    indicatorResult[contract].Add(indicator, indicator.GetResult(request.MarketData, request.PricingDate, pivotedSubResults[contract]));
+                    IIndicatorResult result = indicator.GetResult(contract, marketData, pricingDate, pivotedSubResults[contract]);
+                    indicatorResult[contract].Add(indicator, result);
                 }
             }
             return indicatorResult;

@@ -42,13 +42,13 @@ namespace PricerServices {
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
-                    double μ = GetForwardRate(discounter, t_1, t);
+                    double μ = discounter.GetForwardRate(t_1, t);
                     if (underlying is CurrencyPair fxPair) {
                         // For FX pairs: drift = r_base - r_quote (interest rate parity)
                         IDiscounter baseDiscounter = marketData.GetDiscounter(fxPair.Base);
                         IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
-                        double r_base = GetForwardRate(baseDiscounter, t_1, t);
-                        double r_quote = GetForwardRate(quoteDiscounter, t_1, t);
+                        double r_base = baseDiscounter.GetForwardRate(t_1, t);
+                        double r_quote = quoteDiscounter.GetForwardRate(t_1, t);
                         μ = r_base - r_quote;
                     } 
                     μ += μ_adjustment;
@@ -67,10 +67,6 @@ namespace PricerServices {
                 paths.Add(path);
             }
             return new Realizations { Paths = paths };
-        }
-        private static double GetForwardRate(IDiscounter discounter, DateTime from, DateTime to) {
-            double dt = (to - from).TotalYears;
-            return Math.Log(discounter.GetDiscountFactor(from, to)) / dt;
         }
     }
 
