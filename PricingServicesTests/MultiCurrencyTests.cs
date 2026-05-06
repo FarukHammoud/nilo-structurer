@@ -14,6 +14,7 @@ namespace PricingServicesTests {
             double volatility = 0.34;
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
+            double foreignRiskFreeRate = 0.01855;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
@@ -29,6 +30,7 @@ namespace PricingServicesTests {
                 .SetSpot(CurrencyPairs.EURUSD, 1.17)
                 .SetVolatility(MSFT, volatility)
                 .SetVolatility(CurrencyPairs.EURUSD, 0.1)
+                .SetRiskFreeRate(Currencies.EUR, foreignRiskFreeRate)
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(2).ToArray());
 
@@ -42,7 +44,7 @@ namespace PricingServicesTests {
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.EUR
+                PricingCurrency = Currencies.EUR,
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
@@ -60,10 +62,10 @@ namespace PricingServicesTests {
             double spotPrice = 370.17;
             double domesticRate = 0.0265;
             double foreignRate = 0.01855;
-            double rho = 0.2;
+            double rho = 0.0;
             double fxSpot = 1.17;
             CompositeEuropeanCall contract = new() {
-                Maturity = DateTime.Today.AddMonths(6),
+                Maturity = DateTime.Today.AddMonths(12),
                 Strike = 380.0,
                 Underlying = MSFT,
                 Currency = Currencies.EUR,
@@ -92,13 +94,14 @@ namespace PricingServicesTests {
                 Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.EUR
+                PricingCurrency = Currencies.EUR,
+                NumberOfDrawings = 250000
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][new Premium()];
 
-            Assert.AreEqual(theoreticalPrice , monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]

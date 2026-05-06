@@ -8,5 +8,6 @@ namespace Application {
         public required List<IIndicator> Indicators { get; set; }
         public required DateTime PricingDate { get; set; }
         public required Currency PricingCurrency { get; set; } 
+        public int? NumberOfDrawings { get; set; }
     }
 }

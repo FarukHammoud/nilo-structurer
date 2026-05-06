@@ -8,6 +8,19 @@ namespace PricerServices.Pricers {
         private DiffusionConfiguration? _diffusionConfiguration;
         private DiffusionResult? _diffusion;
 
+        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
+                _diffusionConfiguration = new DiffusionConfiguration() {
+                    NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
+                    MarketData = marketData,
+                    TimeDiscretization = timeDiscretization
+                };
+            } else {
+                _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
+            }
+            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
+        }
+
         public  PriceWithPrecision Price(
             IPathDependentPayoff payoff, 
             IDiscounter discounter, 
@@ -46,16 +59,6 @@ namespace PricerServices.Pricers {
                 MarketData = marketData,
                 TimeDiscretization = timeDiscretization
             };
-        }
-
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization) {
-            //List<DateTime> datesOfInterest = payoff.GetDatesOfInterest();
-            //List<DateTime> timeDiscretization = Enumerable.Range(0, (int)(maturity - today).TotalDays + 1)
-            //    .Select(i => today.AddDays(i))
-            //    .Union(datesOfInterest)
-            //    .ToList();
-            _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
-            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
     }
 }

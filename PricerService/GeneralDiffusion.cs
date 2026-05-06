@@ -49,7 +49,7 @@ namespace PricerServices {
                         IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
                         double r_base = baseDiscounter.GetForwardRate(t_1, t);
                         double r_quote = quoteDiscounter.GetForwardRate(t_1, t);
-                        μ = r_base - r_quote;
+                        μ = r_quote - r_base;
                     } 
                     μ += μ_adjustment;
                     double b = underlyingMarketData.GetDividend() + underlyingMarketData.GetRepo();

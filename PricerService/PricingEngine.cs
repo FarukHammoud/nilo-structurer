@@ -35,10 +35,16 @@ namespace PricerServices {
             IEnumerable<DateTime> pathDependentMaturities = pathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Item1)).Distinct();
             Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults = new();
             if (request.ModelConfiguration.Pricing is MonteCarlo) {
+                IPricerConfiguration? pricerConfiguration = null;
+                if (request.NumberOfDrawings.HasValue) {
+                    pricerConfiguration = new DiffusionPricerConfiguration {
+                        NumberOfDrawings = request.NumberOfDrawings.Value
+                    };
+                }
                 if (nonPathDependentContracts.Any()) {
                     INonPathDependentPricer pricer = new NonPathDependentDiffusionPricer();
                     foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
-                        pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate));
+                        pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate), pricerConfiguration);
                         Dictionary<IContract, PriceWithPrecision> resultByContract = nonPathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PriceContract(pricer, contract, marketData, pricingDate, request.PricingCurrency));
                         subResults.Add((marketData, pricingDate), resultByContract);
                     }
@@ -46,7 +52,7 @@ namespace PricerServices {
                 if (pathDependentContracts.Any()) {
                     IPathDependentPricer pathDependentPricer = new PathDependentDiffusionPricer();
                     foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
-                        pathDependentPricer.Initialize(marketData, TimeDiscretizationFactory(pathDependentMaturities, request.PricingDate));
+                        pathDependentPricer.Initialize(marketData, TimeDiscretizationFactory(pathDependentMaturities, request.PricingDate), pricerConfiguration);
                         Dictionary<IContract, PriceWithPrecision> resultByContract = pathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PricePathDependentContract(pathDependentPricer, contract, marketData, pricingDate, request.PricingCurrency));
                         subResults.Add((marketData, pricingDate), resultByContract);
                     }

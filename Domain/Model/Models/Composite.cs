@@ -14,18 +14,18 @@
 
         public Composite(
             OptionType optionType,
-            double spot,         
-            double strike,       
+            double foreignSpot,         
+            double foreignStrike,       
             double timeToMaturity,
-            double fxRate,        
+            double fxRate, // domestic currency per unit of foreign currency        
             double foreignRate,
             double volatility) 
         {
 
             _blackScholes = new BlackScholes(
                 optionType,
-                spot: spot * fxRate,  
-                strike: strike * fxRate,
+                spot: foreignSpot * fxRate,  
+                strike: foreignStrike * fxRate,
                 timeToMaturity: timeToMaturity,
                 riskFreeRate: foreignRate,
                 volatility: volatility

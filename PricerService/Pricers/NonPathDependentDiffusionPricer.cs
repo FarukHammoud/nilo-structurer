@@ -14,8 +14,16 @@ namespace PricerServices.Pricers {
             TimeDiscretization = timeDiscretization
         };
 
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization) {
-            _diffusionConfiguration = _diffusionConfigurationFactory(marketData, timeDiscretization);
+        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
+                _diffusionConfiguration = new DiffusionConfiguration {
+                    NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
+                    MarketData = marketData,
+                    TimeDiscretization = timeDiscretization
+                };
+            } else {
+                _diffusionConfiguration = _diffusionConfigurationFactory(marketData, timeDiscretization);
+            }
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
