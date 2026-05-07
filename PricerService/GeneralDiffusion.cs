@@ -52,7 +52,7 @@ namespace PricerServices {
                         μ = r_quote - r_base;
                     } 
                     μ += μ_adjustment;
-                    double b = underlyingMarketData.GetDividend() + underlyingMarketData.GetRepo();
+                    double b = underlyingMarketData.GetCarry();
                     double timeToMaturity = (T - t).TotalYears;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalYears;

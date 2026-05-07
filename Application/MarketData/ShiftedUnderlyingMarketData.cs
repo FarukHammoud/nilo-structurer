@@ -1,65 +1,51 @@
 ﻿using Domain;
 
 namespace Application {
-    public class ShiftedUnderlyingMarketData : IUnderlyingMarketData {
+    public abstract class ShiftedUnderlyingMarketData : IShiftedUnderlyingMarketData {
+        protected readonly IUnderlyingMarketData _inner;
+        protected IList<UnderlyingShift> _shifts = new List<UnderlyingShift>();
 
-        private IUnderlyingMarketData _base;
-        private double _spotShift;
-        private double? _volatilityShift;
-        private double _repoShift;
-        private double _dividendShift;
-
-        public ShiftedUnderlyingMarketData(
-            IUnderlyingMarketData base_,
-            double spotShift = 1.0,       // multiplicatif
-            double? volatilityShift = null,
-            double repoShift = 0.0,       // additif
-            double dividendShift = 0.0) { // additif
-            _base = base_;
-            _spotShift = spotShift;
-            _volatilityShift = volatilityShift;
-            _repoShift = repoShift;
-            _dividendShift = dividendShift;
+        protected ShiftedUnderlyingMarketData(IUnderlyingMarketData inner) {
+            _inner = inner;
         }
 
-        public double GetSpot() => _base.GetSpot() * _spotShift;
-        public double GetRepo() => _base.GetRepo() + _repoShift;
-        public double GetDividend() => _base.GetDividend() + _dividendShift;
-        public ILocalVolatilityModel GetVolatility() => _volatilityShift.HasValue
-            ? new ShiftedVolatilityModel(_base.GetVolatility(), _volatilityShift.Value)
-            : _base.GetVolatility();
-
-        public ShiftedUnderlyingMarketData ShiftSpot(double shift) {
-            _spotShift = shift;
-            return this;
+        public double GetSpot() {
+            double multiplier = _shifts.OfType<SpotShift>().Product(shift => shift.Multiplier);
+            return _inner.GetSpot() * multiplier;
         }
 
-        public ShiftedUnderlyingMarketData ShiftRepo(double shift) {
-            _repoShift = shift;
-            return this;
+        public double GetCarry() {
+            double bump = _shifts.OfType<CarryShift>().Sum(shift => shift.Bump);
+            return _inner.GetCarry() + bump;
         }
 
-        public ShiftedUnderlyingMarketData ShiftDividend(double shift) {
-            _dividendShift = shift;
-            return this;
+        public ILocalVolatilityModel GetVolatility() {
+            double bump = _shifts.OfType<VolatilityShift>().Sum(shift => shift.Bump);
+            if (bump == 0) {
+                return _inner.GetVolatility();
+            }
+            return new ShiftedVolatilityModel(_inner.GetVolatility(), bump);
         }
 
-        public ShiftedUnderlyingMarketData ShiftVolatility(double shift) {
-            _volatilityShift = shift;
+        public IUnderlyingMarketData WithShift(UnderlyingShift shift) {
+            _shifts.Add(shift);
             return this;
         }
 
         public override bool Equals(object? obj) {
             return obj is ShiftedUnderlyingMarketData data &&
-                   EqualityComparer<IUnderlyingMarketData>.Default.Equals(_base, data._base) &&
-                   _spotShift == data._spotShift &&
-                   _volatilityShift == data._volatilityShift &&
-                   _repoShift == data._repoShift &&
-                   _dividendShift == data._dividendShift;
+                   EqualityComparer<IUnderlyingMarketData>.Default.Equals(_inner, data._inner) &&
+                   _shifts.SequenceEqual(data._shifts);
         }
 
         public override int GetHashCode() {
-            return HashCode.Combine(_base, _spotShift, _volatilityShift, _repoShift, _dividendShift);
+            var hash = new HashCode();
+            hash.Add(_inner);
+            foreach (var shift in _shifts) {
+                hash.Add(shift);
+            }
+            return hash.ToHashCode();
         }
     }
+    
 }

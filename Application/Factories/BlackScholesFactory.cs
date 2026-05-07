@@ -12,7 +12,7 @@ namespace Application {
             double timeToMaturity = (contract.Maturity - pricingDate).TotalYears;
             double r = marketData.GetDiscounter(contract.Currency).GetForwardRate(pricingDate, contract.Maturity);
             double σ = underlyingData.GetVolatility().getVolatility(underlyingData.GetSpot(), timeToMaturity);
-            double b = r - underlyingData.GetDividend() - underlyingData.GetRepo();
+            double b = r - underlyingData.GetCarry();
             OptionType optionType = contract is ICall ? OptionType.Call : OptionType.Put;
 
             return new BlackScholes(

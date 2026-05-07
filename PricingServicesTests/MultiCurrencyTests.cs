@@ -1,7 +1,6 @@
 ﻿using Application;
 using Domain;
 using Domain.Model.Models;
-using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
 
 namespace PricingServicesTests {
@@ -25,14 +24,14 @@ namespace PricingServicesTests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, CurrencyPairs.EURUSD])
-                .SetSpot(MSFT, spotPrice)
-                .SetSpot(CurrencyPairs.EURUSD, 1.17)
-                .SetVolatility(MSFT, volatility)
-                .SetVolatility(CurrencyPairs.EURUSD, 0.1)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(1.17)
+                    .SetVolatility(0.1))
                 .SetRiskFreeRate(Currencies.EUR, foreignRiskFreeRate)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(2).ToArray());
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
@@ -75,11 +74,12 @@ namespace PricingServicesTests {
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, CurrencyPairs.EURUSD])
-                .SetSpot(MSFT, spotPrice)
-                .SetSpot(CurrencyPairs.EURUSD, fxSpot)
-                .SetVolatility(MSFT, volatility)
-                .SetVolatility(CurrencyPairs.EURUSD, fxVolatility)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(fxSpot)
+                    .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
                 .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
@@ -125,11 +125,12 @@ namespace PricingServicesTests {
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, CurrencyPairs.EURUSD])
-                .SetSpot(MSFT, spotPrice)
-                .SetSpot(CurrencyPairs.EURUSD, 1.17)
-                .SetVolatility(MSFT, volatility)
-                .SetVolatility(CurrencyPairs.EURUSD, fxVolatility)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(1.17)
+                    .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
                 .SetCorrelationMatrix(new double[2,2] {{1, rho}, {rho, 1}});
@@ -175,11 +176,12 @@ namespace PricingServicesTests {
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, CurrencyPairs.EURUSD])
-                .SetSpot(MSFT, spotPrice)
-                .SetSpot(CurrencyPairs.EURUSD, 1.17)
-                .SetVolatility(MSFT, volatility)
-                .SetVolatility(CurrencyPairs.EURUSD, fxVolatility)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(1.17)
+                    .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
                 .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });

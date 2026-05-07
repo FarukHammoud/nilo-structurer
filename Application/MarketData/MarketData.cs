@@ -1,34 +1,23 @@
 ﻿using Domain;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace Application {
     public class MarketData : IMarketData {
         private Dictionary<Currency, IDiscounter> _discounters = new();
         private List<Underlying> _underlyings = new();
-        private Dictionary<Underlying, UnderlyingMarketData> _underlyingMarketData = new();
+        private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
         private Double[,]? _correlationMatrix = null;
         public double[,] GetCorrelationMatrix(List<Underlying> underlyings) {
+            if (_correlationMatrix == null) {
+                int n = underlyings.Count;
+                return Matrix<double>.Build.DenseIdentity(n).ToArray();
+            }
             return _correlationMatrix;
         }
 
-        public double GetSpot(Underlying underlying) {
-            return _underlyingMarketData[underlying].GetSpot();
-        }
-
-        public ILocalVolatilityModel GetVolatility(Underlying underlying) {
-            return _underlyingMarketData[underlying].GetVolatility();
-        }
-
-        public MarketData SetSpot(Underlying underlying, double spot) {
-            GetOrCreate(underlying).SetSpot(spot);
+        public MarketData For<T>(Underlying underlying, Action<T> configure) where T : IUnderlyingMarketData {
+            configure((T)GetOrCreate(underlying));
             return this;
-        }
-
-        public MarketData SetVolatility(Underlying underlying, ILocalVolatilityModel volatilityModel) {
-            GetOrCreate(underlying).SetVolatility(volatilityModel);
-            return this;
-        }
-        public MarketData SetVolatility(Underlying underlying, double volatility) {
-            return SetVolatility(underlying, new ConstantLocalVolatilityModel(volatility));
         }
 
         public MarketData SetCorrelationMatrix(double[,] correlationMatrix) {
@@ -50,23 +39,23 @@ namespace Application {
             return _discounters[currency];
         }
 
-        public MarketData SetUnderlyings(List<Underlying> underlyings) {
-            _underlyings = underlyings;
-            return this;
-        }
-
         public List<Underlying> GetUnderlyings() {
-            return _underlyings;
+            return _underlyingMarketData.Keys.ToList();
         }
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
             return _underlyingMarketData[underlying];
         }
 
-        private UnderlyingMarketData GetOrCreate(Underlying underlying) {
+        private IUnderlyingMarketData GetOrCreate(Underlying underlying) {
             if (!_underlyingMarketData.TryGetValue(underlying, out var marketData)) {
-                marketData = new UnderlyingMarketData();
+                if (underlying is CurrencyPair) {
+                    marketData = new CurrencyPairMarketData();
+                } else if (underlying is Equity) {
+                    marketData = new EquityMarketData();
+                }
                 _underlyingMarketData[underlying] = marketData;
+                _underlyings.Add(underlying);
             }
             return marketData;
         }

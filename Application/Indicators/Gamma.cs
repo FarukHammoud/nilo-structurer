@@ -12,10 +12,10 @@ namespace Application {
             return marketData.GetUnderlyings().ToDictionary(underlying => underlying, 
                 underlying => new List<(IMarketData, DateTime)>() {
                     (new ShiftedMarketData(marketData)
-                        .ShiftSpot(underlying, 0.99), pricingDate),
+                        .WithShift(underlying, new SpotShift(0.99)), pricingDate),
                     (marketData, pricingDate),
                     (new ShiftedMarketData(marketData)
-                        .ShiftSpot(underlying, 1.01), pricingDate)
+                        .WithShift(underlying, new SpotShift(1.01)), pricingDate)
                 });
         }
 

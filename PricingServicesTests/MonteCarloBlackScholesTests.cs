@@ -27,11 +27,11 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve); 
+                
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).DigitalCallPrice();
@@ -64,11 +64,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -102,11 +102,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -140,11 +140,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -195,11 +195,11 @@ namespace PricingServices.Tests {
             Book book = new([ call, put, cashFlow ]);
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
 
             // Price using General Diffusion
@@ -229,11 +229,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -271,11 +271,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -318,12 +318,13 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, AAPL])
-                .SetSpot(MSFT, spotMSFT)
-                .SetSpot(AAPL, spotAAPL)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatilityMSFT)
-                .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {
                     { 1.0, rho },
                     { rho, 1.0 }
@@ -366,12 +367,13 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, AAPL])
-                .SetSpot(MSFT, spotMSFT)
-                .SetSpot(AAPL, spotAAPL)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatilityMSFT)
-                .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {
                     { 1.0, rho },
                     { rho, 1.0 }
@@ -414,12 +416,13 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT, AAPL])
-                .SetSpot(MSFT, spotMSFT)
-                .SetSpot(AAPL, spotAAPL)
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatilityMSFT)
-                .SetVolatility(AAPL, volatilityAAPL)
                 .SetCorrelationMatrix(new double[,] {
                     { 1.0, rho },
                     { rho, 1.0 }

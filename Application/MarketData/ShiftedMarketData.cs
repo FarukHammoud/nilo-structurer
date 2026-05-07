@@ -4,34 +4,31 @@ namespace Application {
     public class ShiftedMarketData : IMarketData {
 
         private IMarketData _marketData;
-        private Dictionary<Underlying, ShiftedUnderlyingMarketData> _shifts = new();
+        private Dictionary<Underlying, IShiftedUnderlyingMarketData> _shifts = new();
         private Dictionary<Currency, double> _discountShifts = new();
         public ShiftedMarketData(IMarketData marketData) {
             _marketData = marketData;
         }
 
-        public ShiftedMarketData ShiftSpot(Underlying underlying, double shift) {
-            GetOrCreate(underlying).ShiftSpot(shift);
+        public ShiftedMarketData WithShift(Underlying underlying, UnderlyingShift shift) {
+            GetOrCreate(underlying).WithShift(shift);
             return this;
+        }
+
+        public IShiftedUnderlyingMarketData GetOrCreate(Underlying underlying) {
+            if (!_shifts.TryGetValue(underlying, out var shifted)) {
+                if (underlying is Equity equity) {
+                    shifted = new ShiftedEquityMarketData(_marketData.GetUnderlyingMarketData(equity));
+                } else if (underlying is CurrencyPair currencyPair){
+                    shifted = new ShiftedCurrencyPairMarketData(_marketData.GetUnderlyingMarketData(currencyPair));
+                }
+                _shifts[underlying] = shifted;
+            }
+            return shifted;
         }
 
         public ShiftedMarketData ShiftDiscountRate(Currency currency, double shift) {
             _discountShifts[currency] = shift;
-            return this;
-        }
-
-        public ShiftedMarketData ShiftVolatility(Underlying underlying, double shift) {
-            GetOrCreate(underlying).ShiftVolatility(shift);
-            return this;
-        }
-
-        public ShiftedMarketData ShiftRepo(Underlying underlying, double shift) {
-            GetOrCreate(underlying).ShiftRepo(shift);
-            return this;
-        }
-
-        public ShiftedMarketData ShiftDividend(Underlying underlying, double shift) {
-            GetOrCreate(underlying).ShiftDividend(shift);
             return this;
         }
 
@@ -57,18 +54,7 @@ namespace Application {
         }
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
-            if (_shifts.TryGetValue(underlying, out var shifted)) {
-                return shifted;
-            }
-            return _marketData.GetUnderlyingMarketData(underlying);
-        }
-
-        private ShiftedUnderlyingMarketData GetOrCreate(Underlying underlying) {
-            if (!_shifts.TryGetValue(underlying, out var shifted)) {
-                shifted = new ShiftedUnderlyingMarketData(_marketData.GetUnderlyingMarketData(underlying));
-                _shifts[underlying] = shifted;
-            }
-            return shifted;
+            return GetOrCreate(underlying);
         }
 
         public double GetFxRate(Currency from, Currency to) {

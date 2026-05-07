@@ -25,11 +25,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
@@ -67,11 +67,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -106,11 +106,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, contract.BarrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockIn);
@@ -150,11 +150,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut);
@@ -194,11 +194,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockIn);
@@ -238,11 +238,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockOut);
@@ -282,11 +282,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate); 
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockIn);
@@ -326,11 +326,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockOut);
@@ -370,11 +370,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate); 
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockIn);
@@ -414,11 +414,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockOut);

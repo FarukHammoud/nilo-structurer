@@ -1,11 +1,16 @@
 ﻿using Domain;
 
 namespace Application {
-    public class UnderlyingMarketData : IUnderlyingMarketData {
+    public class EquityMarketData : IEquityMarketData {
         private double _dividend;
         private double _repo;
         private double _spot;
         private ILocalVolatilityModel? _volatility;
+
+        public double GetCarry() {
+            return GetDividend() + GetRepo();
+        }
+
         public double GetDividend() {
             return _dividend;
         }
@@ -22,20 +27,29 @@ namespace Application {
             return _volatility;
         }
 
-        public void SetDividend(double dividend) {
+        public EquityMarketData SetDividend(double dividend) {
             _dividend = dividend;
+            return this;
         }
 
-        public void SetRepo(double repo) {
+        public EquityMarketData SetRepo(double repo) {
             _repo = repo;
+            return this;
         }
 
-        public void SetSpot(double spot) {
+        public EquityMarketData SetSpot(double spot) {
             _spot = spot;
+            return this;
         }
 
-        public void SetVolatility(ILocalVolatilityModel volatilityModel) {
+        public EquityMarketData SetVolatility(ILocalVolatilityModel volatilityModel) {
             _volatility = volatilityModel;
+            return this;
+        }
+
+        public EquityMarketData SetVolatility(double volatility) {
+            _volatility = new ConstantLocalVolatilityModel(volatility);
+            return this;
         }
     }
 }

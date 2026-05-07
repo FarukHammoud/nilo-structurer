@@ -20,11 +20,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -58,11 +58,11 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetVolatility(MSFT, volatility)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+                
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;

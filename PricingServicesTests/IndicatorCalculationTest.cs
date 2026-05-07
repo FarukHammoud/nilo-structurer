@@ -27,11 +27,11 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings(new List<Underlying>() { MSFT })
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve);
+                
 
             // Theotetical delta using Black-Scholes
             double theoreticalDelta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Delta;
@@ -53,6 +53,49 @@ namespace PricingServices.Tests {
         }
 
         [TestMethod]
+        public void DeltaFXvsMonteCarlo() {
+
+            double volatility = 0.15;
+            double spotPrice = 1.17;
+            double usdRiskFreeRate = 0.0435;
+            double eurRiskFreeRate = 0.0265;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(6),
+                Strike = spotPrice,
+                Underlying = CurrencyPairs.EURUSD,
+                Currency = Currencies.USD
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+
+            MarketData marketData = new MarketData()
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, usdRiskFreeRate)
+                .SetRiskFreeRate(Currencies.EUR, eurRiskFreeRate)
+                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(2).ToArray());
+
+            // Theotetical delta using Black-Scholes
+            double theoreticalDelta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Delta;
+
+            // Price using General Diffusion
+            IIndicator deltaFx = new DeltaFx();
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [deltaFx],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][deltaFx];
+
+            Assert.AreEqual(theoreticalDelta, monteCarloResult.Result[CurrencyPairs.EURUSD].Value, 3.09 * monteCarloResult.Result[CurrencyPairs.EURUSD].Precision, "The Monte Carlo delta fx should be close to the theoretical Black-Scholes delta");
+        }
+
+        [TestMethod]
         public void GammaBSvsMonteCarlo() {
 
             Curve discountCurve = ZeroCouponBootstrapper.GetDiscountCurve(ExampleCurves.ExampleSwapCurve);
@@ -70,11 +113,11 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings(new List<Underlying>() { MSFT })
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve);
+                
 
             // Theotetical gamma using Black-Scholes
             double theoreticalGamma = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Gamma;
@@ -112,11 +155,11 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve);
+                
 
             // Theotetical rho using Black-Scholes
             double theoreticalRho = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Rho;
@@ -152,13 +195,13 @@ namespace PricingServices.Tests {
             // Theotetical delta using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
-           
+
             MarketData marketData = new MarketData()
-                .SetUnderlyings(new List<Underlying>() { MSFT })
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve);
+                
 
             // Theotetical theta using Black-Scholes
             double theoreticalTheta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Theta;
@@ -196,11 +239,11 @@ namespace PricingServices.Tests {
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings(new List<Underlying>() { MSFT })
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetDiscountCurve(Currencies.USD, discountCurve)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetDiscountCurve(Currencies.USD, discountCurve); 
+                
 
             // Theotetical vega using Black-Scholes
             double theoreticalVega = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Vega;
@@ -236,11 +279,11 @@ namespace PricingServices.Tests {
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
 
             MarketData marketData = new MarketData()
-                .SetUnderlyings([MSFT])
-                .SetSpot(MSFT, spotPrice)
-                .SetVolatility(MSFT, volatility)
-                .SetRiskFreeRate(Currencies.USD, 0.0265)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(1).ToArray());
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, 0.0265);
+                
 
             // Price using General Diffusion
             IIndicator impliedVolatility = new ImpliedVolatility();

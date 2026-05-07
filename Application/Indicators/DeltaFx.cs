@@ -1,14 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class Vega : IIndicator {
-
-        private readonly double _bump;
-
-        public Vega(double bump = 0.01) {
-            _bump = bump;
-        }
-
+    public class DeltaFx : IIndicator {
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
             return GetShiftedMarketDataByUnderlying(marketData, pricingDate).Values
                 .SelectMany(marketDataList => marketDataList)
@@ -16,12 +9,12 @@ namespace Application {
         }
 
         private Dictionary<Underlying, List<(IMarketData, DateTime)>> GetShiftedMarketDataByUnderlying(IMarketData marketData, DateTime pricingDate) {
-            return marketData.GetUnderlyings().ToDictionary(underlying => underlying,
+            return marketData.GetUnderlyings().Where(a => a is CurrencyPair).ToDictionary(underlying => underlying, 
                 underlying => new List<(IMarketData, DateTime)>() {
                     (new ShiftedMarketData(marketData)
-                        .WithShift(underlying, new VolatilityShift(-_bump)), pricingDate),
+                        .WithShift(underlying, new SpotShift(0.99)), pricingDate),
                     (new ShiftedMarketData(marketData)
-                        .WithShift(underlying, new VolatilityShift(+_bump)), pricingDate)
+                        .WithShift(underlying, new SpotShift(1.01)), pricingDate)
                 });
         }
 
@@ -32,9 +25,9 @@ namespace Application {
                 IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
                 PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
                 PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
-                double vegaValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
-                double vegaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                result.Result[underlying] = new ValueWithPrecision() { Value = vegaValue, Precision = vegaPrecision };
+                double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * underlyingMarketData.GetSpot());
+                double deltaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
+                result.Result[underlying] = new ValueWithPrecision() { Value = deltaValue, Precision = deltaPrecision };
             }
             return result;
         }
