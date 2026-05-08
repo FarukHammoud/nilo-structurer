@@ -8,6 +8,7 @@ namespace Application {
             : base("BestOf_" + firstUnderlying.Code + "_" + secondUnderlying.Code) {
             FirstUnderlying = firstUnderlying;
             SecondUnderlying = secondUnderlying;
+            Currency = currency;
         }
 
         public override double GetValue(Dictionary<Underlying, double> prices) {

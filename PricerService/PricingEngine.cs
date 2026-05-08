@@ -9,6 +9,9 @@ namespace PricerServices {
                         .Select(i => pricingDate.AddDays(i))
                         .ToList();
 
+        private Func<IEnumerable<DateTime>, DateTime, List<DateTime>> NonPathDependentTimeDiscretizationFactory = (maturities, pricingDate) => new List<DateTime>() {pricingDate}.Union(maturities)
+                        .ToList();
+
         // Target signature for the asynchronous pricing method
         public async Task<PricingResult> RunAsync(PricingRequest request,
             IProgress<PricingProgress>? progress = null,
@@ -38,13 +41,14 @@ namespace PricerServices {
                 IPricerConfiguration? pricerConfiguration = null;
                 if (request.NumberOfDrawings.HasValue) {
                     pricerConfiguration = new DiffusionPricerConfiguration {
-                        NumberOfDrawings = request.NumberOfDrawings.Value
+                        NumberOfDrawings = request.NumberOfDrawings.Value,
+                        Currency = request.MarketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : request.MarketData.Currencies.First() 
                     };
                 }
                 if (nonPathDependentContracts.Any()) {
                     INonPathDependentPricer pricer = new NonPathDependentDiffusionPricer();
                     foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
-                        pricer.Initialize(marketData, TimeDiscretizationFactory(maturities, request.PricingDate), pricerConfiguration);
+                        pricer.Initialize(marketData, NonPathDependentTimeDiscretizationFactory(maturities, request.PricingDate), pricerConfiguration);
                         Dictionary<IContract, PriceWithPrecision> resultByContract = nonPathDependentContracts.ToDictionary(contract => (IContract)contract, contract => PriceContract(pricer, contract, marketData, pricingDate, request.PricingCurrency));
                         subResults.Add((marketData, pricingDate), resultByContract);
                     }

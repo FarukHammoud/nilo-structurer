@@ -16,7 +16,7 @@ namespace Application {
         }
 
         private Dictionary<Underlying, List<(IMarketData, DateTime)>> GetShiftedMarketDataByUnderlying(IMarketData marketData, DateTime pricingDate) {
-            return marketData.GetUnderlyings().ToDictionary(underlying => underlying,
+            return marketData.Underlyings.ToDictionary(underlying => underlying,
                 underlying => new List<(IMarketData, DateTime)>() {
                     (new ShiftedMarketData(marketData)
                         .WithShift(underlying, new VolatilityShift(-_bump)), pricingDate),

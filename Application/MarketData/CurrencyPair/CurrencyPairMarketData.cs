@@ -6,7 +6,7 @@ namespace Application {
         private ILocalVolatilityModel? _volatility;
 
         public double GetCarry() {
-            throw new NotImplementedException();
+            return 0; // drift is done on engine level. Should we fix the interface?
         }
 
         public double GetSpot() {

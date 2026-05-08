@@ -13,7 +13,8 @@ namespace PricerServices.Pricers {
                 _diffusionConfiguration = new DiffusionConfiguration() {
                     NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
                     MarketData = marketData,
-                    TimeDiscretization = timeDiscretization
+                    TimeDiscretization = timeDiscretization,
+                    Currency = Currencies.USD
                 };
             } else {
                 _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
@@ -53,11 +54,12 @@ namespace PricerServices.Pricers {
         }
 
         public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, List<DateTime> timeDiscretization) {
-            List<Underlying> underlyings = marketData.GetUnderlyings();
+            IList<Underlying> underlyings = marketData.Underlyings;
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
                 MarketData = marketData,
-                TimeDiscretization = timeDiscretization
+                TimeDiscretization = timeDiscretization,
+                Currency = marketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : marketData.Currencies.First()
             };
         }
     }

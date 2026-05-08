@@ -9,7 +9,7 @@ namespace Application {
             _bump = bump;
         }
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
-            IEnumerable<Currency> currencies = [Currencies.USD];//marketData.GetUnderlyings().OfType<Currency>();
+            IEnumerable<Currency> currencies = [Currencies.USD];//marketData.Underlyings.OfType<Currency>();
             return currencies.SelectMany(currency => new List<(IMarketData, DateTime)>() {
                 (new ShiftedMarketData(marketData).ShiftDiscountRate(currency, -_bump), pricingDate),
                 (new ShiftedMarketData(marketData).ShiftDiscountRate(currency, +_bump), pricingDate)}).ToList();

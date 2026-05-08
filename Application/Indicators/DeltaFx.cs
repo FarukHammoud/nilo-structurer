@@ -9,7 +9,7 @@ namespace Application {
         }
 
         private Dictionary<Underlying, List<(IMarketData, DateTime)>> GetShiftedMarketDataByUnderlying(IMarketData marketData, DateTime pricingDate) {
-            return marketData.GetUnderlyings().Where(a => a is CurrencyPair).ToDictionary(underlying => underlying, 
+            return marketData.Underlyings.Where(a => a is CurrencyPair).ToDictionary(underlying => underlying, 
                 underlying => new List<(IMarketData, DateTime)>() {
                     (new ShiftedMarketData(marketData)
                         .WithShift(underlying, new SpotShift(0.99)), pricingDate),

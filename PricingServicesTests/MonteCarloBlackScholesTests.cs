@@ -390,7 +390,7 @@ namespace PricingServices.Tests {
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.USD
+                PricingCurrency = Currencies.USD,
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];

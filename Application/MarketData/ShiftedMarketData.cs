@@ -6,6 +6,11 @@ namespace Application {
         private IMarketData _marketData;
         private Dictionary<Underlying, IShiftedUnderlyingMarketData> _shifts = new();
         private Dictionary<Currency, double> _discountShifts = new();
+
+        public IList<Underlying> Underlyings => _marketData.Underlyings;
+
+        public IList<Currency> Currencies => _marketData.Currencies;
+
         public ShiftedMarketData(IMarketData marketData) {
             _marketData = marketData;
         }
@@ -32,14 +37,6 @@ namespace Application {
             return this;
         }
 
-        public double[,] GetCorrelationMatrix(List<Underlying> underlyings) {
-            return _marketData.GetCorrelationMatrix(underlyings);
-        }
-
-        public List<Underlying> GetUnderlyings() {
-            return _marketData.GetUnderlyings();
-        }
-
         public override int GetHashCode() {
             return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode());
         }
@@ -54,7 +51,10 @@ namespace Application {
         }
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
-            return GetOrCreate(underlying);
+            if (_shifts.Keys.Contains(underlying)) {
+                return _shifts[underlying];
+            }
+            return _marketData.GetUnderlyingMarketData(underlying);
         }
 
         public double GetFxRate(Currency from, Currency to) {
@@ -66,6 +66,10 @@ namespace Application {
                 return _marketData.GetDiscounter(currency);
             }
             return new ShiftedDiscounter(_marketData.GetDiscounter(currency), _discountShifts[currency]);
+        }
+
+        public double[,] GetCorrelationMatrix(IList<Underlying> underlyings) {
+            return _marketData.GetCorrelationMatrix(underlyings);
         }
     }
 }

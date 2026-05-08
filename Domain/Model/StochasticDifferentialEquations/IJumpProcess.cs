@@ -4,5 +4,6 @@
         // for a time increase dt and
         // a 0-1 uniformally distributed sample u
         double Sample(double dt, double u);
+        double GetDrift();
     }
 }

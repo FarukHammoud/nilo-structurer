@@ -11,7 +11,8 @@ namespace PricerServices.Pricers {
         private Func<IMarketData, List<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
             NumberOfDrawings = 50000,
             MarketData = marketData,
-            TimeDiscretization = timeDiscretization
+            TimeDiscretization = timeDiscretization,
+            Currency = Currencies.USD,
         };
 
         public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
@@ -19,7 +20,8 @@ namespace PricerServices.Pricers {
                 _diffusionConfiguration = new DiffusionConfiguration {
                     NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
                     MarketData = marketData,
-                    TimeDiscretization = timeDiscretization
+                    TimeDiscretization = timeDiscretization,
+                    Currency = diffusionPricerConfiguration.Currency,
                 };
             } else {
                 _diffusionConfiguration = _diffusionConfigurationFactory(marketData, timeDiscretization);

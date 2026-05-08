@@ -1,8 +1,9 @@
 ﻿namespace Domain {
     public interface IMarketData : IFxConverter {
-        List<Underlying> GetUnderlyings();
+        IList<Underlying> Underlyings { get; }
+        IList<Currency> Currencies { get; }
         IDiscounter GetDiscounter(Currency currency);
-        double[,] GetCorrelationMatrix(List<Underlying> underlyings);
+        double[,] GetCorrelationMatrix(IList<Underlying> underlyings);
         IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying);
     }
 }

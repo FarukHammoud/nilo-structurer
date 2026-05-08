@@ -6,12 +6,13 @@ namespace PricerServices {
         required public IMarketData MarketData { get; set; }
         required public List<DateTime> TimeDiscretization { get; set; }
         required public int NumberOfDrawings = 1000;
+        required public Currency Currency { get; set; }
         public JumpParameters? JumpParameters { get; set; }
 
         public BrowniansConfiguration BrowniansConfiguration =>
             new BrowniansConfiguration {
-                Underlyings = MarketData.GetUnderlyings(),
-                CorrelationMatrix = MarketData.GetCorrelationMatrix(MarketData.GetUnderlyings()),
+                Underlyings = MarketData.Underlyings,
+                CorrelationMatrix = MarketData.GetCorrelationMatrix(MarketData.Underlyings),
                 NumberOfDrawings = NumberOfDrawings,
                 NumberOfSteps = TimeDiscretization.Count
             };

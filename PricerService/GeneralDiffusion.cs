@@ -8,7 +8,7 @@ namespace PricerServices {
         public static DiffusionResult DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
-            Dictionary<Underlying, Realizations> diffusionValues = configuration.MarketData.GetUnderlyings()
+            Dictionary<Underlying, Realizations> diffusionValues = configuration.MarketData.Underlyings
                 .ToDictionary(
                     underlying => underlying, 
                     underlying => DiffuseUnderlying(configuration, underlying, noises));
@@ -19,22 +19,16 @@ namespace PricerServices {
             int steps = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
             IMarketData marketData = configuration.MarketData;
-            IDiscounter discounter = marketData.GetDiscounter(underlying.Currency);
             IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
             double spot = underlyingMarketData.GetSpot();
             DateTime T = configuration.TimeDiscretization.LastOrDefault();
             ILocalVolatilityModel volatility = underlyingMarketData.GetVolatility();
             double μ_adjustment = 0;
-            IJumpProcess? jumpProcess = null;
-            if (configuration.JumpParameters != null) {
-                jumpProcess = new PoissonProcess(configuration.JumpParameters);
-                double λ = configuration.JumpParameters.λ;
-                double μJ = configuration.JumpParameters.μJ;
-                double σJ = configuration.JumpParameters.σJ;
-                double κ = Math.Exp(μJ + 0.5 * σJ * σJ) - 1;
-                μ_adjustment = -λ * κ; // adjust drift to keep martingale property
-            }
-            List<double[]> paths = new();
+            IJumpProcess? jumpProcess = configuration.JumpParameters != null ? new PoissonProcess(configuration.JumpParameters) : null;
+			if (jumpProcess != null) {
+				μ_adjustment -= jumpProcess.GetDrift();
+			}
+			List<double[]> paths = new();
             for (int ω = 0; ω < drawings; ω++) {
                 double[] path = new double[steps];
                 path[0] = spot;
@@ -42,17 +36,8 @@ namespace PricerServices {
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
-                    double μ = discounter.GetForwardRate(t_1, t);
-                    if (underlying is CurrencyPair fxPair) {
-                        // For FX pairs: drift = r_base - r_quote (interest rate parity)
-                        IDiscounter baseDiscounter = marketData.GetDiscounter(fxPair.Base);
-                        IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
-                        double r_base = baseDiscounter.GetForwardRate(t_1, t);
-                        double r_quote = quoteDiscounter.GetForwardRate(t_1, t);
-                        μ = r_quote - r_base;
-                    } 
-                    μ += μ_adjustment;
-                    double b = underlyingMarketData.GetCarry();
+					double μ = GetDrift(underlying, configuration.Currency, marketData, t_1, t, μ_adjustment);
+					double b = underlyingMarketData.GetCarry();
                     double timeToMaturity = (T - t).TotalYears;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalYears;
@@ -68,6 +53,26 @@ namespace PricerServices {
             }
             return new Realizations { Paths = paths };
         }
-    }
 
+        private static double GetDrift(Underlying underlying, Currency diffusionCurrency, IMarketData marketData, DateTime t_1, DateTime t, double μ_adjustment) {
+			double μ = 0;
+            IDiscounter discounter = marketData.GetDiscounter(diffusionCurrency);
+			if (underlying is Equity equity) {
+				μ = discounter.GetForwardRate(t_1, t);
+				if (equity.Currency != diffusionCurrency) {
+					IDiscounter underlyingDiscounter = marketData.GetDiscounter(underlying.Currency);
+					double r_foreign = underlyingDiscounter.GetForwardRate(t_1, t);
+					μ -= r_foreign;
+				}
+			} else if (underlying is CurrencyPair fxPair) {
+				IDiscounter baseDiscounter = marketData.GetDiscounter(fxPair.Base);
+				IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
+				double r_base = baseDiscounter.GetForwardRate(t_1, t);
+				double r_quote = quoteDiscounter.GetForwardRate(t_1, t);
+				μ = r_quote - r_base;
+			}
+			μ += μ_adjustment;
+            return μ;
+		}
+    }
 }

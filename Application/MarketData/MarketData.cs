@@ -7,7 +7,10 @@ namespace Application {
         private List<Underlying> _underlyings = new();
         private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
         private Double[,]? _correlationMatrix = null;
-        public double[,] GetCorrelationMatrix(List<Underlying> underlyings) {
+
+        public IList<Underlying> Underlyings => _underlyingMarketData.Keys.ToList();
+        public IList<Currency> Currencies => _discounters.Keys.ToList();
+        public double[,] GetCorrelationMatrix(IList<Underlying> underlyings) {
             if (_correlationMatrix == null) {
                 int n = underlyings.Count;
                 return Matrix<double>.Build.DenseIdentity(n).ToArray();
@@ -39,9 +42,7 @@ namespace Application {
             return _discounters[currency];
         }
 
-        public List<Underlying> GetUnderlyings() {
-            return _underlyingMarketData.Keys.ToList();
-        }
+        
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
             return _underlyingMarketData[underlying];

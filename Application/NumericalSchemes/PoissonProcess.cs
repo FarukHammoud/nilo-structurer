@@ -38,5 +38,13 @@ namespace Application {
             }
             return 2; // P(N≥2) negligible for small λ·dt, handle if needed
         }
+
+        public double GetDrift() {
+            double λ = _parameters.λ;
+            double μJ = _parameters.μJ;
+            double σJ = _parameters.σJ;
+            double κ = Math.Exp(μJ + 0.5 * σJ * σJ) - 1;
+            return λ * κ;
+        }
     }
 }

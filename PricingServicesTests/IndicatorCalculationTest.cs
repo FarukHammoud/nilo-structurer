@@ -77,7 +77,15 @@ namespace PricingServices.Tests {
                 .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(2).ToArray());
 
             // Theotetical delta using Black-Scholes
-            double theoreticalDelta = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Delta;
+            double theoreticalDelta = new BlackScholes(
+                optionType: OptionType.Call,
+                spot: spotPrice,
+                strike: contract.Strike,
+                timeToMaturity: timeToMaturity,
+                riskFreeRate: usdRiskFreeRate,
+                volatility: volatility,
+                costOfCarry: usdRiskFreeRate - eurRiskFreeRate
+                ).Delta;
 
             // Price using General Diffusion
             IIndicator deltaFx = new DeltaFx();
@@ -160,7 +168,6 @@ namespace PricingServices.Tests {
                     .SetVolatility(volatility))
                 .SetDiscountCurve(Currencies.USD, discountCurve);
                 
-
             // Theotetical rho using Black-Scholes
             double theoreticalRho = BlackScholesFactory.Create(contract, marketData, DateTime.Today).Rho;
             IIndicator rho = new Rho();

@@ -76,7 +76,7 @@ namespace PricerServices.Pricers {
         }
 
         public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
-            List<Underlying> underlyings = marketData.GetUnderlyings();
+            IList<Underlying> underlyings = marketData.Underlyings;
             if (underlyings.Count != 1) {
                 throw new ArgumentException("Binary tree pricer only supports single underlying payoffs");
             }
