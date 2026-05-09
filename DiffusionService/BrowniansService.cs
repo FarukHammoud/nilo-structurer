@@ -4,6 +4,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace BrownianServices {
     public class BrowniansService {
+        public static Random Random = new Random();
 
         /// <summary>
         /// This method generates correlated Brownian motion paths based on the provided configuration. 
@@ -12,53 +13,60 @@ namespace BrownianServices {
         /// </summary>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public BrowniansResult CreateCorrelatedBrownians(BrowniansConfiguration configuration) {          
-            Dictionary <Underlying, List<Double[]>> correlatedBrownians = new(); 
-            Dictionary <Underlying, List<Double[]>> brownians = GetOrCreateBrownians(configuration);
-            var RHO = Matrix<double>.Build.DenseOfArray(configuration.CorrelationMatrix);
-            var L = RHO.Cholesky().Factor;
-            for (int event_id = 0; event_id < configuration.NumberOfDrawings; event_id++) {
-                for (int i = 0; i < configuration.Underlyings.Count; i++) {
-                    Vector<Double> path = Vector<double>.Build.Dense(configuration.NumberOfSteps);
-                    //double[] path = new double[configuration.NumberOfSteps];
-                    
-                    for (int j = 0; j < configuration.Underlyings.Count; j++) {
-                        var src = brownians[configuration.Underlyings[j]][event_id];
+        public BrowniansResult CreateCorrelatedBrownians(BrowniansConfiguration configuration) {
+            int n = configuration.Underlyings.Count;
+            int steps = configuration.NumberOfSteps;
+            int drawings = configuration.NumberOfDrawings;
 
-                        //double coeff = L[i, j];
+            var L = Matrix<double>.Build
+                .DenseOfArray(configuration.CorrelationMatrix)
+                .Cholesky().Factor;
 
-                        //for (int k = 0; k < path.Length; k++) {
-                        //    path[k] += coeff * src[k];
-                        //}
-                        path += L[i, j] * Vector<double>.Build.DenseOfArray(brownians[configuration.Underlyings[j]][event_id]);
+            // pre-generate independent N(0,1) increments per underlying
+            var independent = GetOrCreateBrownians(configuration);
+
+            // pre-initialize output
+            var correlated = configuration.Underlyings.ToDictionary(
+                u => u,
+                _ => new List<double[]>(drawings));
+
+            for (int ω = 0; ω < drawings; ω++) {
+                for (int i = 0; i < n; i++) {
+                    double[] path = new double[steps];
+                    for (int j = 0; j < n; j++) {
+                        double Lij = L[i, j];
+                        if (Lij == 0.0) {
+                            continue; // Cholesky is lower-triangular, skip zeros
+                        }
+                        double[] src = independent[configuration.Underlyings[j]][ω];
+                        for (int k = 0; k < steps; k++) {
+                            path[k] += Lij * src[k];
+                        }
                     }
-                    if (!correlatedBrownians.ContainsKey(configuration.Underlyings[i])) {
-                        correlatedBrownians[configuration.Underlyings[i]] = new List<double[]>();
-                    }
-                    correlatedBrownians[configuration.Underlyings[i]].Add(path.ToArray());
+                    correlated[configuration.Underlyings[i]].Add(path);
                 }
             }
-            return new BrowniansResult() { 
-                paths = correlatedBrownians 
-            };
+
+            return new BrowniansResult() { paths = correlated };
         }
 
-        private List<double[]> CreateBrownian(int steps, int drawings, int seed) {
+        private double[][] CreateBrownian(int steps, int drawings, Random random) {
             double[][] brownian = new double[drawings][];
-            Parallel.For(0, drawings, ω => {
-                var random = new Random(seed + ω);
+            for (int ω = 0; ω < drawings; ω++) {
                 var normal = new Normal(0, 1, random);
                 var path = new double[steps];
                 normal.Samples(path);
                 brownian[ω] = path;
-            });
-            return brownian.ToList();
+            }
+            return brownian;
         }
 
-        private Dictionary<Underlying, List<double[]>> GetOrCreateBrownians(BrowniansConfiguration configuration) {
-            return configuration.Underlyings.ToDictionary(
-                underlying => underlying,
-                underlying => CreateBrownian(configuration.NumberOfSteps, configuration.NumberOfDrawings, underlying.GetHashCode()));
+        private Dictionary<Underlying, double[][]> GetOrCreateBrownians(BrowniansConfiguration configuration) {
+            return configuration.Underlyings
+                .Select(underlying => (underlying, index:configuration.Underlyings.IndexOf(underlying)))
+                .ToDictionary(
+                    tuple => tuple.underlying,
+                    tuple => CreateBrownian(configuration.NumberOfSteps, configuration.NumberOfDrawings, new Random(42 + 1000 * tuple.index)));
         }
     }
 }
