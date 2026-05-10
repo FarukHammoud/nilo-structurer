@@ -6,6 +6,7 @@ namespace Application {
         private IMarketData _marketData;
         private Dictionary<Underlying, IShiftedUnderlyingMarketData> _shifts = new();
         private Dictionary<Currency, double> _discountShifts = new();
+        private double[,]? _overridenCorrelationMatrix = null;
 
         public IList<Underlying> Underlyings => _marketData.Underlyings;
 
@@ -37,15 +38,21 @@ namespace Application {
             return this;
         }
 
+        public ShiftedMarketData ShiftCorrelationMatrix(double[,] correlationMatrix) {
+            _overridenCorrelationMatrix = correlationMatrix;
+            return this;
+        }
+
         public override int GetHashCode() {
-            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode());
+            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode(), _overridenCorrelationMatrix == null ? 0 : _overridenCorrelationMatrix.Cast<double>().GetHashCode());
         }
 
         public override bool Equals(object? obj) {
             if (obj is ShiftedMarketData other) {
                 return _marketData.Equals(other._marketData)
                     && _shifts.SequenceEqual(other._shifts)
-                    && _discountShifts.SequenceEqual(other._discountShifts);
+                    && _discountShifts.SequenceEqual(other._discountShifts)
+                    && ((_overridenCorrelationMatrix == null && other._overridenCorrelationMatrix == null) || (_overridenCorrelationMatrix != null && other._overridenCorrelationMatrix != null && _overridenCorrelationMatrix.Cast<double>().SequenceEqual(other._overridenCorrelationMatrix.Cast<double>())));
             }
             return false;
         }
