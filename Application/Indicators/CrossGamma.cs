@@ -1,9 +1,9 @@
 ﻿using Domain;
 
 namespace Application.Indicators {
-    public class Delta : IIndicator {
+    public class CrossGamma : IIndicator {
         private double _bump;
-        public Delta(double bump = 0.01) { 
+        public CrossGamma(double bump = 0.01) { 
             _bump = bump;
         }
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {

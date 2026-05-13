@@ -1,6 +1,9 @@
 ﻿using Application;
 using Domain;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Complex;
 using MathNet.Numerics.Statistics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PricerServices.Pricers {
     public class NonPathDependentDiffusionPricer : INonPathDependentPricer {
@@ -35,15 +38,29 @@ namespace PricerServices.Pricers {
             }
             Dictionary<Underlying, List<double>> lastResults = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[path.Length - 1]).ToList());
             double[] payoffsAtMaturity = new double[_diffusionConfiguration.NumberOfDrawings];
-            for (int event_id = 0; event_id < _diffusionConfiguration.NumberOfDrawings; event_id++) {
-                Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[event_id]);
-                payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(priceAtMaturity);
+            for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
+                Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[ω]);
+                payoffsAtMaturity[ω] = payoff.GetPayoffAtMaturity(priceAtMaturity);
             }
+            double discountFactor = discounter.GetDiscountFactor(maturity, today);
+            List<double> discountedPayoffs = payoffsAtMaturity.Select(payoffValue => discountFactor * payoffValue).ToList();
+     
+            List<List<double>> controlVariates = lastResults.Select(entry => entry.Value).ToList();
+            Dictionary<Underlying, double> spots = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths[0][0]);
+            List<double> expectations = lastResults.Keys.Select(underlying => spots[underlying] / discounter.GetDiscountFactor(maturity, today)).ToList();
+
+            IVarianceReducer varianceReducer = new ControlVariateReducer(controlVariates, expectations, payoffsAtMaturity.ToList());
+            List<double> adjustedPayoffs = varianceReducer.Adjust(discountedPayoffs);
+            
+            double price = adjustedPayoffs.Average();
+            double precision = adjustedPayoffs.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings);
+
             return new PriceWithPrecision() {
-                Value = discounter.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),
-                Precision = payoffsAtMaturity.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings),
+                Value = price,
+                Precision = precision,
                 Currency = payoff.Currency
             };
         }
+
     }
 }
