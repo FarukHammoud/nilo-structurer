@@ -7,8 +7,8 @@ namespace Application {
         public required IMarketData MarketData { get; set; }
         public required List<IIndicator> Indicators { get; set; }
         public required DateTime PricingDate { get; set; }
-        public required Currency PricingCurrency { get; set; } 
-        public int? NumberOfDrawings { get; set; }
+        public required Currency PricingCurrency { get; set; }
+        public int NumberOfDrawings { get; set; } = 50000;
         public bool WithControlVariate { get; set; } = true;
     }
 }

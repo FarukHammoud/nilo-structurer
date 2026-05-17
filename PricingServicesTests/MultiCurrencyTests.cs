@@ -27,8 +27,8 @@ namespace PricingServicesTests {
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
-                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
-                    .SetSpot(1.17)
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
+                    .SetSpot(0.86)
                     .SetVolatility(0.1))
                 .SetRiskFreeRate(Currencies.EUR, foreignRiskFreeRate)
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
@@ -44,6 +44,7 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
+                WithControlVariate = false,
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
@@ -60,12 +61,12 @@ namespace PricingServicesTests {
             double fxVolatility = 0.1;
             double spotPrice = 100.0;
             double domesticRate = 0.01;
-            double foreignRate = 0.05;
-            double rho = -0.1;
-            double fxSpot = 10.0;
+            double foreignRate = 0.02;
+            double rho = -0.6;
+            double fxSpot = 0.1;
             CompositeForward contract = new() {
-                Maturity = DateTime.Today.AddMonths(48),
-                Strike = 0.0,
+                Maturity = DateTime.Today.AddMonths(360),
+                Strike = 30.0,
                 Underlying = MSFT,
                 Currency = Currencies.EUR,
             };
@@ -77,7 +78,7 @@ namespace PricingServicesTests {
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
-                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
                     .SetSpot(fxSpot)
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
@@ -85,7 +86,7 @@ namespace PricingServicesTests {
                 .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
 
             // Theotetical price
-            double thoreticalPrice = spotPrice / fxSpot;
+            double thoreticalPrice = fxSpot * spotPrice - fxSpot * Math.Exp(-foreignRate * timeToMaturity) * contract.Strike;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -95,7 +96,7 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
-                NumberOfDrawings = 50000,
+                NumberOfDrawings = 250000,
                 WithControlVariate = false,
             };
 
@@ -114,7 +115,7 @@ namespace PricingServicesTests {
             double domesticRate = 0.0265;
             double foreignRate = 0.01855;
             double rho = 0.0;
-            double fxSpot = 1.17;
+            double fxSpot = 0.86;
             CompositeEuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(48),
                 Strike = 380.0,
@@ -129,7 +130,7 @@ namespace PricingServicesTests {
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
-                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
                     .SetSpot(fxSpot)
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
@@ -137,7 +138,7 @@ namespace PricingServicesTests {
                 .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
 
             // Theotetical price using Black-Scholes formula
-            double theoreticalPrice = new Composite(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, 1/fxSpot, foreignRate, volatility).Premium;
+            double theoreticalPrice = new Composite(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, fxSpot, foreignRate, volatility).Premium;
 
             // Price using General Diffusion
             PricingRequest request = new() {
@@ -147,7 +148,8 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
-                NumberOfDrawings = 250000
+                NumberOfDrawings = 250000,
+                WithControlVariate = false,
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
@@ -165,12 +167,13 @@ namespace PricingServicesTests {
             double domesticRate = 0.0265;
             double foreignRate = 0.01855;
             double rho = 0.2;
+            double fxSpot = 0.8547;
             QuantoEuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 Underlying = MSFT,
                 Currency = Currencies.EUR,
-                FxRate = 0.8547
+                FxRate = fxSpot
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -180,8 +183,8 @@ namespace PricingServicesTests {
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
-                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
-                    .SetSpot(1.17)
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
+                    .SetSpot(fxSpot)
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
@@ -197,10 +200,10 @@ namespace PricingServicesTests {
                 Indicators = [premium],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.EUR
+                PricingCurrency = Currencies.EUR,
+                WithControlVariate = false
             };
 
-            double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][premium];
 
@@ -216,12 +219,13 @@ namespace PricingServicesTests {
             double domesticRate = 0.0265;
             double foreignRate = 0.01855;
             double rho = 0.2;
+            double fxSpot = 0.8547;
             QuantoEuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 Underlying = MSFT,
                 Currency = Currencies.EUR,
-                FxRate = 0.8547
+                FxRate = fxSpot
             };
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -231,8 +235,8 @@ namespace PricingServicesTests {
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
-                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
-                    .SetSpot(1.17)
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
+                    .SetSpot(fxSpot)
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
@@ -248,7 +252,8 @@ namespace PricingServicesTests {
                 Indicators = [premium],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.EUR
+                PricingCurrency = Currencies.EUR,
+                WithControlVariate = false
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);

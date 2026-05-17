@@ -39,12 +39,11 @@ namespace PricerServices {
             Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults = new();
             if (request.ModelConfiguration.Pricing is MonteCarlo) {
                 IPricerConfiguration? pricerConfiguration = null;
-                if (request.NumberOfDrawings.HasValue) {
-                    pricerConfiguration = new DiffusionPricerConfiguration {
-                        NumberOfDrawings = request.NumberOfDrawings.Value,
-                        Currency = request.PricingCurrency
-                    };
-                }
+                pricerConfiguration = new DiffusionPricerConfiguration {
+                    NumberOfDrawings = request.NumberOfDrawings,
+                    Currency = request.PricingCurrency,
+                    WithControlVariate = request.WithControlVariate
+                };
                 if (nonPathDependentContracts.Any()) {
                     INonPathDependentPricer pricer = new NonPathDependentDiffusionPricer();
                     foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {

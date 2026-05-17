@@ -16,7 +16,7 @@ namespace Application {
 
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
             double underlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_underlying, pricesAtMaturity);
-            double fxValue = 1 / pricesAtMaturity[CurrencyPairs.EURUSD];
+            double fxValue = pricesAtMaturity[_currencyPair];
             return fxValue * _payoffMap(underlyingValue);
         }
 

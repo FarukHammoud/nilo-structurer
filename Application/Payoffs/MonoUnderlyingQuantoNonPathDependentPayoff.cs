@@ -18,8 +18,8 @@ namespace Application {
 
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
             double underlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_underlying, pricesAtMaturity);
-            double Xt = 1 / pricesAtMaturity[CurrencyPairs.EURUSD];
-            double radonNikodymDerivative = Xt / _fxRate;
+            double Xt = pricesAtMaturity[_currencyPair];
+            double radonNikodymDerivative = 1;//Xt * _fxRate;
             return _fxRate * radonNikodymDerivative * _payoffMap(underlyingValue);
         }
 
