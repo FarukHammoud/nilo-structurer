@@ -272,7 +272,7 @@ namespace PricingServices.Tests {
         }
 
         [TestMethod]
-        public void ImpliedVolatility() {
+        public void ImpliedVolatilityCall() {
             Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
             double spotPrice = 370.17;
@@ -304,6 +304,42 @@ namespace PricingServices.Tests {
             };
             var results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][impliedVolatility];
+
+            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
+        }
+
+        [TestMethod]
+        public void ImpliedVolatilityPut() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            double volatility = 0.34;
+            double spotPrice = 370.17;
+            EuropeanPut contract = new() {
+                Maturity = DateTime.Today.AddMonths(3),
+                Strike = spotPrice,
+                Underlying = MSFT,
+                Currency = Currencies.USD
+            };
+            // Theotetical delta using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .SetRiskFreeRate(Currencies.USD, 0.0265);
+
+            // Price using General Diffusion
+            IIndicator impliedVolatility = new ImpliedVolatility();
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [impliedVolatility],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][impliedVolatility];
 
             Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
         }
