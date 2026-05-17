@@ -21,9 +21,9 @@ namespace PricerServices {
                 if (equity.Currency == _diffusionCurrency) {
                     return diffusionDiscountFactor;
                 }
-                IDiscounter foreignDiscounter = _marketData.GetDiscounter(equity.Currency);
-                double foreignDiscountFactor = foreignDiscounter.GetDiscountFactor(t1, t0);
-                return foreignDiscountFactor / diffusionDiscountFactor;
+                IDriftProvider driftProvider = new DriftProvider();
+                double drift = driftProvider.GetDrift(equity, _diffusionCurrency, _marketData, t0, t1);
+                return Math.Exp(-drift * (t1 - t0).TotalYears);
             }
 
             if (_underlying is CurrencyPair fx) {

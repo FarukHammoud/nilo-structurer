@@ -44,7 +44,6 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
-                WithControlVariate = false,
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
@@ -97,7 +96,6 @@ namespace PricingServicesTests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
                 NumberOfDrawings = 250000,
-                WithControlVariate = false,
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
@@ -149,7 +147,6 @@ namespace PricingServicesTests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
                 NumberOfDrawings = 250000,
-                WithControlVariate = false,
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
@@ -201,7 +198,6 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
-                WithControlVariate = false
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
@@ -253,7 +249,6 @@ namespace PricingServicesTests {
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
-                WithControlVariate = false
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
