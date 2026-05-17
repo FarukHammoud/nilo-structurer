@@ -1,9 +1,6 @@
 ﻿using Application;
 using Domain;
-using MathNet.Numerics.LinearAlgebra;
-using MathNet.Numerics.LinearAlgebra.Complex;
 using MathNet.Numerics.Statistics;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PricerServices.Pricers {
     public class NonPathDependentDiffusionPricer : INonPathDependentPricer {
@@ -12,7 +9,6 @@ namespace PricerServices.Pricers {
         private DiffusionResult? _diffusion;
         
         private Func<IMarketData, List<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
-            NumberOfDrawings = 50000,
             MarketData = marketData,
             TimeDiscretization = timeDiscretization,
             Currency = Currencies.USD,
@@ -25,6 +21,7 @@ namespace PricerServices.Pricers {
                     MarketData = marketData,
                     TimeDiscretization = timeDiscretization,
                     Currency = diffusionPricerConfiguration.Currency,
+                    WithControlVariate = diffusionPricerConfiguration.WithControlVariate,
                 };
             } else {
                 _diffusionConfiguration = _diffusionConfigurationFactory(marketData, timeDiscretization);
@@ -44,16 +41,19 @@ namespace PricerServices.Pricers {
             }
             double discountFactor = discounter.GetDiscountFactor(maturity, today);
             List<double> discountedPayoffs = payoffsAtMaturity.Select(payoffValue => discountFactor * payoffValue).ToList();
-     
+
             List<List<double>> controlVariates = lastResults.Select(entry => entry.Value).ToList();
             Dictionary<Underlying, double> spots = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths[0][0]);
-            List<double> expectations = lastResults.Keys.Select(underlying => spots[underlying] / discounter.GetDiscountFactor(maturity, today)).ToList();
+            List<double> expectations = lastResults.Keys.Select(underlying => spots[underlying] / new UnderlyingDiscounterProvider(underlying, _diffusionConfiguration.Currency, _diffusionConfiguration.MarketData).GetDiscountFactor(maturity, today)).ToList();
+            List<double> realizedAverages = lastResults.Values.Select(values => values.Average()).ToList(); // debugging purposes
 
             IVarianceReducer varianceReducer = new ControlVariateReducer(controlVariates, expectations, payoffsAtMaturity.ToList());
-            List<double> adjustedPayoffs = varianceReducer.Adjust(discountedPayoffs);
+            if (_diffusionConfiguration.WithControlVariate) {
+                discountedPayoffs = varianceReducer.Adjust(discountedPayoffs);
+            }
             
-            double price = adjustedPayoffs.Average();
-            double precision = adjustedPayoffs.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings);
+            double price = discountedPayoffs.Average();
+            double precision = discountedPayoffs.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings);
 
             return new PriceWithPrecision() {
                 Value = price,

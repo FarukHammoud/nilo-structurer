@@ -42,7 +42,7 @@ namespace PricerServices {
                 if (request.NumberOfDrawings.HasValue) {
                     pricerConfiguration = new DiffusionPricerConfiguration {
                         NumberOfDrawings = request.NumberOfDrawings.Value,
-                        Currency = request.MarketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : request.MarketData.Currencies.First() 
+                        Currency = request.PricingCurrency
                     };
                 }
                 if (nonPathDependentContracts.Any()) {
@@ -81,7 +81,7 @@ namespace PricerServices {
             DateTime pricingDate,
             Currency pricingCurrency) {
             IEnumerable<PriceWithPrecision> payoffPrices = nonPathDependentContract.Payoffs.Select(
-                                            payoff => pricer.Price(payoff.Item2, marketData.GetDiscounter(payoff.Item2.Currency), payoff.Item1, pricingDate)).ToList();
+                                            payoff => pricer.Price(payoff.Item2, marketData.GetDiscounter(pricingCurrency), payoff.Item1, pricingDate)).ToList();
             PriceWithPrecision aggregatedPayoffValue = new() {
                 Value = payoffPrices.Sum(price => price.Value * marketData.GetFxRate(price.Currency, pricingCurrency)),
                 Precision = Math.Sqrt(payoffPrices.Sum(pv => Math.Pow(pv.Precision, 2))),

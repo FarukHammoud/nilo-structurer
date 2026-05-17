@@ -9,5 +9,6 @@ namespace Application {
         public required DateTime PricingDate { get; set; }
         public required Currency PricingCurrency { get; set; } 
         public int? NumberOfDrawings { get; set; }
+        public bool WithControlVariate { get; set; } = true;
     }
 }

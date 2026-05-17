@@ -54,6 +54,58 @@ namespace PricingServicesTests {
         }
 
         [TestMethod]
+        public void CompositeForward() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            double volatility = 0.3;
+            double fxVolatility = 0.1;
+            double spotPrice = 100.0;
+            double domesticRate = 0.01;
+            double foreignRate = 0.05;
+            double rho = -0.1;
+            double fxSpot = 10.0;
+            CompositeForward contract = new() {
+                Maturity = DateTime.Today.AddMonths(48),
+                Strike = 0.0,
+                Underlying = MSFT,
+                Currency = Currencies.EUR,
+            };
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+
+            // we need one discounter by currency
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
+                    .SetSpot(fxSpot)
+                    .SetVolatility(fxVolatility))
+                .SetRiskFreeRate(Currencies.USD, foreignRate)
+                .SetRiskFreeRate(Currencies.EUR, domesticRate)
+                .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
+
+            // Theotetical price
+            double thoreticalPrice = spotPrice / fxSpot;
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.EUR,
+                NumberOfDrawings = 50000,
+                WithControlVariate = false,
+            };
+
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+
+            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
         public void CompositeEuropeanCall() {
             Equity MSFT = new("MSFT", Currencies.USD);
             double volatility = 0.34;
@@ -64,7 +116,7 @@ namespace PricingServicesTests {
             double rho = 0.0;
             double fxSpot = 1.17;
             CompositeEuropeanCall contract = new() {
-                Maturity = DateTime.Today.AddMonths(12),
+                Maturity = DateTime.Today.AddMonths(48),
                 Strike = 380.0,
                 Underlying = MSFT,
                 Currency = Currencies.EUR,

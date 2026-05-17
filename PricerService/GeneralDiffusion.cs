@@ -20,6 +20,7 @@ namespace PricerServices {
             int drawings = configuration.NumberOfDrawings;
             IMarketData marketData = configuration.MarketData;
             IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
+            IDriftProvider driftProvider = new DriftProvider();
             double spot = underlyingMarketData.GetSpot();
             DateTime T = configuration.TimeDiscretization.LastOrDefault();
             ILocalVolatilityModel volatility = underlyingMarketData.GetVolatility();
@@ -36,8 +37,9 @@ namespace PricerServices {
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
-					double μ = GetDrift(underlying, configuration.Currency, marketData, t_1, t, μ_adjustment);
-					double b = underlyingMarketData.GetCarry();
+					double μ = driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
+                    μ += μ_adjustment;
+                    double b = underlyingMarketData.GetCarry();
                     double timeToMaturity = (T - t).TotalYears;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalYears;
@@ -53,26 +55,5 @@ namespace PricerServices {
             }
             return new Realizations { Paths = paths };
         }
-
-        private static double GetDrift(Underlying underlying, Currency diffusionCurrency, IMarketData marketData, DateTime t_1, DateTime t, double μ_adjustment) {
-			double μ = 0;
-            IDiscounter discounter = marketData.GetDiscounter(diffusionCurrency);
-			if (underlying is Equity equity) {
-				μ = discounter.GetForwardRate(t_1, t);
-				if (equity.Currency != diffusionCurrency) {
-					IDiscounter underlyingDiscounter = marketData.GetDiscounter(underlying.Currency);
-					double r_foreign = underlyingDiscounter.GetForwardRate(t_1, t);
-					μ -= r_foreign;
-				}
-			} else if (underlying is CurrencyPair fxPair) {
-				IDiscounter baseDiscounter = marketData.GetDiscounter(fxPair.Base);
-				IDiscounter quoteDiscounter = marketData.GetDiscounter(fxPair.Quote);
-				double r_base = baseDiscounter.GetForwardRate(t_1, t);
-				double r_quote = quoteDiscounter.GetForwardRate(t_1, t);
-				μ = r_quote - r_base;
-			}
-			μ += μ_adjustment;
-            return μ;
-		}
     }
 }
