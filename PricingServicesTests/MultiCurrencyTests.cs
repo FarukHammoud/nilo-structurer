@@ -82,7 +82,7 @@ namespace PricingServicesTests {
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
-                .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
+                .SetCorrelation(MSFT, CurrencyPairs.USDEUR, rho);
 
             // Theotetical price
             double thoreticalPrice = fxSpot * spotPrice - fxSpot * Math.Exp(-foreignRate * timeToMaturity) * contract.Strike;
@@ -133,7 +133,7 @@ namespace PricingServicesTests {
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
-                .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
+                .SetCorrelation(MSFT, CurrencyPairs.USDEUR, rho);
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new Composite(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, fxSpot, foreignRate, volatility).Premium;
@@ -185,7 +185,7 @@ namespace PricingServicesTests {
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
-                .SetCorrelationMatrix(new double[2,2] {{1, rho}, {rho, 1}});
+                .SetCorrelation(MSFT, CurrencyPairs.USDEUR, rho);
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new ReinerQuanto(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, contract.FxRate, domesticRate, foreignRate, volatility, fxVolatility, rho).Premium;
@@ -236,7 +236,7 @@ namespace PricingServicesTests {
                     .SetVolatility(fxVolatility))
                 .SetRiskFreeRate(Currencies.USD, foreignRate)
                 .SetRiskFreeRate(Currencies.EUR, domesticRate)
-                .SetCorrelationMatrix(new double[2, 2] { { 1, rho }, { rho, 1 } });
+                .SetCorrelation(MSFT, CurrencyPairs.USDEUR, rho);
 
             // Theotetical price using Black-Scholes formula
             double theoreticalPrice = new ReinerQuanto(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, contract.FxRate, domesticRate, foreignRate, volatility, fxVolatility, rho).Premium;

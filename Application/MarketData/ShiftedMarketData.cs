@@ -75,8 +75,8 @@ namespace Application {
             return new ShiftedDiscounter(_marketData.GetDiscounter(currency), _discountShifts[currency]);
         }
 
-        public double[,] GetCorrelationMatrix(IList<Underlying> underlyings) {
-            return _marketData.GetCorrelationMatrix(underlyings);
+        public double GetCorrelation(Underlying underlying1, Underlying underlying2) {
+            return _marketData.GetCorrelation(underlying1, underlying2);
         }
     }
 }

@@ -3,7 +3,7 @@
         IList<Underlying> Underlyings { get; }
         IList<Currency> Currencies { get; }
         IDiscounter GetDiscounter(Currency currency);
-        double[,] GetCorrelationMatrix(IList<Underlying> underlyings);
+        double GetCorrelation(Underlying underlying1, Underlying underlying2);
         IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying);
     }
 }

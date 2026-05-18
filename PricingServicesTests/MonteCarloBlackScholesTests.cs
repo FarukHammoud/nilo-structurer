@@ -325,10 +325,7 @@ namespace PricingServices.Tests {
                     .SetSpot(spotAAPL)
                     .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(new double[,] {
-                    { 1.0, rho },
-                    { rho, 1.0 }
-                });
+                .SetCorrelation(MSFT, AAPL, rho);
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -374,10 +371,7 @@ namespace PricingServices.Tests {
                     .SetSpot(spotAAPL)
                     .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(new double[,] {
-                    { 1.0, rho },
-                    { rho, 1.0 }
-                });
+                .SetCorrelation(MSFT, AAPL, rho);
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -423,10 +417,7 @@ namespace PricingServices.Tests {
                     .SetSpot(spotAAPL)
                     .SetVolatility(volatilityAAPL))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate)
-                .SetCorrelationMatrix(new double[,] {
-                    { 1.0, rho },
-                    { rho, 1.0 }
-                });
+                .SetCorrelation(MSFT, AAPL, rho);
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;

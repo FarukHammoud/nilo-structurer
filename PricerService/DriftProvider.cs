@@ -10,9 +10,10 @@ namespace PricerServices {
                 if (equity.Currency != diffusionCurrency) {
                     IDiscounter foreignDiscounter = marketData.GetDiscounter(underlying.Currency);
                     μ = foreignDiscounter.GetForwardRate(t_1, t);
-                    double sigma_S = marketData.GetUnderlyingMarketData(equity).GetVolatility().getVolatility(0,0); // todo
-                    double sigma_X = marketData.GetUnderlyingMarketData(new CurrencyPair(equity.Currency, diffusionCurrency)).GetVolatility().getVolatility(0, 0);
-                    double rho = marketData.GetCorrelationMatrix(new List<Underlying> { equity, new CurrencyPair(equity.Currency, diffusionCurrency) })[0, 1];
+                    CurrencyPair fxPair = new CurrencyPair(equity.Currency, diffusionCurrency);
+                    double sigma_S = marketData.GetUnderlyingMarketData(equity).GetVolatility().getVolatility(0, 0); // todo
+                    double sigma_X = marketData.GetUnderlyingMarketData(fxPair).GetVolatility().getVolatility(0, 0);
+                    double rho = marketData.GetCorrelation(equity, fxPair);
                     double quantoAdjustment = - rho * sigma_S * sigma_X;
                     μ += quantoAdjustment;
                 }

@@ -13,7 +13,7 @@ namespace PricerServices {
         public BrowniansConfiguration BrowniansConfiguration =>
             new BrowniansConfiguration {
                 Underlyings = MarketData.Underlyings,
-                CorrelationMatrix = MarketData.GetCorrelationMatrix(MarketData.Underlyings),
+                CorrelationMatrix = CorrelationMatrixBuilder.GetCorrelationMatrix(MarketData),
                 NumberOfDrawings = NumberOfDrawings,
                 NumberOfSteps = TimeDiscretization.Count
             };

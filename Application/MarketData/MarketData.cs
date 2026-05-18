@@ -1,31 +1,39 @@
 ﻿using Domain;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace Application {
     public class MarketData : IMarketData {
         private Dictionary<Currency, IDiscounter> _discounters = new();
         private List<Underlying> _underlyings = new();
         private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
-        private Double[,]? _correlationMatrix = null;
+        private Dictionary<(Underlying, Underlying), double> _correlations = new();
 
         public IList<Underlying> Underlyings => _underlyingMarketData.Keys.ToList();
         public IList<Currency> Currencies => _discounters.Keys.ToList();
-        public double[,] GetCorrelationMatrix(IList<Underlying> underlyings) {
-            if (_correlationMatrix == null) {
-                int n = underlyings.Count;
-                return Matrix<double>.Build.DenseIdentity(n).ToArray();
-            }
-            return _correlationMatrix;
-        }
-
+        
         public MarketData For<T>(Underlying underlying, Action<T> configure) where T : IUnderlyingMarketData {
             configure((T)GetOrCreate(underlying));
             return this;
         }
 
-        public MarketData SetCorrelationMatrix(double[,] correlationMatrix) {
-            _correlationMatrix = correlationMatrix;
+        public MarketData SetCorrelation(Underlying u1, Underlying u2, double correlation) {
+            var key = GetCorrelationKey(u1, u2);
+            _correlations[key] = correlation;
             return this;
+        }
+
+        public double GetCorrelation(Underlying u1, Underlying u2) {
+            if(u1 == u2) {
+                return 1.0;
+            }
+            var key = GetCorrelationKey(u1, u2);
+            if (!_correlations.TryGetValue(key, out var correlation)) {
+                correlation = 0.0;
+            }
+            return correlation;
+        }
+
+        private (Underlying, Underlying) GetCorrelationKey(Underlying u1, Underlying u2) {
+            return u1.Code.CompareTo(u2.Code) < 0 ? (u1, u2) : (u2, u1);
         }
 
         public MarketData SetRiskFreeRate(Currency currency, double riskFreeRate) {

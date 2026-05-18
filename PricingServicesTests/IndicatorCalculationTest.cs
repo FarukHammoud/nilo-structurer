@@ -73,8 +73,7 @@ namespace PricingServices.Tests {
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
                 .SetRiskFreeRate(Currencies.USD, usdRiskFreeRate)
-                .SetRiskFreeRate(Currencies.EUR, eurRiskFreeRate)
-                .SetCorrelationMatrix(Matrix<double>.Build.DenseIdentity(2).ToArray());
+                .SetRiskFreeRate(Currencies.EUR, eurRiskFreeRate);
 
             // Theotetical delta using Black-Scholes
             double theoreticalDelta = new BlackScholes(
