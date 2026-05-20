@@ -28,6 +28,25 @@ namespace Domain {
             return C1 + C2 - CallWorstOf(S1, S2, K, r, σ1, σ2, ρ, T);
         }
 
+        public static double PutBestOf(double S1, double S2, double K,
+                       double r, double σ1, double σ2,
+                       double ρ, double T) {
+            double P1 = new BlackScholes(OptionType.Put, S1, K, T, r, σ1).Premium;
+            double P2 = new BlackScholes(OptionType.Put, S2, K, T, r, σ2).Premium;
+            return P1 + P2 - PutWorstOf(S1, S2, K, r, σ1, σ2, ρ, T);
+        }
+
+        // Option to exchange one asset for another (i.e. strike = 0)
+        // Margrabe (1978)
+        private static double CallWorstOfZeroStrike(double S1, double S2,
+                       double r, double σ1, double σ2,
+                       double ρ, double T) {
+            double σRatio = Math.Sqrt(σ1 * σ1 + σ2 * σ2 - 2 * ρ * σ1 * σ2);
+            double d1 = (Math.Log(S1 / S2) + 0.5 * σRatio * σRatio * T) / (σRatio * Math.Sqrt(T));
+            double d2 = d1 - σRatio * Math.Sqrt(T);
+            return S1 - S1 * N(d1) + S2 * N(d2);
+        }
+
         public static double CallWorstOf(double S1, double S2, double K,
                                double r, double σ1, double σ2,
                                double ρ, double T) {
@@ -42,6 +61,14 @@ namespace Domain {
             double ρS2Ratio = (σ2 - ρ * σ1) / σRatio;
             return S1 * N2(D1_1, -e1, -ρS1Ratio) + S2 * N2(D1_2, -e2, -ρS2Ratio)
                  - K * Exp(-r * T) * N2(D2_1, D2_2, ρ);
+        }
+
+        public static double PutWorstOf(double S1, double S2, double K,
+                       double r, double σ1, double σ2,
+                       double ρ, double T) {
+            return K * Exp(-r * T)
+                - CallWorstOfZeroStrike(S1, S2, r, σ1, σ2, ρ, T)  // M(V,H,0,τ)
+                + CallWorstOf(S1, S2, K, r, σ1, σ2, ρ, T); // M(V,H,F,τ)
         }
 
         public static double DoubleDigital2D(double X, double Y, double Kx, double Ky,

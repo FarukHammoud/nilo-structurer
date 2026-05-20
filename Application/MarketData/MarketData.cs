@@ -2,10 +2,9 @@
 
 namespace Application {
     public class MarketData : IMarketData {
-        private Dictionary<Currency, IDiscounter> _discounters = new();
-        private List<Underlying> _underlyings = new();
+        private OrderedDictionary<Currency, IDiscounter> _discounters = new();    
         private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
-        private Dictionary<(Underlying, Underlying), double> _correlations = new();
+        private OrderedDictionary<(Underlying, Underlying), double> _correlations = new();
 
         public IList<Underlying> Underlyings => _underlyingMarketData.Keys.ToList();
         public IList<Currency> Currencies => _discounters.Keys.ToList();
@@ -50,8 +49,6 @@ namespace Application {
             return _discounters[currency];
         }
 
-        
-
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
             return _underlyingMarketData[underlying];
         }
@@ -62,9 +59,10 @@ namespace Application {
                     marketData = new CurrencyPairMarketData();
                 } else if (underlying is Equity) {
                     marketData = new EquityMarketData();
+                } else {
+                    throw new InvalidOperationException($"Unsupported underlying type: {underlying.GetType().Name}");
                 }
                 _underlyingMarketData[underlying] = marketData;
-                _underlyings.Add(underlying);
             }
             return marketData;
         }

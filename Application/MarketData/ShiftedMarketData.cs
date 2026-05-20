@@ -6,7 +6,7 @@ namespace Application {
         private IMarketData _marketData;
         private Dictionary<Underlying, IShiftedUnderlyingMarketData> _shifts = new();
         private Dictionary<Currency, double> _discountShifts = new();
-        private double[,]? _overridenCorrelationMatrix = null;
+        private Dictionary<(Underlying, Underlying), double> _correlationsShifts = new();
 
         public IList<Underlying> Underlyings => _marketData.Underlyings;
 
@@ -38,13 +38,25 @@ namespace Application {
             return this;
         }
 
-        public ShiftedMarketData ShiftCorrelationMatrix(double[,] correlationMatrix) {
-            _overridenCorrelationMatrix = correlationMatrix;
+        public ShiftedMarketData ShiftCorrelation(Underlying underlying1, Underlying underlying2, double shift) {
+            var key = GetCorrelationKey(underlying1, underlying2);
+            _correlationsShifts[key] = shift;
             return this;
         }
 
+        public ShiftedMarketData SetCorrelation(Underlying underlying1, Underlying underlying2, double correlation) {
+            var key = GetCorrelationKey(underlying1, underlying2);
+            var currentCorrelation = _marketData.GetCorrelation(underlying1, underlying2);
+            _correlationsShifts[key] = correlation - currentCorrelation;
+            return this;
+        }
+
+        private (Underlying, Underlying) GetCorrelationKey(Underlying u1, Underlying u2) {
+            return u1.Code.CompareTo(u2.Code) < 0 ? (u1, u2) : (u2, u1);
+        }
+
         public override int GetHashCode() {
-            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode(), _overridenCorrelationMatrix == null ? 0 : _overridenCorrelationMatrix.Cast<double>().GetHashCode());
+            return HashCode.Combine(_marketData, _shifts.GetContentHashCode(), _discountShifts.GetContentHashCode(), _correlationsShifts.GetContentHashCode());
         }
 
         public override bool Equals(object? obj) {
@@ -52,7 +64,7 @@ namespace Application {
                 return _marketData.Equals(other._marketData)
                     && _shifts.SequenceEqual(other._shifts)
                     && _discountShifts.SequenceEqual(other._discountShifts)
-                    && ((_overridenCorrelationMatrix == null && other._overridenCorrelationMatrix == null) || (_overridenCorrelationMatrix != null && other._overridenCorrelationMatrix != null && _overridenCorrelationMatrix.Cast<double>().SequenceEqual(other._overridenCorrelationMatrix.Cast<double>())));
+                    && _correlationsShifts.SequenceEqual(other._correlationsShifts);
             }
             return false;
         }
@@ -76,6 +88,10 @@ namespace Application {
         }
 
         public double GetCorrelation(Underlying underlying1, Underlying underlying2) {
+            var key = GetCorrelationKey(underlying1, underlying2);
+            if (_correlationsShifts.ContainsKey(key)) {
+                return _marketData.GetCorrelation(underlying1, underlying2) + _correlationsShifts[key];
+            }
             return _marketData.GetCorrelation(underlying1, underlying2);
         }
     }

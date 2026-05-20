@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Indicators;
 using Domain;
 using FixedIncomeServices;
 using MathNet.Numerics.LinearAlgebra;
@@ -436,6 +437,302 @@ namespace PricingServices.Tests {
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void PutBestOfPremium() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanPut contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double theoreticalPrice = Stulz.PutBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD,
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void PutWorstOfPremium() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanPut contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double theoreticalPrice = Stulz.PutWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho, timeToMaturity);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void CallWorstOfIsLongCorrelation() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double bump = 0.01;
+            double downPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
+            double upPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
+            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+
+           
+            Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of option is long correlation");
+            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+        }
+
+        [TestMethod]
+        public void CallBestOfIsShortCorrelation() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double bump = 0.01;
+            double downPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
+            double upPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
+            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+
+
+            Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of call option is short correlation");
+            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+        }
+
+        [TestMethod]
+        public void PutWorstOfIsShortCorrelation() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanPut contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double bump = 0.01;
+            double downPrice = Stulz.PutWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
+            double upPrice = Stulz.PutWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
+            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+
+
+            Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of put option is short correlation");
+            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+        }
+
+        [TestMethod]
+        public void PutBestOfIsLongCorrelation() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            Equity AAPL = new("AAPL", Currencies.USD);
+            double rho = 0.5;
+            double riskFreeRate = 0.05;
+            double volatilityMSFT = 0.2;
+            double volatilityAAPL = 0.3;
+            double spotMSFT = 100;
+            double spotAAPL = 100;
+            double strike = 100;
+            EuropeanPut contract = new() {
+                Maturity = DateTime.Today.AddMonths(12),
+                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Strike = strike,
+                Currency = Currencies.USD
+            };
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotMSFT)
+                    .SetVolatility(volatilityMSFT))
+                .For<EquityMarketData>(AAPL, md => md
+                    .SetSpot(spotAAPL)
+                    .SetVolatility(volatilityAAPL))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate)
+                .SetCorrelation(MSFT, AAPL, rho);
+
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double bump = 0.01;
+            double downPrice = Stulz.PutBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
+            double upPrice = Stulz.PutBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
+            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = new List<IContract>() { contract },
+                MarketData = marketData,
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+
+
+            Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of put option is long correlation");
+            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
         }
     }
 }

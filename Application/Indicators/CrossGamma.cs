@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Application.Indicators {
+namespace Application {
     public class CrossGamma : IIndicator {
         private double _bump;
         public CrossGamma(double bump = 0.01) { 
