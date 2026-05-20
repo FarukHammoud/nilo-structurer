@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FederalReserveEconomicData {
+﻿namespace FederalReserveEconomicData {
     public static class FredReader {
         public static List<FredRate> Read(string path) {
             return File.ReadLines(path)

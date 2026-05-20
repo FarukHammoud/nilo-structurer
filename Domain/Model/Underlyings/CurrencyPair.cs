@@ -5,7 +5,7 @@
         public override Currency Currency => Quote;
 
         public CurrencyPair(Currency @base, Currency quote)
-            : base($"{@base.Code}{quote.Code}") {
+            : base($"{@base.Code}{quote.Code}=X") {
             Base = @base;
             Quote = quote;
         }
