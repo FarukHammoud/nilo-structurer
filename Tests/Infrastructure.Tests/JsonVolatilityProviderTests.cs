@@ -8,8 +8,9 @@ namespace Infrastructure.Tests {
         public async Task GetVolatilitiesAsync_ReturnsCorrectVolatilities() {
             // Arrange
             var path = "Tests/Infrastructure.Tests/Data/option_prices.json";
+            var optionPriceProvider = new JsonOptionPriceProvider(path);
             var volatilitySurfaceBuilder = new InterpolationVolatilitySurfaceBuilder();
-            var provider = new JsonVolatilityProvider(path, volatilitySurfaceBuilder);
+            var provider = new JsonVolatilityProvider(optionPriceProvider, volatilitySurfaceBuilder);
             Underlying MSFT = new Equity("MSFT", Currencies.USD);
             Underlying AAPL = new Equity("AAPL", Currencies.USD);
 
