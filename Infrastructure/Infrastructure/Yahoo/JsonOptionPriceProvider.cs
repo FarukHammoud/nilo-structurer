@@ -38,7 +38,7 @@ namespace Infrastructure {
         );
 
         private static bool IsValidData(ContractDetails contractDetails) {
-            if (contractDetails.Bid == 0 || contractDetails.Ask == 0) {
+            if (!contractDetails.LastPrice.HasValue) {
                 return false;
             }
             return true;

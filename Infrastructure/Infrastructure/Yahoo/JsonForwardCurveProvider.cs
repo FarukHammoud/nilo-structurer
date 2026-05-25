@@ -2,6 +2,9 @@
 using Domain;
 
 namespace Infrastructure {
+    // To get forward curve from option prices we construct synthetic forwards (C - P)
+    // We can try to fit Forward price and discount factor for a specific maturity
+    // or from a more trustable discount factor source, only fit the forward price
     public class JsonForwardCurveProvider : IForwardCurveProvider {
         private readonly IOptionPriceProvider _optionPriceProvider;
         private readonly IDiscounter _discounter;
@@ -11,8 +14,7 @@ namespace Infrastructure {
         }
 
         private static bool IsValidData(OptionMarketData optionMarketData) {
-            return optionMarketData.Bid > 0 &&  
-                optionMarketData.Ask > 0 && optionMarketData.Volume > 0;
+            return optionMarketData.Volume > 5; // bid/ask are 0 out of US market hours
         }
 
         private static double GetWeight(VanillaContract vanillaContract, OptionMarketData marketData) {
@@ -60,10 +62,9 @@ namespace Infrastructure {
                         OptionMarketData callMarketData = marketDataByContract[call];
                         VanillaContract put = marketDataByContract.Keys.First(a => a is IPut) as VanillaContract;
                         OptionMarketData putMarketData = marketDataByContract[put];
-                        double callWeight = GetWeight(call, callMarketData);
-                        double putWeight = GetWeight(put, putMarketData);
-                        forwardPrice += callWeight * putWeight * GetForwardPrice(call.Strike, call.Maturity, callMarketData.LastPrice, putMarketData.LastPrice);
-                        weightSum += callWeight * putWeight;
+                        double weight = GetWeight(call, callMarketData) * GetWeight(put, putMarketData);
+                        forwardPrice += weight * GetForwardPrice(call.Strike, call.Maturity, callMarketData.LastPrice, putMarketData.LastPrice);
+                        weightSum += weight;
                     }
                     forwardPrice /= weightSum;
                     forwardCurve.setNode(maturity, forwardPrice);
