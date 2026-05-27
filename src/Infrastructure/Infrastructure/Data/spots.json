@@ -1,0 +1,26 @@
+{
+  "AAPL": {
+    "spot": 301.584991,
+    "prevClose": 298.9656,
+    "changePct": 0.8762,
+    "currency": "USD",
+    "assetType": "Stock",
+    "asOf": "2026-05-20"
+  },
+  "MSFT": {
+    "spot": 420.399994,
+    "prevClose": 416.78,
+    "changePct": 0.8686,
+    "currency": "USD",
+    "assetType": "Stock",
+    "asOf": "2026-05-20"
+  },
+  "EURUSD=X": {
+    "spot": 1.163061,
+    "prevClose": 1.16117,
+    "changePct": 0.1628,
+    "currency": "USD",
+    "assetType": "CurrencyPair",
+    "asOf": "2026-05-20"
+  }
+}

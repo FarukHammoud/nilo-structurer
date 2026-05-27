@@ -1,0 +1,73 @@
+{
+  "generated_at": "2026-05-26T18:16:45Z",
+  "underlying": "S&P 500 (ES E-mini)",
+  "exchange": "CME",
+  "futures": [
+    {
+      "ticker": "ESM26.CME",
+      "maturity": "2026-06-19",
+      "price": 7526.0,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESU26.CME",
+      "maturity": "2026-09-18",
+      "price": 7586.0,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESZ26.CME",
+      "maturity": "2026-12-18",
+      "price": 7656.0,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESH27.CME",
+      "maturity": "2027-03-19",
+      "price": 7687.0,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESM27.CME",
+      "maturity": "2027-06-18",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESU27.CME",
+      "maturity": "2027-09-17",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESZ27.CME",
+      "maturity": "2027-12-17",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESH28.CME",
+      "maturity": "2028-03-17",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESM28.CME",
+      "maturity": "2028-06-16",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESU28.CME",
+      "maturity": "2028-09-15",
+      "price": null,
+      "currency": "USD"
+    },
+    {
+      "ticker": "ESZ28.CME",
+      "maturity": "2028-12-15",
+      "price": null,
+      "currency": "USD"
+    }
+  ]
+}
