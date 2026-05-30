@@ -72,7 +72,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.BinaryTree,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD

@@ -41,7 +41,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -79,7 +79,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -117,7 +117,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -155,7 +155,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -207,7 +207,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = new List<IContract>() { book },
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -245,7 +245,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -287,7 +287,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -336,7 +336,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -382,7 +382,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
@@ -428,7 +428,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -474,7 +474,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
@@ -520,7 +520,7 @@ namespace PricingServices.Tests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD

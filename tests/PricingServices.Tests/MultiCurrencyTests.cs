@@ -40,7 +40,7 @@ namespace PricingServicesTests {
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR,
