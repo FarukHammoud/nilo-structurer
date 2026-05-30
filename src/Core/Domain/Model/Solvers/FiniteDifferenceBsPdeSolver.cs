@@ -65,7 +65,7 @@ namespace Domain {
 
                 // Solve system
                 Vector<double> V_interior = Vector<double>.Build.Dense(NS - 1);
-                A.Solve(B, V_interior); // B and V_interior have NS-1 elements instead of NS+1, does not contain boundaries
+                A.ThomasSolve(B, V_interior); // B and V_interior have NS-1 elements instead of NS+1, does not contain boundaries
 
                 // Reconstruct full grid
                 for (int i = 1; i < NS; i++) {

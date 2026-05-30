@@ -1,8 +1,25 @@
 ﻿using Domain;
+using MathNet.Numerics;
+using MathNet.Numerics.LinearAlgebra;
 
 namespace PricingServices.Tests {
     [TestClass]
     public class FiniteDifferenceBsPdeSolverTests {
+
+        [TestMethod]
+        public void ThomasAlgorithmsWorks() {
+            var A = Matrix<double>.Build.DenseOfArray(new double[,] {
+                { 4, -1, 0, 0 },
+                { -1, 4, -1, 0 },
+                { 0, -1, 4, -1 },
+                { 0, 0, -1, 3 }
+            });
+            var b = Vector<double>.Build.DenseOfArray(new double[] { 15, 10, 10, 10 });
+            var expected = Vector<double>.Build.DenseOfArray(new double[] { 5, 5, 5, 5 });
+            var result = Vector<double>.Build.Dense(b.Count);
+            A.ThomasSolve(b, result);
+            Assert.IsTrue(result.ToList().ListAlmostEqual(expected.ToList(), 1E-6));
+        }
 
         [TestMethod]
         public void EuropeanCallMatches() {
