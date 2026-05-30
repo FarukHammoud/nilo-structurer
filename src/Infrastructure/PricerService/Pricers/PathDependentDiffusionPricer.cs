@@ -32,7 +32,7 @@ namespace PricerServices.Pricers {
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
-            List<DateTime> datesOfInterest = payoff.GetObservationDates();
+            IEnumerable<DateTime> datesOfInterest = payoff.ObservationDates;
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
             if (payoff.MonitoringFrequency == MonitoringFrequency.Continuous) {
                 datesOfInterest = _diffusionConfiguration.TimeDiscretization;
@@ -44,7 +44,7 @@ namespace PricerServices.Pricers {
             double[] payoffsAtMaturity = new double[_diffusion.NumberOfEvents];
             for (int event_id = 0; event_id < _diffusion.NumberOfEvents; event_id++) {
                 Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[event_id]));
-                payoffsAtMaturity[event_id] = payoff.GetPayoffAtMaturity(pricesAtInterestDates);
+                payoffsAtMaturity[event_id] = payoff.ComputePayoff(pricesAtInterestDates);
             }
             return new PriceWithPrecision() {
                 Value = discounter.GetDiscountFactor(maturity, today) * payoffsAtMaturity.Average(),

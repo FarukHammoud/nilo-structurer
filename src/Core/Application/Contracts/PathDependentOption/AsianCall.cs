@@ -10,6 +10,7 @@ namespace Application {
                 Underlying = Underlying,
                 MonitoringFrequency = MonitoringFrequency.None,
                 Currency = Currency,
+                PaymentDate = Maturity
             };
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }

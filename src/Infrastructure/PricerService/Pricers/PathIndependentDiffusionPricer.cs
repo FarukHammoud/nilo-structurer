@@ -37,7 +37,7 @@ namespace PricerServices.Pricers {
             double[] payoffsAtMaturity = new double[_diffusionConfiguration.NumberOfDrawings];
             for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
                 Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[ω]);
-                payoffsAtMaturity[ω] = payoff.GetPayoffAtMaturity(priceAtMaturity);
+                payoffsAtMaturity[ω] = payoff.ComputePayoff(priceAtMaturity);
             }
             double discountFactor = discounter.GetDiscountFactor(maturity, today);
             List<double> discountedPayoffs = payoffsAtMaturity.Select(payoffValue => discountFactor * payoffValue).ToList();

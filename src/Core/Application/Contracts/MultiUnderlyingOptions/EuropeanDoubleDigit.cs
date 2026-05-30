@@ -7,10 +7,12 @@ namespace Application {
         public double FirstStrike { get; set; }
         public double SecondStrike { get; set; }
 
-        public override IPathIndependentPayoff Payoff => new BiUnderlyingPathIndependentPayoff(
-            (spot1, spot2) => Notional * (spot1 > FirstStrike && spot2 > SecondStrike ? 1 : 0), 
-            FirstUnderlying, 
-            SecondUnderlying,
-            Currency);
+        public override IPathIndependentPayoff Payoff => new BiUnderlyingPathIndependentPayoff() { 
+            Payoff = (s1, s2) => Notional * (s1 > FirstStrike && s2 > SecondStrike ? 1 : 0),
+            FirstUnderlying = FirstUnderlying,
+            SecondUnderlying = SecondUnderlying,
+            Currency = Currency,
+            Maturity = Maturity, 
+            PaymentDate = Maturity};
     }
 }

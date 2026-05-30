@@ -15,8 +15,10 @@ namespace Application {
 
         public Currency Currency => _basePayoff.Currency;
 
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
-            return _factor * _basePayoff.GetPayoffAtMaturity(pricesAtMaturity);
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {
+            return _factor * _basePayoff.ComputePayoff(pricesAtMaturity);
         }
+        public DateTime Maturity { get; init; }
+        public DateTime PaymentDate { get; init; }
     }
 }

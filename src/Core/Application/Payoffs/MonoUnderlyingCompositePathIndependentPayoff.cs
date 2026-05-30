@@ -2,25 +2,20 @@
 
 namespace Application {
     public class MonoUnderlyingCompositePathIndependentPayoff : IPathIndependentPayoff {
-        private readonly Func<double, double> _payoffMap;
-        private readonly Underlying _underlying;
-        private readonly Currency _currency;
-        private readonly CurrencyPair _currencyPair;
+        public required Func<double, double> Payoff { get; init; }
+        public required Underlying Underlying { get; init; }
+        public required Currency Currency { get; init; }
+        public required DateTime Maturity { get; init; }
+        public required DateTime PaymentDate { get; init; }
+        public CurrencyPair CurrencyPair => new CurrencyPair(Underlying.Currency, Currency);
 
-        public MonoUnderlyingCompositePathIndependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency) {
-            _payoffMap = payoffMap;
-            _underlying = underlying;
-            _currency = currency;
-            _currencyPair = new CurrencyPair(underlying.Currency, currency);
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {    
+            double underlyingValue = Underlying.GetValue(pricesAtMaturity);
+            double fxValue = pricesAtMaturity[CurrencyPair];
+            return fxValue * Payoff(underlyingValue);
         }
 
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
-            double underlyingValue = _underlying.GetValue(pricesAtMaturity);
-            double fxValue = pricesAtMaturity[_currencyPair];
-            return fxValue * _payoffMap(underlyingValue);
-        }
-
-        public IEnumerable<Underlying> Dependencies => _underlying.Dependencies.Append(_currencyPair);
-        public Currency Currency => _currency;
+        public IEnumerable<Underlying> Dependencies => Underlying.Dependencies.Append(CurrencyPair);
+        
     }
 }

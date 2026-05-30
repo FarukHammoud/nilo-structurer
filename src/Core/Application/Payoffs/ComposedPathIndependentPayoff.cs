@@ -9,13 +9,15 @@ namespace Application {
         public ComposedPathIndependentPayoff(List<IPathIndependentPayoff> payoffs) {
             _payoffs = payoffs;
         }
-         
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
-            return _payoffs.Sum(payoff => payoff.GetPayoffAtMaturity(pricesAtMaturity));
+
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {
+            return _payoffs.Sum(payoff => payoff.ComputePayoff(pricesAtMaturity));
         }
 
         public IEnumerable<Underlying> Dependencies =>
             _payoffs.SelectMany(payoff => payoff.Dependencies).Distinct();
-        
+
+        public DateTime Maturity { get; init; }
+        public DateTime PaymentDate { get; init; }
     }
 }

@@ -13,6 +13,7 @@ namespace Application {
                 Underlying = Underlying,
                 MonitoringFrequency = MonitoringFrequency.Daily,
                 Currency = Currency,
+                PaymentDate = Maturity
             };
         
         private List<DateTime> FixingDates => Enumerable.Range(0, (int)(Maturity - StartDate).TotalDays).Select(i => StartDate.AddDays(i)).ToList();

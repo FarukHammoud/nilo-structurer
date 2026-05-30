@@ -100,7 +100,7 @@ namespace PricingServices.Tests {
                 Maturity = DateTime.Today.AddMonths(3),
                 Strike = spotPrice,
                 Underlying = MSFT,
-                Currency = Currencies.USD
+                Currency = Currencies.USD,
             };
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md

@@ -2,7 +2,7 @@
 
 namespace Application {
     public abstract class Package : IPathIndependentContract {
-        public IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> Payoffs => 
+        public IEnumerable<IPathIndependentPayoff> Payoffs => 
             Contracts.SelectMany(c => c.Payoffs).ToList();
 
         public abstract List<IPathIndependentContract> Contracts { get; }

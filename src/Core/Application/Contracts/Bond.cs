@@ -3,7 +3,7 @@ namespace Application {
     public class Bond : IPathIndependentContract {
 
         public CashFlow CashFlows => new CashFlow(GetCashFlows()) { Currency = this.Currency };
-        public IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> Payoffs => CashFlows.Payoffs;
+        public IEnumerable<IPathIndependentPayoff> Payoffs => CashFlows.Payoffs;
 
 
         public double Coupon { get; set; } = 0;

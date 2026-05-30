@@ -2,26 +2,21 @@
 
 namespace Application {
     public class BiUnderlyingPathIndependentPayoff : IPathIndependentPayoff {
-        private readonly Func<double, double, double> _payoffMap;
-        private readonly Underlying _firstUnderlying;
-        private readonly Underlying _secondUnderlying;
-        private readonly Currency _currency;
-        public BiUnderlyingPathIndependentPayoff(Func<double, double, double> payoffMap, Underlying firstUnderlying, Underlying secondUnderlying, Currency currency) {
-            _payoffMap = payoffMap;
-            _firstUnderlying = firstUnderlying;
-            _secondUnderlying = secondUnderlying;
-            _currency = currency;
-        }
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {
-            double firstUnderlyingValue = _firstUnderlying.GetValue(pricesAtMaturity);
-            double secondUnderlyingValue = _secondUnderlying.GetValue(pricesAtMaturity);
-            return _payoffMap(firstUnderlyingValue, secondUnderlyingValue);
+        public required Func<double, double, double> Payoff { get; init; }
+        public required Underlying FirstUnderlying { get; init; }
+        public required Underlying SecondUnderlying { get; init; }
+        public required Currency Currency { get; init; }
+        public required DateTime PaymentDate { get; init; }
+        public required DateTime Maturity { get; init; }
+
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {
+            double firstUnderlyingValue = FirstUnderlying.GetValue(pricesAtMaturity);
+            double secondUnderlyingValue = SecondUnderlying.GetValue(pricesAtMaturity);
+            return Payoff(firstUnderlyingValue, secondUnderlyingValue);
         }
 
         public IEnumerable<Underlying> Dependencies =>
-                _firstUnderlying.Dependencies
-            .Union(_secondUnderlying.Dependencies);
-
-        public Currency Currency => _currency;
+                FirstUnderlying.Dependencies
+            .Union(SecondUnderlying.Dependencies);
     }
 }

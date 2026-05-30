@@ -2,20 +2,21 @@
 
 namespace Application {
     public class CallUpAndOut : IPathDependentContract {
-        public IEnumerable<Tuple<DateTime, IPathDependentPayoff>> Payoffs => [Tuple.Create(Maturity, 
-            (IPathDependentPayoff) new UpAndOutPayoff(
+        public IEnumerable<IPathDependentPayoff> Payoffs => [ 
+            new UpAndOutPayoff(
                 new MonoUnderlyingPathDependentPayoff() {
                     PayoffMap = d => Math.Max(0, d.Values.Last() - Strike),
                     ObservationDates = [Maturity],
                     Underlying = Underlying,
                     MonitoringFrequency = MonitoringFrequency.Continuous,
-                    Currency = Currency
-                }, BarrierLevel, Underlying))];
-        public required Underlying Underlying { get; set; }
-        public required Currency Currency { get; set; }
-        public required double Strike { get; set; }
-        public required double BarrierLevel { get; set; }
-        public required DateTime Maturity { get; set; }
-        public double Notional { get; set; }
+                    Currency = Currency,
+                    PaymentDate = Maturity
+                }, BarrierLevel, Underlying)];
+        public required Underlying Underlying { get; init; }
+        public required Currency Currency { get; init; }
+        public required double Strike { get; init; }
+        public required double BarrierLevel { get; init; }
+        public required DateTime Maturity { get; init; }
+        public double Notional { get; init; } = 1;
     }
 }

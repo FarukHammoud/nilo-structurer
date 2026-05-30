@@ -2,20 +2,17 @@
 
 namespace Application {
     public class MonoUnderlyingPathIndependentPayoff : IPathIndependentPayoff {
-        private readonly Func<double, double> _payoffMap;
-        private readonly Underlying _underlying;
-        private readonly Currency _currency;
-        public MonoUnderlyingPathIndependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency) {
-            _payoffMap = payoffMap;
-            _underlying = underlying;
-            _currency = currency;
-        }
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
-            double underlyingValue = _underlying.GetValue(pricesAtMaturity);
-            return _payoffMap(underlyingValue);
-        }
+        public required Func<double, double> Payoff { get; init; }
+        public required Underlying Underlying { get; init; }
+        public required Currency Currency { get; init; }
+        public required DateTime Maturity { get; init; }
+        public required DateTime PaymentDate { get; init; }
 
-        public IEnumerable<Underlying> Dependencies => _underlying.Dependencies;
-        public Currency Currency => _currency;
+        public IEnumerable<Underlying> Dependencies => Underlying.Dependencies;
+
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {    
+            double underlyingValue = Underlying.GetValue(pricesAtMaturity);
+            return Payoff(underlyingValue);
+        }
     }
 }

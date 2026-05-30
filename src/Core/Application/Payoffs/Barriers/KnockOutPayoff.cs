@@ -16,19 +16,18 @@ namespace Application {
             Rebate = rebate;
         }
 
-        public List<DateTime> GetObservationDates() {
-            return _basePayoff.GetObservationDates();
-        }
-
-        public double GetPayoffAtMaturity(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
+        public double ComputePayoff(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
             Dictionary<DateTime, double> barrierUnderlyingPrices = prices.Pivot()[Underlying];
             if (IsTouched(barrierUnderlyingPrices)) {
                 return Rebate;
             }
-            return _basePayoff.GetPayoffAtMaturity(prices);
+            return _basePayoff.ComputePayoff(prices);
         }
 
         public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);
 
+        public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
+
+        public DateTime PaymentDate => _basePayoff.PaymentDate;
     }
 }

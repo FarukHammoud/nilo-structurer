@@ -2,28 +2,19 @@
 
 namespace Application {
     public class MonoUnderlyingQuantoPathIndependentPayoff : IPathIndependentPayoff {
-        private readonly Func<double, double> _payoffMap;
-        private readonly Underlying _underlying;
-        private readonly Currency _currency;
-        private readonly CurrencyPair _currencyPair;
-        private readonly double _fxRate;
+        public required Func<double, double> Payoff { get; init; }
+        public required Underlying Underlying { get; init; }
+        public required Currency Currency { get; init; }      
+        public required double FixedFxRate { get; init; }
+        public required DateTime Maturity { get; init; }
+        public required DateTime PaymentDate { get; init; }
 
-        public MonoUnderlyingQuantoPathIndependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency, double fxRate) {
-            _payoffMap = payoffMap;
-            _underlying = underlying;
-            _currency = currency;
-            _currencyPair = new CurrencyPair(underlying.Currency, currency);
-            _fxRate = fxRate;
+        public CurrencyPair CurrencyPair => new CurrencyPair(Underlying.Currency, Currency);
+        public IEnumerable<Underlying> Dependencies => Underlying.Dependencies.Append(CurrencyPair);
+
+        public double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity) {
+            double underlyingValue = Underlying.GetValue(pricesAtMaturity);
+            return FixedFxRate * Payoff(underlyingValue);
         }
-
-        public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
-            double underlyingValue = _underlying.GetValue(pricesAtMaturity);
-            double Xt = pricesAtMaturity[_currencyPair];
-            double radonNikodymDerivative = 1;//Xt * _fxRate;
-            return _fxRate * radonNikodymDerivative * _payoffMap(underlyingValue);
-        }
-
-        public IEnumerable<Underlying> Dependencies => _underlying.Dependencies.Append(_currencyPair);
-        public Currency Currency => _currency;
     }
 }

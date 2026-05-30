@@ -3,6 +3,7 @@
     /// Base contract for any path-independent payoff.
     /// </summary>
     public interface IPathIndependentPayoff : IPayoff {
-        double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity);
+        DateTime Maturity { get; init; }
+        double ComputePayoff(Dictionary<Underlying, double> pricesAtMaturity);
     }
 }

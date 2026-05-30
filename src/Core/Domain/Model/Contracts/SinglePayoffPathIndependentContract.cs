@@ -5,6 +5,8 @@
         public required DateTime Maturity { get; set; }
         public double Notional { get; set; } = 1.0;
 
-        public IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> Payoffs => [Tuple.Create(Maturity, Payoff)];
+        public IEnumerable<IPathIndependentPayoff> Payoffs => [Payoff];
+
+        public IEnumerable<DateTime> Dates => [Maturity];
     }
 }

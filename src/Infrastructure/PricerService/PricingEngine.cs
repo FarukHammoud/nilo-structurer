@@ -43,12 +43,12 @@ namespace PricerServices {
             IPricerConfiguration pricerConfiguration = _pricerFactory.CreateConfiguration(request);
             if (pathIndependentContracts.Any()) {
                 IPayoffPricer<IPathIndependentPayoff> pricer = _pricerFactory.CreatePathIndependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Item1)).Distinct();
+                IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Maturity)).Distinct();
                 PriceContracts(pathIndependentContracts, pricer, pricerConfiguration, PathIndependentTimeDiscretizationFactory(maturities, request.PricingDate), shiftedMarketData, subResults, request.PricingCurrency);
             }
             if (pathDependentContracts.Any()) {
                 IPayoffPricer<IPathDependentPayoff> pricer = _pricerFactory.CreatePathDependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Item1)).Distinct();
+                IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.PaymentDate)).Distinct();
                 PriceContracts(pathDependentContracts, pricer, pricerConfiguration, TimeDiscretizationFactory(maturities, request.PricingDate), shiftedMarketData, subResults, request.PricingCurrency);
             }
 
@@ -79,7 +79,7 @@ namespace PricerServices {
             DateTime pricingDate,
             Currency pricingCurrency) where T : IPayoff {
             IEnumerable<PriceWithPrecision> payoffPrices = contract.Payoffs.Select(
-                                            payoff => pricer.Price(payoff.Item2, marketData.GetDiscounter(pricingCurrency), marketData, payoff.Item1, pricingDate, pricingCurrency)).ToList();
+                                            payoff => pricer.Price(payoff, marketData.GetDiscounter(pricingCurrency), marketData, payoff.PaymentDate, pricingDate, pricingCurrency)).ToList();
             PriceWithPrecision aggregatedPayoffValue = new() {
                 Value = payoffPrices.Sum(price => price.Value * marketData.GetFxRate(price.Currency, pricingCurrency)),
                 Precision = Math.Sqrt(payoffPrices.Sum(pv => Math.Pow(pv.Precision, 2))),

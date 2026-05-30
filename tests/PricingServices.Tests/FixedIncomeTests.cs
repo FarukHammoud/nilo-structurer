@@ -71,9 +71,7 @@ namespace PricingServicesTests {
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            
-            
-
+  
             double price = (Enumerable.Range(1, 10)
                 .Sum(i => bond.Coupon * bond.Notional * Math.Exp(-riskFreeRate * i))
                 + bond.Notional * Math.Exp(-riskFreeRate * 10));
