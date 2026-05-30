@@ -1,5 +1,3 @@
 ﻿namespace Domain {
-    public interface IPathDependentContract : IContract {
-        IEnumerable<Tuple<DateTime, IPathDependentPayoff>> Payoffs { get; }
-    }
+    public interface IPathDependentContract : IGeneralContract<IPathDependentPayoff>;
 }

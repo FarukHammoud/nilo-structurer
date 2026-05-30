@@ -3,6 +3,6 @@
         IReadOnlyList<DateTime> ObservationDates { get; }
         MonitoringFrequency MonitoringFrequency { get; }
         bool IsTriggered(IPricePath path, DateTime observationDate);
-        IPathDependentPayoff ActivatedPayoff { get; }
+        IPayoff ActivatedPayoff { get; }
     }
 }

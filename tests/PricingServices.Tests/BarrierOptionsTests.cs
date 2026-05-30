@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using MathNet.Numerics.LinearAlgebra;
 using PricerServices;
 
 namespace PricingServices.Tests {
@@ -36,7 +35,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -75,7 +74,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -110,7 +109,6 @@ namespace PricingServices.Tests {
                     .SetSpot(spotPrice)
                     .SetVolatility(volatility))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
-                
 
             // Theotetical price using Black-Scholes formula
             ReinerRubinstein model = new(spotPrice, contract.Strike, contract.BarrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockIn);
@@ -118,15 +116,15 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            var monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
@@ -162,7 +160,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -206,7 +204,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -250,7 +248,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -294,7 +292,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -338,7 +336,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -382,7 +380,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -426,7 +424,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,

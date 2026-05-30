@@ -38,7 +38,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new () {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Delta() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -131,7 +131,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Gamma() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,

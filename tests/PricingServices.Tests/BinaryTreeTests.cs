@@ -32,9 +32,9 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium() },
+                Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.BinaryTree,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
@@ -70,7 +70,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.BinaryTree,

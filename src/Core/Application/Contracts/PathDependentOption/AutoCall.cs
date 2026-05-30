@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class AutoCall : IPathDependentContract, ICallableContract {
+    public class AutoCall : IPathDependentContract {
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }
         public required double Coupon { get; set; }
@@ -43,7 +43,5 @@ namespace Application {
                         Currency = Currency,
                     }
             });
-
-        IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> IPathIndependentContract.Payoffs => throw new NotImplementedException();
     }
 }

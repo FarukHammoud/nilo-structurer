@@ -88,7 +88,7 @@ namespace PricerServices.Pricers {
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
 
-        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, IFxConverter fxConverter, DateTime maturity, DateTime today, Currency pricingCurrency) {
             if (_root == null || _richardsonExtrapolationRoot == null) {
                 throw new InvalidOperationException("Pricer not initialized. Call Initialize() before pricing.");
             }

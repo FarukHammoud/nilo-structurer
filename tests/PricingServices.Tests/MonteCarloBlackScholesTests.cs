@@ -39,7 +39,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -77,7 +77,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -115,7 +115,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -153,7 +153,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -243,7 +243,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -285,7 +285,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -334,7 +334,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -380,7 +380,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -426,7 +426,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -472,7 +472,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -518,7 +518,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -567,7 +567,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -618,7 +618,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -669,7 +669,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
@@ -720,7 +720,7 @@ namespace PricingServices.Tests {
 
             // Price using General Diffusion
             PricingRequest request = new() {
-                Position = new List<IContract>() { contract },
+                Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
