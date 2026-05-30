@@ -1,11 +1,11 @@
 ﻿using Domain;
 
 namespace Application {
-    public abstract class Package : INonPathDependentContract {
-        public IEnumerable<Tuple<DateTime, INonPathDependentPayoff>> Payoffs => 
+    public abstract class Package : IPathIndependentContract {
+        public IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> Payoffs => 
             Contracts.SelectMany(c => c.Payoffs).ToList();
 
-        public abstract List<INonPathDependentContract> Contracts { get; }
+        public abstract List<IPathIndependentContract> Contracts { get; }
         public double Notional { get; set; } = 1.0;
     }
 }

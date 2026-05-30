@@ -2,8 +2,8 @@
 
 namespace Application {
     public class CompositeForward : Forward {
-        public override INonPathDependentPayoff Payoff => 
-            new MonoUnderlyingCompositeNonPathDependentPayoff(
+        public override IPathIndependentPayoff Payoff => 
+            new MonoUnderlyingCompositePathIndependentPayoff(
                 spot => Notional * (spot - Strike), Underlying, Currency);
     }
 }

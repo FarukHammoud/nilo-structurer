@@ -2,7 +2,7 @@
 
 namespace Application {
     public class AmericanPut : VanillaContract,IPut {
-        public override INonPathDependentPayoff Payoff => new MonoUnderlyingNonPathDependentPayoff(
+        public override IPathIndependentPayoff Payoff => new MonoUnderlyingPathIndependentPayoff(
             spot => Notional * Math.Max(0, Strike - spot), Underlying, Currency);
     }
 }

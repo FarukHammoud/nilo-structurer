@@ -7,7 +7,7 @@ namespace Application {
         public required DateTime Maturity1 { get; set; }
         public required DateTime Maturity2 { get; set; }
         public required Currency Currency { get; set; }
-        public override List<INonPathDependentContract> Contracts => new() {
+        public override List<IPathIndependentContract> Contracts => new() {
             new EuropeanPut() { Underlying = Underlying, Maturity = Maturity1, Strike = Strike, Notional = Notional, Currency = Currency },
             new EuropeanPut() { Underlying = Underlying, Maturity = Maturity2, Strike = Strike, Notional = Notional, Currency = Currency }};
     }

@@ -3,11 +3,11 @@
 namespace Application {
     public class Book : Package {
 
-        private List<INonPathDependentContract> _contracts;
-        public Book(List<INonPathDependentContract> contracts) {
+        private List<IPathIndependentContract> _contracts;
+        public Book(List<IPathIndependentContract> contracts) {
             _contracts = contracts;
         }
 
-        public override List<INonPathDependentContract> Contracts => _contracts;
+        public override List<IPathIndependentContract> Contracts => _contracts;
     }
 }

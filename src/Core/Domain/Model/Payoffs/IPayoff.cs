@@ -1,3 +1,6 @@
 ﻿namespace Domain {
-    public interface IPayoff {}
+    public interface IPayoff {
+        IEnumerable<Underlying> Dependencies { get; }
+        Currency Currency { get; }
+    }
 }

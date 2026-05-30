@@ -1,14 +1,14 @@
 ﻿using Domain;
 
 namespace Application {
-    public class MonoUnderlyingQuantoNonPathDependentPayoff : INonPathDependentPayoff {
+    public class MonoUnderlyingQuantoPathIndependentPayoff : IPathIndependentPayoff {
         private readonly Func<double, double> _payoffMap;
         private readonly Underlying _underlying;
         private readonly Currency _currency;
         private readonly CurrencyPair _currencyPair;
         private readonly double _fxRate;
 
-        public MonoUnderlyingQuantoNonPathDependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency, double fxRate) {
+        public MonoUnderlyingQuantoPathIndependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency, double fxRate) {
             _payoffMap = payoffMap;
             _underlying = underlying;
             _currency = currency;
@@ -17,7 +17,7 @@ namespace Application {
         }
 
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
-            double underlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_underlying, pricesAtMaturity);
+            double underlyingValue = _underlying.GetValue(pricesAtMaturity);
             double Xt = pricesAtMaturity[_currencyPair];
             double radonNikodymDerivative = 1;//Xt * _fxRate;
             return _fxRate * radonNikodymDerivative * _payoffMap(underlyingValue);

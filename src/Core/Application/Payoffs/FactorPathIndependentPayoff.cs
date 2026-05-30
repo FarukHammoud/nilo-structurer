@@ -1,12 +1,12 @@
 ﻿using Domain;
 
 namespace Application {
-    public class FactorNonPathDependentPayoff : INonPathDependentPayoff {
+    public class FactorPathIndependentPayoff : IPathIndependentPayoff {
 
-        private INonPathDependentPayoff _basePayoff;
+        private IPathIndependentPayoff _basePayoff;
         private double _factor;
 
-        public FactorNonPathDependentPayoff(INonPathDependentPayoff basePayoff, double factor) {
+        public FactorPathIndependentPayoff(IPathIndependentPayoff basePayoff, double factor) {
             _basePayoff = basePayoff;
             _factor = factor;
         }

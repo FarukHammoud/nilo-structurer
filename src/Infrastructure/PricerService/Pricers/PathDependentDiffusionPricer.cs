@@ -34,7 +34,7 @@ namespace PricerServices.Pricers {
             }
             List<DateTime> datesOfInterest = payoff.GetObservationDates();
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
-            if (payoff.GetMonitoringFrequency() == MonitoringFrequency.Continuous) {
+            if (payoff.MonitoringFrequency == MonitoringFrequency.Continuous) {
                 datesOfInterest = _diffusionConfiguration.TimeDiscretization;
             }
             foreach (DateTime date in datesOfInterest) {

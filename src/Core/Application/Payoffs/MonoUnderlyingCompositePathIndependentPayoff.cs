@@ -1,13 +1,13 @@
 ﻿using Domain;
 
 namespace Application {
-    public class MonoUnderlyingCompositeNonPathDependentPayoff : INonPathDependentPayoff {
+    public class MonoUnderlyingCompositePathIndependentPayoff : IPathIndependentPayoff {
         private readonly Func<double, double> _payoffMap;
         private readonly Underlying _underlying;
         private readonly Currency _currency;
         private readonly CurrencyPair _currencyPair;
 
-        public MonoUnderlyingCompositeNonPathDependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency) {
+        public MonoUnderlyingCompositePathIndependentPayoff(Func<double, double> payoffMap, Underlying underlying, Currency currency) {
             _payoffMap = payoffMap;
             _underlying = underlying;
             _currency = currency;
@@ -15,7 +15,7 @@ namespace Application {
         }
 
         public double GetPayoffAtMaturity(Dictionary<Underlying, double> pricesAtMaturity) {    
-            double underlyingValue = ((INonPathDependentPayoff)this).GetUnderlyingValue(_underlying, pricesAtMaturity);
+            double underlyingValue = _underlying.GetValue(pricesAtMaturity);
             double fxValue = pricesAtMaturity[_currencyPair];
             return fxValue * _payoffMap(underlyingValue);
         }

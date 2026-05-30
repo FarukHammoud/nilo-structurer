@@ -44,6 +44,6 @@ namespace Application {
                     }
             });
 
-        IEnumerable<Tuple<DateTime, INonPathDependentPayoff>> INonPathDependentContract.Payoffs => throw new NotImplementedException();
+        IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> IPathIndependentContract.Payoffs => throw new NotImplementedException();
     }
 }

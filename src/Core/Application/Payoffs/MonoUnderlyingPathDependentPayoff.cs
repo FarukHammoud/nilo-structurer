@@ -8,16 +8,12 @@ namespace Application {
         public required List<DateTime> ObservationDates { get; init; }
         public required MonitoringFrequency MonitoringFrequency { get; init; }
 
-        public MonitoringFrequency GetMonitoringFrequency() {
-            return MonitoringFrequency;
-        }
-
         public List<DateTime> GetObservationDates() {
             return ObservationDates;
         }
 
         public double GetPayoffAtMaturity(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
-            Dictionary<DateTime, double> underlyingValues = ((IPathDependentPayoff)this).GetUnderlyingValues(Underlying, prices);
+            Dictionary<DateTime, double> underlyingValues = Underlying.GetValues(prices);
             return PayoffMap(underlyingValues);
         }
 

@@ -1,9 +1,9 @@
 ﻿using Domain;
 namespace Application {
-    public class Bond : INonPathDependentContract {
+    public class Bond : IPathIndependentContract {
 
         public CashFlow CashFlows => new CashFlow(GetCashFlows()) { Currency = this.Currency };
-        public IEnumerable<Tuple<DateTime, INonPathDependentPayoff>> Payoffs => CashFlows.Payoffs;
+        public IEnumerable<Tuple<DateTime, IPathIndependentPayoff>> Payoffs => CashFlows.Payoffs;
 
 
         public double Coupon { get; set; } = 0;

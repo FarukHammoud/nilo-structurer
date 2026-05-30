@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class DeterministicPayoff : INonPathDependentPayoff {
+    public class DeterministicPayoff : IPathIndependentPayoff {
         private readonly double _payoffValue;
         private readonly Currency _currency;
         public DeterministicPayoff(double payoffValue, Currency currency) {

@@ -7,7 +7,7 @@ namespace Application {
         public required double Strike1 { get; set; }
         public required double Strike2 { get; set; }
         public required Currency Currency { get; set; }
-        public override List<SinglePayoffNonPathDependentContract> SinglePayoffContracts => new () {
+        public override List<SinglePayoffPathIndependentContract> SinglePayoffContracts => new () {
             new EuropeanCall() { Underlying = Underlying, Maturity = Maturity, Strike = Strike2, Notional = Notional, Currency = Currency },
             new EuropeanPut() { Underlying = Underlying, Maturity = Maturity, Strike = Strike1, Notional = Notional, Currency = Currency }};
     }

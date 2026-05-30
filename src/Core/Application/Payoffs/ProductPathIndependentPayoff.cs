@@ -1,12 +1,12 @@
 ﻿using Domain;
 
 namespace Application {
-    public class ProductNonPathDependentPayoff : INonPathDependentPayoff {
+    public class ProductPathIndependentPayoff : IPathIndependentPayoff {
 
-        private IEnumerable<INonPathDependentPayoff> _payoffs;
+        private IEnumerable<IPathIndependentPayoff> _payoffs;
         private Currency _currency;
 
-        public ProductNonPathDependentPayoff(IEnumerable<INonPathDependentPayoff> payoffs, Currency currency) {
+        public ProductPathIndependentPayoff(IEnumerable<IPathIndependentPayoff> payoffs, Currency currency) {
             _payoffs = payoffs;
             _currency = currency;
         }

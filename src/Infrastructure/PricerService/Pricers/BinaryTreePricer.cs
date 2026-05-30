@@ -2,7 +2,7 @@
 using Domain;
 
 namespace PricerServices.Pricers {
-    public class BinaryTreePricer : INonPathDependentPricer {
+    public class BinaryTreePricer : IPathIndependentPricer {
 
         private TreeNode? _root;
         private TreeNode? _richardsonExtrapolationRoot;
@@ -47,7 +47,7 @@ namespace PricerServices.Pricers {
                 }
             }
 
-            public double GetValue(INonPathDependentPayoff payoff, IDiscounter discounter, int step = 0, int upMoves = 0, Dictionary<TreeNode, double>? cache = null) {
+            public double GetValue(IPathIndependentPayoff payoff, IDiscounter discounter, int step = 0, int upMoves = 0, Dictionary<TreeNode, double>? cache = null) {
                 cache ??= new();
                 if (cache.TryGetValue(this, out double cached)) {
                     return cached;
@@ -88,7 +88,7 @@ namespace PricerServices.Pricers {
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
 
-        public PriceWithPrecision Price(INonPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
             if (_root == null || _richardsonExtrapolationRoot == null) {
                 throw new InvalidOperationException("Pricer not initialized. Call Initialize() before pricing.");
             }

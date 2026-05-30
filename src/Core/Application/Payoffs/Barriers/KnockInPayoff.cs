@@ -1,11 +1,14 @@
 ﻿using Domain;
 
 namespace Application{
+
+    // To be deprecated in favor of the contract implementing the IKnockInContract itself
     public abstract class KnockInPayoff : IPathDependentPayoff {
         private readonly IPathDependentPayoff _basePayoff;
         public double Level { get; set; }
         public Underlying Underlying { get; set; }
         public Currency Currency => _basePayoff.Currency;
+        public MonitoringFrequency MonitoringFrequency => MonitoringFrequency.Continuous;
         public abstract Func<Dictionary<DateTime, double>, bool> IsTouched { get; }
         public KnockInPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying) {
             _basePayoff = basePayoff;
@@ -26,9 +29,5 @@ namespace Application{
         }
 
         public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);
-
-        public MonitoringFrequency GetMonitoringFrequency() {
-            return MonitoringFrequency.Continuous;
-        }
     }
 }

@@ -3,7 +3,7 @@ using Domain;
 using MathNet.Numerics.LinearAlgebra.Complex;
 
 namespace PricerServices {
-    public class FiniteDifferencePdeSolver : INonPathDependentPricer {
+    public class FiniteDifferencePdeSolver : IPathIndependentPricer {
         private IMarketData _marketData;
         private List<DateTime> _timeDiscretization;
 
@@ -12,7 +12,7 @@ namespace PricerServices {
             _timeDiscretization = timeDiscretization;
         }
 
-        public PriceWithPrecision Price(INonPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
             throw new NotImplementedException();
         }
     }

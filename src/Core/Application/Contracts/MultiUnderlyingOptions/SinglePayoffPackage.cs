@@ -2,9 +2,9 @@
 
 namespace Application {
     public abstract class SinglePayoffPackage : Package {
-        public abstract List<SinglePayoffNonPathDependentContract> SinglePayoffContracts { get; }
-        public override List<INonPathDependentContract> Contracts => SinglePayoffContracts.Cast<INonPathDependentContract>().ToList();
-        public INonPathDependentPayoff Payoff => new ComposedNonPathDependentPayoff(SinglePayoffContracts.Select(x => x.Payoff).ToList());
+        public abstract List<SinglePayoffPathIndependentContract> SinglePayoffContracts { get; }
+        public override List<IPathIndependentContract> Contracts => SinglePayoffContracts.Cast<IPathIndependentContract>().ToList();
+        public IPathIndependentPayoff Payoff => new ComposedPathIndependentPayoff(SinglePayoffContracts.Select(x => x.Payoff).ToList());
         public DateTime Maturity { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using Domain;
 using MathNet.Numerics.Statistics;
 
 namespace PricerServices.Pricers {
-    public class NonPathDependentDiffusionPricer : INonPathDependentPricer {
+    public class PathIndependentDiffusionPricer : IPathIndependentPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private DiffusionResult? _diffusion;
@@ -29,7 +29,7 @@ namespace PricerServices.Pricers {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public PriceWithPrecision Price(INonPathDependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
+        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, DateTime maturity, DateTime today) {
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }

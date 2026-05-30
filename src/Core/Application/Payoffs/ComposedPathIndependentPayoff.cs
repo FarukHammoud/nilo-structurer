@@ -1,12 +1,12 @@
 ﻿using Domain;
 
 namespace Application {
-    public class ComposedNonPathDependentPayoff : INonPathDependentPayoff {
+    public class ComposedPathIndependentPayoff : IPathIndependentPayoff {
 
-        private List<INonPathDependentPayoff> _payoffs;
+        private List<IPathIndependentPayoff> _payoffs;
         public Currency Currency => _payoffs.First().Currency; // Thats why we should delete this one
 
-        public ComposedNonPathDependentPayoff(List<INonPathDependentPayoff> payoffs) {
+        public ComposedPathIndependentPayoff(List<IPathIndependentPayoff> payoffs) {
             _payoffs = payoffs;
         }
          

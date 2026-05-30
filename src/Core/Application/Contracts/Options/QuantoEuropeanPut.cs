@@ -3,8 +3,8 @@
 namespace Application {
     public class QuantoEuropeanPut : QuantoVanilla, IPut {
 
-        public override INonPathDependentPayoff Payoff => 
-            new MonoUnderlyingQuantoNonPathDependentPayoff(
+        public override IPathIndependentPayoff Payoff => 
+            new MonoUnderlyingQuantoPathIndependentPayoff(
                 spot => Notional * Math.Max(0, Strike - spot), Underlying, Currency, FxRate);
     }
 }
