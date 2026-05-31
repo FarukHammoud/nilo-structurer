@@ -9,7 +9,7 @@ namespace Application {
         public required double BarrierLevel { get; set; }
         public required DateTime Maturity { get; set; }
         public double Notional { get; set; }
-        public IEnumerable<DateTime> Dates => KnockInBarriers[0].ObservationDates;
+        IEnumerable<DateTime> IContract.Dates => KnockInBarriers[0].ObservationDates;
 
         public IReadOnlyList<IKnockInBarrier> KnockInBarriers => [new SingleUnderlyingUpAndInBarrier() { 
             ActivatedPayoff = new MonoUnderlyingPathIndependentPayoff() {

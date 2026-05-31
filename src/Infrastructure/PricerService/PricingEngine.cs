@@ -5,29 +5,20 @@ namespace PricerServices {
     public class PricingEngine : IPricingEngine {
 
         private readonly IPricerFactory _pricerFactory;
+        private readonly ITimeGridBuilder _timeGridBuilder;
 
-        public PricingEngine(IPricerFactory? pricerFactory = null) {
+        public PricingEngine(IPricerFactory? pricerFactory = null, ITimeGridBuilder? timeGridBuilder = null) {
             _pricerFactory = pricerFactory ?? new PricerFactory();
+            _timeGridBuilder = timeGridBuilder ?? new TimeGridBuilder();
         }
 
-        private Func<IEnumerable<DateTime>, DateTime, List<DateTime>> TimeDiscretizationFactory = (maturities, pricingDate) => Enumerable.Range(0, (int)(maturities.Max() - pricingDate).TotalDays + 1)
-                        .Select(i => pricingDate.AddDays(i))
-                        .ToList();
-
-        private Func<IEnumerable<DateTime>, DateTime, List<DateTime>> PathIndependentTimeDiscretizationFactory = (maturities, pricingDate) => new List<DateTime>() { pricingDate }.Union(maturities)
-                        .ToList();
-
         // Target signature for the asynchronous pricing method
-        public async Task<PricingResult> RunAsync(PricingRequest request,
+        public async Task<Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>>> RunAsync(PricingRequest request,
             IProgress<PricingProgress>? progress = null,
             CancellationToken cancellationToken = default) {
-            return new PricingResult {
-                Price = new ValueWithPrecision {
-                    Value = 0, // Placeholder for the actual price
-                    Precision = 0 // Placeholder for the actual precision
-                },
-                ComputeTime = TimeSpan.Zero // Placeholder for the actual compute time
-            };
+            return await Task.Run(() => {
+                return Run(request);
+            }, cancellationToken);
         }
 
         public Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> Run(PricingRequest request) {
@@ -43,13 +34,13 @@ namespace PricerServices {
             IPricerConfiguration pricerConfiguration = _pricerFactory.CreateConfiguration(request);
             if (pathIndependentContracts.Any()) {
                 IPayoffPricer<IPathIndependentPayoff> pricer = _pricerFactory.CreatePathIndependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.Maturity)).Distinct();
-                PriceContracts(pathIndependentContracts, pricer, pricerConfiguration, PathIndependentTimeDiscretizationFactory(maturities, request.PricingDate), shiftedMarketData, subResults, request.PricingCurrency);
+                IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Dates).Distinct();
+                PriceContracts(pathIndependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
             }
             if (pathDependentContracts.Any()) {
                 IPayoffPricer<IPathDependentPayoff> pricer = _pricerFactory.CreatePathDependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Payoffs.Select(payoff => payoff.PaymentDate)).Distinct();
-                PriceContracts(pathDependentContracts, pricer, pricerConfiguration, TimeDiscretizationFactory(maturities, request.PricingDate), shiftedMarketData, subResults, request.PricingCurrency);
+                IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Dates).Distinct();
+                PriceContracts(pathDependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
             }
 
             return GetIndicatorResults(request, subResults);
@@ -59,11 +50,11 @@ namespace PricerServices {
             IEnumerable<IGeneralContract<T>> contracts,
             IPayoffPricer<T> pricer,
             IPricerConfiguration? config,
-            IEnumerable<DateTime> timeGrid,
+            DateTime valuationDate,
             HashSet<(IMarketData, DateTime)> shiftedMarketData,
             Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults,
             Currency pricingCurrency) where T : IPayoff {
-            if (!contracts.Any()) return;
+            IEnumerable<DateTime> timeGrid = _timeGridBuilder.Build(contracts, valuationDate);
             foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
                 pricer.Initialize(marketData, timeGrid.ToList(), config);
                 subResults[(marketData, pricingDate)] = contracts.ToDictionary(
@@ -78,14 +69,19 @@ namespace PricerServices {
             IMarketData marketData,
             DateTime pricingDate,
             Currency pricingCurrency) where T : IPayoff {
-            IEnumerable<PriceWithPrecision> payoffPrices = contract.Payoffs.Select(
-                                            payoff => pricer.Price(payoff, marketData.GetDiscounter(pricingCurrency), marketData, payoff.PaymentDate, pricingDate, pricingCurrency)).ToList();
-            PriceWithPrecision aggregatedPayoffValue = new() {
-                Value = payoffPrices.Sum(price => price.Value * marketData.GetFxRate(price.Currency, pricingCurrency)),
-                Precision = Math.Sqrt(payoffPrices.Sum(pv => Math.Pow(pv.Precision, 2))),
+            IDiscounter discounter = marketData.GetDiscounter(pricingCurrency);
+            double price = 0.0, precisionSquared = 0.0;
+            foreach (T payoff in contract.Payoffs) {
+                PriceWithPrecision payoffPv = pricer.Price(payoff, discounter, marketData, payoff.PaymentDate, pricingDate, pricingCurrency);
+                double fxRate = marketData.GetFxRate(payoffPv.Currency, pricingCurrency);
+                price += payoffPv.Value * fxRate;
+                precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);
+            }
+            return new PriceWithPrecision() {
+                Value = price,
+                Precision = Math.Sqrt(precisionSquared),
                 Currency = pricingCurrency
             };
-            return aggregatedPayoffValue;
         }
 
         private Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults) {
