@@ -25,11 +25,14 @@ namespace PricerServices {
             DateTime T = configuration.TimeDiscretization.LastOrDefault();
             ILocalVolatilityModel volatility = underlyingMarketData.GetVolatility();
             double μ_adjustment = 0;
-            IJumpProcess? jumpProcess = configuration.JumpParameters != null ? new PoissonProcess(configuration.JumpParameters) : null;
-			if (jumpProcess != null) {
-				μ_adjustment -= jumpProcess.GetDrift();
-			}
+            // TODO: Delete jump parameters from configuration, its an underlying thing
+            IJumpProcess? jumpProcess = null;
+            if (volatility is MertonJumpModel mertonJumpModel) {
+                jumpProcess = new PoissonProcess(mertonJumpModel.JumpParameters);
+                μ_adjustment -= jumpProcess.GetDrift();
+            }
 			List<double[]> paths = new();
+            Random jumpRandom = new Random();
             for (int ω = 0; ω < drawings; ω++) {
                 double[] path = new double[steps];
                 path[0] = spot;
@@ -48,7 +51,7 @@ namespace PricerServices {
                         (s, t) => σ * s
                     ));
                     if (jumpProcess != null) {
-                        path[step] *= jumpProcess.Sample(dt, new Random().NextDouble());
+                        path[step] *= Math.Exp(jumpProcess.Sample(dt, jumpRandom.NextDouble));
                     }
                 }
                 paths.Add(path);

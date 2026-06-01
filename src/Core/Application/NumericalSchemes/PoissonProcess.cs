@@ -1,6 +1,10 @@
 ﻿using Domain;
+using MathNet.Numerics.Distributions;
 
 namespace Application {
+    // Reference paper: Option Pricing when underlying stock returns are discontinous
+    // Robert C. Merton, April 1975. MIT. 
+    // Using the lognormal intensity subcase
     public class PoissonProcess : IJumpProcess {
         private readonly JumpParameters _parameters;
 
@@ -8,11 +12,12 @@ namespace Application {
             _parameters = parameters;
         }
 
-        public double Sample(double dt, double u) {
-            int nJumps = PoissonFromUniform(_parameters.λ, dt, u);
+        public double Sample(double dt, Func<double> uniform) {
+            int nJumps = PoissonFromUniform(_parameters.λ, dt, uniform());
             double logJump = 0;
             for (int k = 0; k < nJumps; k++) {
-                logJump += _parameters.μJ + _parameters.σJ * u;
+                double zk = Normal.InvCDF(0, 1, uniform());
+                logJump += _parameters.μJ + _parameters.σJ * zk;
             }
             return logJump;
         }
