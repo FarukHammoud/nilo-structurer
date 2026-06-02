@@ -3,26 +3,17 @@ using Domain;
 
 namespace Infrastructure {
     public class JsonVolatilityProvider : IVolatilityProvider {
-        private readonly IVolatilitySurfaceBuilder _builder;
-        private readonly IOptionPriceProvider _optionPriceProvider;
+        private readonly String _path;
 
-        public JsonVolatilityProvider(IOptionPriceProvider optionPriceProvider, IVolatilitySurfaceBuilder builder) {
-            _builder = builder;
-            _optionPriceProvider = optionPriceProvider;
+        public JsonVolatilityProvider(String path) {
+            _path = path;
         }
 
         public async Task<Dictionary<Underlying, ILocalVolatilityModel>> GetVolatilitiesAsync(IEnumerable<Underlying> underlyings, CancellationToken ct = default) {
-            Dictionary<Underlying, Dictionary<VanillaContract, OptionMarketData>> pricesByUnderlying = await _optionPriceProvider.GetOptionPricesAsync(underlyings, ct);
-            Dictionary<Underlying, ILocalVolatilityModel> volatilitiesByUnderlying = new();
-            foreach (Underlying underlying in underlyings) {
-                if (pricesByUnderlying.ContainsKey(underlying)) {
-                    Dictionary<VanillaContract, OptionMarketData> optionData = pricesByUnderlying[underlying];
-                    Dictionary<VanillaContract, double> optionPrices = optionData.ToDictionary(x => x.Key, x => x.Value.LastPrice);
-                    ILocalVolatilityModel model = _builder.BuildVolatilitySurface(optionPrices);
-                    volatilitiesByUnderlying[underlying] = model;
-                }
-            }
-            return volatilitiesByUnderlying;
+            // PLACEHOLDER: In a real implementation, you would read the JSON file at _path, parse it, and create appropriate ILocalVolatilityModel instances based on the data. For this example, we will return a constant local volatility model for each underlying.
+            return underlyings.ToDictionary(
+                underlying => underlying, 
+                underlying => (ILocalVolatilityModel) new ConstantLocalVolatilityModel(0.2));
         }
     }
 }

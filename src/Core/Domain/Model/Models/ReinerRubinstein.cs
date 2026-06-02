@@ -5,6 +5,8 @@ namespace Domain {
     public enum BarrierDirection { Up, Down }
     public enum BarrierType { KnockIn, KnockOut }
 
+    // Rubinstein, M. & Reiner, E. (1991). Breaking Down the Barriers. Risk Magazine, 4(8), 28–35.
+
     public class ReinerRubinstein {
 
         private readonly double _spot;

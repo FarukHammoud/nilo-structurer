@@ -10,5 +10,9 @@
     <ProjectReference Include="..\..\..\src\Core\Application\Application.csproj" />
     <ProjectReference Include="..\..\..\src\Core\Domain\Domain.csproj" />
   </ItemGroup>
+    <ItemGroup>
+	    <None Include="yahoo\scripts\**\*" CopyToOutputDirectory="PreserveNewest" />
+	    <!--<None Include="data\**\*"    CopyToOutputDirectory="PreserveNewest" />-->
+    </ItemGroup>
 
 </Project>

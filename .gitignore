@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Infrastructure/Infrastructure/Data
 /Tests/Infrastructure.Tests/Data
+/src/Infrastructure/Infrastructure/Data

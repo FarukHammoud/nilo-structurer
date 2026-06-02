@@ -17,7 +17,7 @@ namespace Application {
         }
 
         public async Task<IMarketData> GetMarketData(
-            DateOnly date,
+            DateTime date,
             IEnumerable<Underlying> underlyings,
             IEnumerable<Currency> currencies,
             CancellationToken ct = default) {

@@ -24,16 +24,21 @@ namespace Infrastructure {
             string projectRoot = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", ".."));
             string path = Path.Combine(projectRoot, _path);
             var json = await File.ReadAllTextAsync(path, ct);
+            return await GetSpotsAsyncFromJson(json, underlyings, ct);
+        }
+
+        public static async Task<Dictionary<Underlying, double>> GetSpotsAsyncFromJson(
+                String json, IEnumerable<Underlying> underlyings, CancellationToken ct = default) {
             Dictionary<string, SpotEntry> jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, SpotEntry>>(json, JsonOptions)
             ?? throw new InvalidOperationException(
-                $"Failed to deserialize spots from: {path}");
+                $"Failed to deserialize spots from JSON");
 
             Dictionary<Underlying, double> spots = new();
             foreach (Underlying underlying in underlyings) {
                 if (jsonDictionary.ContainsKey(underlying.Code)) {
                     var entry = jsonDictionary[underlying.Code];
                     spots[underlying] = entry.Spot;
-                } 
+                }
             }
             return spots;
         }

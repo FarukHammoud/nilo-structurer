@@ -10,7 +10,7 @@ namespace Infrastructure.Tests {
             var path = "Tests/Infrastructure.Tests/Data/option_prices.json";
             var optionPriceProvider = new JsonOptionPriceProvider(path);
             var volatilitySurfaceBuilder = new InterpolationVolatilitySurfaceBuilder();
-            var provider = new JsonVolatilityProvider(optionPriceProvider, volatilitySurfaceBuilder);
+            var provider = new FromOptionsPricesVolatilityProvider(optionPriceProvider, volatilitySurfaceBuilder);
             Underlying MSFT = new Equity("MSFT", Currencies.USD);
             Underlying AAPL = new Equity("AAPL", Currencies.USD);
 
