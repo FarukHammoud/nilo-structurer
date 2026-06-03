@@ -32,7 +32,7 @@ namespace Application {
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
-            Dictionary<Underlying, List<double>> lastResults = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[path.Length - 1]).ToList());
+            Dictionary<Underlying, List<double>> lastResults = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path.Last).ToList());
             double[] payoffsAtMaturity = new double[_diffusionConfiguration.NumberOfDrawings];
             for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
                 Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[ω]);

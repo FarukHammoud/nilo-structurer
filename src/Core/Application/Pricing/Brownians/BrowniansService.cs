@@ -26,13 +26,13 @@ namespace Application {
             var independent = GetOrCreateBrownians(configuration);
 
             // pre-initialize output
-            var correlated = configuration.Underlyings.ToDictionary(
-                u => u,
-                _ => new List<double[]>(drawings));
+            var correlatedRealizations = configuration.Underlyings.ToDictionary(
+                underlying => underlying,
+                _ => new Realizations());
 
             for (int ω = 0; ω < drawings; ω++) {
                 for (int i = 0; i < n; i++) {
-                    double[] path = new double[steps];
+                    SimulatedPath path = new(steps);
                     for (int j = 0; j < n; j++) {
                         double Lij = L[i, j];
                         if (Lij == 0.0) {
@@ -43,11 +43,12 @@ namespace Application {
                             path[k] += Lij * src[k];
                         }
                     }
-                    correlated[configuration.Underlyings[i]].Add(path);
+                    Underlying underlying = configuration.Underlyings[i];
+                    correlatedRealizations[underlying].AddPath(path);
                 }
             }
 
-            return new BrowniansResult() { paths = correlated };
+            return new BrowniansResult() { Paths = correlatedRealizations };
         }
 
         private double[][] CreateBrownian(int steps, int drawings, Random random) {

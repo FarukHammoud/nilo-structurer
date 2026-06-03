@@ -21,9 +21,9 @@ namespace BrownianServices.Tests {
             };
             BrowniansService browniansService = new();
             BrowniansResult diffusionResult = browniansService.CreateCorrelatedBrownians(configuration);
-            List<Double[]> paths_A = diffusionResult.paths[A];
-            List<Double[]> paths_B = diffusionResult.paths[B];
-            Assert.AreEqual(paths_A.Count, paths_B.Count);
+            Realizations paths_A = diffusionResult.Paths[A];
+            Realizations paths_B = diffusionResult.Paths[B];
+            Assert.AreEqual(paths_A.Size, paths_B.Size);
         }
 
         [TestMethod]
@@ -41,16 +41,16 @@ namespace BrownianServices.Tests {
             };
             BrowniansService browniansService = new();
             BrowniansResult browniansResult = browniansService.CreateCorrelatedBrownians(configuration);
-            List<Double[]> paths_A = browniansResult.paths[A];
-            List<Double[]> paths_B = browniansResult.paths[B];
+            Realizations paths_A = browniansResult.Paths[A];
+            Realizations paths_B = browniansResult.Paths[B];
             Double averageCorrelationMismatch = 0;
-            for (int event_id = 0; event_id < paths_A.Count; event_id++) {
-                Double[] path_A = paths_A[event_id];
-                Double[] path_B = paths_B[event_id];
-                Double correlation = Correlation.Pearson(path_A, path_B);
+            for (int ω = 0; ω < paths_A.Size; ω++) {
+                SimulatedPath path_A = paths_A[ω];
+                SimulatedPath path_B = paths_B[ω];
+                Double correlation = Correlation.Pearson(path_A.Values, path_B.Values);
                 averageCorrelationMismatch += Math.Abs(correlation - configuration.CorrelationMatrix[0, 1]);
             }
-            averageCorrelationMismatch /= paths_A.Count;
+            averageCorrelationMismatch /= paths_A.Size;
             Assert.IsTrue(averageCorrelationMismatch < 1E-1);
         }
 
@@ -70,17 +70,17 @@ namespace BrownianServices.Tests {
             };
             BrowniansService browniansService = new();
             BrowniansResult browniansResult = browniansService.CreateCorrelatedBrownians(configuration);
-            List<Double[]> paths_A = browniansResult.paths[A];
-            List<Double[]> paths_B = browniansResult.paths[B];
+            Realizations paths_A = browniansResult.Paths[A];
+            Realizations paths_B = browniansResult.Paths[B];
 
             // Concatenate all increments into single arrays for more stable correlation
             List<double> allIncrements_A = new();
             List<double> allIncrements_B = new();
-            for (int event_id = 0; event_id < paths_A.Count; event_id++) {
-                Double[] path_A = paths_A[event_id];
-                Double[] path_B = paths_B[event_id];
-                allIncrements_A.AddRange(path_A);
-                allIncrements_B.AddRange(path_B);
+            for (int ω = 0; ω < paths_A.Size; ω++) {
+                SimulatedPath path_A = paths_A[ω];
+                SimulatedPath path_B = paths_B[ω];
+                allIncrements_A.AddRange(path_A.Values);
+                allIncrements_B.AddRange(path_B.Values);
             }
 
             // Compute correlation on aggregated increments

@@ -29,12 +29,12 @@ namespace Application {
                 jumpProcess = new PoissonProcess(mertonJumpModel.JumpParameters);
                 μ_adjustment -= jumpProcess.GetDrift();
             }
-			List<double[]> paths = new();
+            Realizations realizations = new();
             Random jumpRandom = new Random();
             for (int ω = 0; ω < drawings; ω++) {
-                double[] path = new double[steps];
+                SimulatedPath path = new(steps);
                 path[0] = spot;
-                double[] dW = noises.paths[underlying][ω];
+                SimulatedPath dW = noises.Paths[underlying][ω];
                 for (int step = 1; step < steps; step++) {
                     DateTime t = configuration.TimeDiscretization[step];
                     DateTime t_1 = configuration.TimeDiscretization[step - 1];
@@ -52,9 +52,9 @@ namespace Application {
                         path[step] *= Math.Exp(jumpProcess.Sample(dt, jumpRandom.NextDouble));
                     }
                 }
-                paths.Add(path);
+                realizations.AddPath(path);
             }
-            return new Realizations { Paths = paths };
+            return realizations;
         }
     }
 }
