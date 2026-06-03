@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using PricerServices;
 
 namespace PricingServicesTests {
     [TestClass]

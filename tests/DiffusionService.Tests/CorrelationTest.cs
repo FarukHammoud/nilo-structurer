@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Application;
+using Domain;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 

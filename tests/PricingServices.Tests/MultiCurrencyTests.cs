@@ -1,7 +1,6 @@
 ﻿using Application;
 using Domain;
 using Domain.Model.Models;
-using PricerServices;
 
 namespace PricingServicesTests {
     [TestClass]

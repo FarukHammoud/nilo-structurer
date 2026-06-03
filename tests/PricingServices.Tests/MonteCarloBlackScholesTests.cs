@@ -1,11 +1,6 @@
 ﻿using Application;
-using Application.Indicators;
 using Domain;
-using FixedIncomeServices;
-using MathNet.Numerics.LinearAlgebra;
-using PricerServices;
-using PricerServices.Pricers;
-using System.Diagnostics.Contracts;
+using PricingServicesTests;
 
 namespace PricingServices.Tests {
     [TestClass]

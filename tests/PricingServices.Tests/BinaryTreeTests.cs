@@ -1,7 +1,5 @@
 ﻿using Application;
 using Domain;
-using MathNet.Numerics.LinearAlgebra;
-using PricerServices;
 
 namespace PricingServices.Tests {
     [TestClass]

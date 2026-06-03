@@ -14,8 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\Application\Application.csproj" />
     <ProjectReference Include="..\..\src\Core\Domain\Domain.csproj" />
-    <ProjectReference Include="..\..\src\Infrastructure\FixedIncomeServices\FixedIncomeServices.csproj" />
-    <ProjectReference Include="..\..\src\Infrastructure\PricerService\PricerServices.csproj" />
   </ItemGroup>
 
   <ItemGroup>
