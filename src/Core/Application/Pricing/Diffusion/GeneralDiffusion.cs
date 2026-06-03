@@ -6,17 +6,18 @@ namespace Application {
         public static DiffusionResult DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
-            Dictionary<Underlying, Realizations> diffusionValues = configuration.MarketData.Underlyings
-                .ToDictionary(
-                    underlying => underlying, 
-                    underlying => DiffuseUnderlying(configuration, underlying, noises));
-            return new DiffusionResult { DiffusionValues = diffusionValues };
+            DiffusionResult result = new();
+            foreach (Underlying underlying in configuration.MarketData.Underlyings) {
+                result[underlying] = DiffuseUnderlying(configuration, underlying, noises);
+            }
+            return result;
         }
 
         private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
             int steps = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
             IMarketData marketData = configuration.MarketData;
+            INumericalScheme scheme = configuration.NumericalScheme;
             IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
             IDriftProvider driftProvider = new DriftProvider();
             double spot = underlyingMarketData.GetSpot();
@@ -44,10 +45,11 @@ namespace Application {
                     double timeToMaturity = (T - t).TotalYears;
                     double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
                     double dt = (t - t_1).TotalYears;
-                    path[step] = new LogEulerScheme().Evolve(path[step - 1], timeToMaturity, dt, dW[step], new StochasticDifferentialEquationDefinition(
-                        (s, t) => (μ - b) * s,
-                        (s, t) => σ * s
-                    ));
+                    StochasticDifferentialEquationDefinition sde = new(
+                        Drift : (s, t) => (μ - b) * s,
+                        Diffusion : (s, t) => σ * s
+                    );
+                    path[step] = scheme.Evolve(path[step - 1], timeToMaturity, dt, dW[step], sde);
                     if (jumpProcess != null) {
                         path[step] *= Math.Exp(jumpProcess.Sample(dt, jumpRandom.NextDouble));
                     }

@@ -7,6 +7,7 @@ namespace Application {
         public int NumberOfDrawings = 50000;
         public bool WithControlVariate = true;
         public JumpParameters? JumpParameters { get; set; }
+        public INumericalScheme NumericalScheme { get; set; } = new LogEulerScheme();
 
         public BrowniansConfiguration BrowniansConfiguration =>
             new BrowniansConfiguration {
