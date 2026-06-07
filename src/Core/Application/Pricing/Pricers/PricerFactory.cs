@@ -14,6 +14,7 @@ namespace Application {
             => config.Pricing switch {
                 MonteCarlo => new PathDependentDiffusionPricer(),
                 PDE => new FiniteDifferencePdeSolver(),
+                LongStaffSchwartz => new AmericanPathDependentDiffusionPricer(),
                 _ => throw new NotSupportedException($"No path-dependent pricer for {config.Pricing}")
             };
 
@@ -25,6 +26,11 @@ namespace Application {
                     WithControlVariate = request.WithControlVariate
                 },
                 BinaryTree => new BinaryTreePricerConfiguration(),
+                LongStaffSchwartz => new DiffusionPricerConfiguration {
+                    NumberOfDrawings = request.NumberOfDrawings,
+                    Currency = request.PricingCurrency,
+                    WithControlVariate = request.WithControlVariate
+                },
                 _ => throw new NotSupportedException($"No configuration for {request.ModelConfiguration.Pricing}")
             };
     }

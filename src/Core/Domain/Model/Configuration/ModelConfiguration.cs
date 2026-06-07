@@ -21,5 +21,11 @@
             Volatility = new ConstantVolatility(),
             Pricing = new BinaryTree(),
         };
+
+        public static ModelConfiguration LongstaffSchwartz => new() {
+            Discounting = new DiscountCurveDiscounting(),
+            Volatility = new ConstantVolatility(),
+            Pricing = new LongStaffSchwartz(),
+        };
     }
 }

@@ -1,28 +1,22 @@
 ﻿using Domain;
 
 namespace Application {
-    public class CallUpAndIn : IPathDependentContract, IKnockInBarrierContract {
-        public IEnumerable<IPathDependentPayoff> Payoffs => [];
-        public required Underlying Underlying { get; set; }
-        public required Currency Currency { get; set; }
-        public required double Strike { get; set; }
-        public required double BarrierLevel { get; set; }
-        public required DateTime Maturity { get; set; }
-        public double Notional { get; set; }
-        IEnumerable<DateTime> IContract.Dates => KnockInBarriers[0].ObservationDates;
-
-        public IReadOnlyList<IKnockInBarrier> KnockInBarriers => [new SingleUnderlyingUpAndInBarrier() { 
-            ActivatedPayoff = new MonoUnderlyingPathIndependentPayoff() {
-                Payoff = spot => Math.Max(0, spot - Strike),
-                Currency = Currency,
-                Underlying = Underlying,
-                Maturity = Maturity,
-                PaymentDate = Maturity
-            },
-            BarrierLevel = BarrierLevel,
-            MonitoringFrequency = MonitoringFrequency.Continuous,
-            Underlying = Underlying,
-            ObservationDates = [Maturity]
-        }];
+    public class CallUpAndIn : IPathDependentContract {
+        public IEnumerable<IPathDependentPayoff> Payoffs => [
+            new UpAndInPayoff(
+                new MonoUnderlyingPathDependentPayoff() {
+                    PayoffMap = d => Math.Max(0, d.Values.Last() - Strike),
+                    ObservationDates = [Maturity],
+                    Underlying = Underlying,
+                    MonitoringFrequency = MonitoringFrequency.Continuous,
+                    Currency = Currency,
+                    PaymentDate = Maturity
+                }, BarrierLevel, Underlying)];
+        public required Underlying Underlying { get; init; }
+        public required Currency Currency { get; init; }
+        public required double Strike { get; init; }
+        public required double BarrierLevel { get; init; }
+        public required DateTime Maturity { get; init; }
+        public double Notional { get; init; } = 1;
     }
 }

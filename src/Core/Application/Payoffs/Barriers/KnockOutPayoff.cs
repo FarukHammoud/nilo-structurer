@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public abstract class KnockOutPayoff : IPathDependentPayoff {
+    public abstract class KnockOutPayoff : IPathDependentPayoff, IOutKnockablePayoff {
         private readonly IPathDependentPayoff _basePayoff;
         public double Level { get; set; }
         public double Rebate { get; set; }
@@ -29,5 +29,7 @@ namespace Application {
         public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
 
         public DateTime PaymentDate => _basePayoff.PaymentDate;
+
+        public IKnockOutBarrier KnockOutCondition => throw new NotImplementedException();
     }
 }

@@ -3,5 +3,6 @@
     public sealed record Analytical : PricingConfig;
     public sealed record PDE : PricingConfig;
     public sealed record MonteCarlo : PricingConfig;
+    public sealed record LongStaffSchwartz : PricingConfig;
     public sealed record BinaryTree : PricingConfig;
 }

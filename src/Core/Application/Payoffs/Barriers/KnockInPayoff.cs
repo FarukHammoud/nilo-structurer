@@ -2,8 +2,9 @@
 
 namespace Application{
 
-    // To be deprecated in favor of the contract implementing the IKnockInContract itself
-    public abstract class KnockInPayoff : IPathDependentPayoff {
+    // Idea: Keep Decorator composition on payoff creation
+    // On pricer it checks IInKnockablePayoff implementation
+    public abstract class KnockInPayoff : IPathDependentPayoff, IInKnockablePayoff {
         private readonly IPathDependentPayoff _basePayoff;
         public double Level { get; set; }
         public Underlying Underlying { get; set; }
@@ -23,6 +24,8 @@ namespace Application{
                 return _basePayoff.ComputePayoff(prices);
             }
             return 0;
+            // switch to this version an implement barrier on pricer side
+            //return _basePayoff.ComputePayoff(prices);
         }
 
         public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);
@@ -30,5 +33,15 @@ namespace Application{
         public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
 
         public DateTime PaymentDate => _basePayoff.PaymentDate;
+
+        // Target API for the knock-in condition, to be used by the pricer 
+        public IKnockInBarrier KnockInCondition => new SingleUnderlyingKnockInBarrier() {
+            ActivatedPayoff = _basePayoff,
+            BarrierLevel = Level,
+            MonitoringFrequency = MonitoringFrequency.Continuous,
+            Underlying = Underlying,
+            ObservationDates = ObservationDates,
+            IsTouched = IsTouched
+        };
     }
 }
