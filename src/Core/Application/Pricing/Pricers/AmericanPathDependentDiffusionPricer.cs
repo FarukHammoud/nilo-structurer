@@ -40,7 +40,7 @@ namespace Application {
             LongstaffSchwartzAmericanSimulation longstaffSchwartzPricer = new LongstaffSchwartzAmericanSimulation();
             Func<double, double> payoffMap = spot => payoff.ComputePayoff(new Dictionary<DateTime, Dictionary<Underlying, double>> {
                 { maturity, new Dictionary<Underlying, double> { [underlying] = spot} } });
-            PriceWithPrecision price = longstaffSchwartzPricer.PriceAmerican(
+            ValueWithPrecision price = longstaffSchwartzPricer.PriceAmerican(
                 payoffMap,
                 today,
                 datesOfInterest,

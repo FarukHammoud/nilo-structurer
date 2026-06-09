@@ -50,15 +50,7 @@ namespace Application {
             if (_diffusionConfiguration.WithControlVariate) {
                 discountedPayoffs = varianceReducer.Adjust(discountedPayoffs);
             }
-            
-            double price = discountedPayoffs.Average();
-            double precision = discountedPayoffs.StandardDeviation() / Math.Sqrt(_diffusionConfiguration.NumberOfDrawings);
-
-            return new PriceWithPrecision() {
-                Value = price,
-                Precision = precision,
-                Currency = payoff.Currency
-            };
+            return new PriceWithPrecision(discountedPayoffs, payoff.Currency);
         }
 
     }
