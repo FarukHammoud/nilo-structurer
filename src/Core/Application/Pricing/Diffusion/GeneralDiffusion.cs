@@ -14,45 +14,37 @@ namespace Application {
         }
 
         private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
-            int steps = configuration.TimeDiscretization.Count;
+            int steps    = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
-            IMarketData marketData = configuration.MarketData;
-            INumericalScheme scheme = configuration.NumericalScheme;
-            IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
-            IDriftProvider driftProvider = new DriftProvider();
-            double spot = underlyingMarketData.GetSpot();
-            DateTime T = configuration.TimeDiscretization.LastOrDefault();
-            ILocalVolatilityModel volatility = underlyingMarketData.GetVolatility();
-            double μ_adjustment = 0;
-            // TODO: Delete jump parameters from configuration, its an underlying thing
-            IJumpProcess? jumpProcess = null;
-            if (volatility is MertonJumpModel mertonJumpModel) {
-                jumpProcess = new PoissonProcess(mertonJumpModel.JumpParameters);
-                μ_adjustment -= jumpProcess.GetDrift();
-            }
+            IMarketData marketData               = configuration.MarketData;
+            INumericalScheme scheme              = configuration.NumericalScheme;
+            IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(underlying);
+            IDriftProvider driftProvider         = new DriftProvider();
+
+            ILocalVolatilityModel volatility       = underlyingData.GetVolatility();
+            Func<DateTime, DateTime, double> drift = (t_1, t) => driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
+            double carry                           = underlyingData.GetCarry();
+            JumpParameters? jumpParameters         = volatility is MertonJumpModel mertonJumpModel ? mertonJumpModel.JumpParameters : null;
+            IProcessDynamics dynamics              = new LevyProcessDynamics((t_1, t) => drift(t_1, t) - carry, volatility, jumpParameters);
+            
+            double spot = underlyingData.GetSpot();
+            DateTime T  = configuration.TimeDiscretization.LastOrDefault();
+
             Realizations realizations = new();
             Random jumpRandom = new Random();
             for (int ω = 0; ω < drawings; ω++) {
                 SimulatedPath path = new(steps);
-                path[0] = spot;
-                SimulatedPath dW = noises.Paths[underlying][ω];
+                SimulatedPath dW   = noises.Paths[underlying][ω];
+                path[0]            = spot;
                 for (int step = 1; step < steps; step++) {
-                    DateTime t = configuration.TimeDiscretization[step];
-                    DateTime t_1 = configuration.TimeDiscretization[step - 1];
-					double μ = driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
-                    μ += μ_adjustment;
-                    double b = underlyingMarketData.GetCarry();
+                    DateTime t            = configuration.TimeDiscretization[step];
+                    DateTime t_1          = configuration.TimeDiscretization[step - 1];
                     double timeToMaturity = (T - t).TotalYears;
-                    double σ = volatility.getVolatility(path[step - 1], timeToMaturity);
-                    double dt = (t - t_1).TotalYears;
-                    StochasticDifferentialEquationDefinition sde = new(
-                        Drift : (s, t) => (μ - b) * s,
-                        Diffusion : (s, t) => σ * s
-                    );
+                    double dt             = (t - t_1).TotalYears;
+
+                    StochasticDifferentialEquation sde = dynamics.GetSDE(path[step - 1], t_1, t);
                     path[step] = scheme.Evolve(path[step - 1], timeToMaturity, dt, dW[step], sde);
-                    if (jumpProcess != null) {
-                        path[step] *= Math.Exp(jumpProcess.Sample(dt, jumpRandom.NextDouble));
-                    }
+                    path[step] *= dynamics.SampleJumpMultiplier(dt, jumpRandom.NextDouble);
                 }
                 realizations.AddPath(path);
             }
