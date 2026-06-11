@@ -22,7 +22,7 @@ namespace Application {
 
         public Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> Run(PricingRequest request) {
             Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults = new();
-
+          
             HashSet<(IMarketData, DateTime)> shiftedMarketData = request.Indicators
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
                 .ToHashSet();

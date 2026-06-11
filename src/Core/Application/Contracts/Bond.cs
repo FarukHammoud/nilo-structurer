@@ -15,10 +15,12 @@ namespace Application {
 
         private IEnumerable<Tuple<DateTime, double>> GetCashFlows() {
             List<Tuple<DateTime, double>> cashFlows = new List<Tuple<DateTime, double>>();
-            DateTime currentDate = NextSchedule(StartDate);
-            while (currentDate < Maturity) {
-                cashFlows.Add(Tuple.Create(currentDate, Coupon * Notional));
-                currentDate = NextSchedule(currentDate);
+            if (Coupon != 0) {
+                DateTime currentDate = NextSchedule(StartDate);
+                while (currentDate < Maturity) {
+                    cashFlows.Add(Tuple.Create(currentDate, Coupon * Notional));
+                    currentDate = NextSchedule(currentDate);
+                }
             }
             cashFlows.Add(Tuple.Create(Maturity, (1 + Coupon) * Notional)); // final payment with notional
             return cashFlows;

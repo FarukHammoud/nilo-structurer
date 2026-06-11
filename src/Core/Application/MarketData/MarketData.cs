@@ -2,7 +2,8 @@
 
 namespace Application {
     public class MarketData : IMarketData {
-        private OrderedDictionary<Currency, IDiscounter> _discounters = new();    
+        private OrderedDictionary<Currency, IDiscounter> _discounters = new();
+        private OrderedDictionary<Currency, IProcessDynamics> _shortRateDynamics = new();
         private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
         private OrderedDictionary<(Underlying, Underlying), double> _correlations = new();
 
@@ -45,8 +46,18 @@ namespace Application {
             return this;
         }
 
+        public MarketData SetShortRateDynamics(Currency currency, IProcessDynamics dynamics) {
+            _underlyingMarketData.Add(new ShortRate(currency), new ProcessDynamicsMarketData(dynamics));
+            _shortRateDynamics[currency] = dynamics;
+            return this;
+        }
+
         public IDiscounter GetDiscounter(Currency currency) {
             return _discounters[currency];
+        }
+
+        public IProcessDynamics GetShortRateDynamics(Currency currency) {
+            return _shortRateDynamics[currency];
         }
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {

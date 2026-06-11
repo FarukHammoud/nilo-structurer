@@ -21,12 +21,17 @@ namespace Application {
             IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(underlying);
             IDriftProvider driftProvider         = new DriftProvider();
 
-            ILocalVolatilityModel volatility       = underlyingData.GetVolatility();
-            Func<DateTime, DateTime, double> drift = (t_1, t) => driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
-            double carry                           = underlyingData.GetCarry();
-            JumpParameters? jumpParameters         = volatility is MertonJumpModel mertonJumpModel ? mertonJumpModel.JumpParameters : null;
-            IProcessDynamics dynamics              = new LevyProcessDynamics((t_1, t) => drift(t_1, t) - carry, volatility, jumpParameters);
-            
+            // hack, we should get dynamics from somewhere (market data?)
+            IProcessDynamics dynamics;
+            if (underlying is ShortRate shortRate) {
+                dynamics = marketData.GetShortRateDynamics(shortRate.Currency);
+            } else {
+                ILocalVolatilityModel volatility       = underlyingData.GetVolatility();
+                Func<DateTime, DateTime, double> drift = (t_1, t) => driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
+                double carry                           = underlyingData.GetCarry();
+                JumpParameters? jumpParameters         = volatility is MertonJumpModel mertonJumpModel ? mertonJumpModel.JumpParameters : null;
+                dynamics = new LevyProcessDynamics((t_1, t) => drift(t_1, t) - carry, volatility, jumpParameters);
+            }
             double spot = underlyingData.GetSpot();
             DateTime T  = configuration.TimeDiscretization.LastOrDefault();
 
