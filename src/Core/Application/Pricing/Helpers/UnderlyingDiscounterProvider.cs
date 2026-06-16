@@ -27,10 +27,15 @@ namespace Application {
             }
 
             if (_underlying is CurrencyPair fx) {
+                // eventually merge with driftProvider logic
                 IDiscounter baseDiscounter = _marketData.GetDiscounter(fx.Base);
                 IDiscounter quoteDiscounter = _marketData.GetDiscounter(fx.Quote);
                 return quoteDiscounter.GetDiscountFactor(t1, t0)
                             / baseDiscounter.GetDiscountFactor(t1, t0);
+            }
+
+            if (_underlying is ShortRate shortRate) {
+                throw new NotImplementedException(); // should be based on shortRate realization
             }
             throw new NotImplementedException();
         }

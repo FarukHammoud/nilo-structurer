@@ -21,25 +21,27 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public  PriceWithPrecision Price(
-            IPathDependentPayoff payoff, 
-            IDiscounter discounter, 
-            IFxConverter fxConverter, 
-            DateTime maturity, 
+        public  PriceWithPrecision PricePayoff(
+            IPathDependentPayoff payoff,  
             DateTime today,
             Currency pricingCurrency) {
+
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
+
+            IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
+
             List<DateTime> datesOfInterest = payoff.ObservationDates.ToList();
-            Underlying underlying = _diffusion.DiffusionValues.Keys.First();
+            Underlying underlying          = _diffusion.DiffusionValues.Keys.First();
+
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
             if (payoff.MonitoringFrequency == MonitoringFrequency.Continuous) {
                 datesOfInterest = _diffusionConfiguration.TimeDiscretization;
             }
             LongstaffSchwartzAmericanSimulation longstaffSchwartzPricer = new LongstaffSchwartzAmericanSimulation();
             Func<double, double> payoffMap = spot => payoff.ComputePayoff(new Dictionary<DateTime, Dictionary<Underlying, double>> {
-                { maturity, new Dictionary<Underlying, double> { [underlying] = spot} } });
+                { payoff.PaymentDate, new Dictionary<Underlying, double> { [underlying] = spot} } });
             ValueWithPrecision price = longstaffSchwartzPricer.PriceAmerican(
                 payoffMap,
                 today,

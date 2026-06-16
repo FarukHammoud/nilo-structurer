@@ -23,6 +23,7 @@ namespace Application {
 
             // hack, we should get dynamics from somewhere (market data?)
             IProcessDynamics dynamics;
+            double spot;
             if (underlying is ShortRate shortRate) {
                 dynamics = marketData.GetShortRateDynamics(shortRate.Currency);
             } else {
@@ -32,7 +33,7 @@ namespace Application {
                 JumpParameters? jumpParameters         = volatility is MertonJumpModel mertonJumpModel ? mertonJumpModel.JumpParameters : null;
                 dynamics = new LevyProcessDynamics((t_1, t) => drift(t_1, t) - carry, volatility, jumpParameters);
             }
-            double spot = underlyingData.GetSpot();
+            spot = underlyingData.GetSpot();
             DateTime T  = configuration.TimeDiscretization.LastOrDefault();
 
             Realizations realizations = new();

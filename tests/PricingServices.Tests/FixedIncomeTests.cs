@@ -92,15 +92,17 @@ namespace PricingServicesTests {
             };
             double kappa = 0.1;
             double theta = 0.025;
-            double sigma = 0.02;
+            double sigma = 0.01;
             double spotRate = 0.025;
             MarketData marketData = new MarketData()
-                .SetShortRateDynamics(Currencies.USD, new VasicekDynamics(
-                    kappa: kappa,
-                    sigma: sigma,
-                    theta: (x) => theta))
+                .SetShortRateDynamics(
+                    currency: Currencies.USD, 
+                    dynamics: new VasicekDynamics(
+                        kappa: kappa,
+                        sigma: sigma,
+                        theta: (x) => theta),
+                    spotRate: spotRate)
                 .SetRiskFreeRate(Currencies.USD, spotRate);
-                
 
             // Theoretical Price
             double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
@@ -118,6 +120,7 @@ namespace PricingServicesTests {
                 },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
+                WithControlVariate = false,
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);

@@ -4,6 +4,7 @@ namespace Application {
 
         private TreeNode? _root;
         private TreeNode? _richardsonExtrapolationRoot;
+        private IMarketData _marketData;
 
         private Func<List<DateTime>, List<DateTime>> _intermediateDatesGenerator = (dates) => dates
             .Zip(dates.Skip(1), (start, end) => Enumerable
@@ -75,6 +76,7 @@ namespace Application {
 
         public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
             IList<Underlying> underlyings = marketData.Underlyings;
+            _marketData = marketData;
             if (underlyings.Count != 1) {
                 throw new ArgumentException("Binary tree pricer only supports single underlying payoffs");
             }
@@ -86,10 +88,11 @@ namespace Application {
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
 
-        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, IFxConverter fxConverter, DateTime maturity, DateTime today, Currency pricingCurrency) {
+        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
             if (_root == null || _richardsonExtrapolationRoot == null) {
                 throw new InvalidOperationException("Pricer not initialized. Call Initialize() before pricing.");
             }
+            IDiscounter discounter = _marketData.GetDiscounter(pricingCurrency);
             double p1 = _root.GetValue(payoff, discounter);
             double p2 = _richardsonExtrapolationRoot.GetValue(payoff, discounter);
 

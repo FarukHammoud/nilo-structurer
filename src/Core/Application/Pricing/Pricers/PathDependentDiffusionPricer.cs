@@ -21,11 +21,8 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public  PriceWithPrecision Price(
+        public  PriceWithPrecision PricePayoff(
             IPathDependentPayoff payoff, 
-            IDiscounter discounter, 
-            IFxConverter fxConverter, 
-            DateTime maturity, 
             DateTime today,
             Currency pricingCurrency) {
             if (_diffusion == null || _diffusionConfiguration == null) {
@@ -41,7 +38,8 @@ namespace Application {
                 pricesAtDiscretizationPoints[date] = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[index]).ToList());
             }
             double[] prices = new double[_diffusion.NumberOfEvents];
-            double DF = discounter.GetDiscountFactor(maturity, today);
+            IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
+            double DF = discounter.GetDiscountFactor(payoff.PaymentDate, today);
             for (int event_id = 0; event_id < _diffusion.NumberOfEvents; event_id++) {
                 Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[event_id]));
                 prices[event_id] = DF * payoff.ComputePayoff(pricesAtInterestDates);

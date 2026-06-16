@@ -46,8 +46,8 @@ namespace Application {
             return this;
         }
 
-        public MarketData SetShortRateDynamics(Currency currency, IProcessDynamics dynamics) {
-            _underlyingMarketData.Add(new ShortRate(currency), new ProcessDynamicsMarketData(dynamics));
+        public MarketData SetShortRateDynamics(Currency currency, IProcessDynamics dynamics, double spotRate) {
+            _underlyingMarketData.Add(new ShortRate(currency), new ProcessDynamicsMarketData(dynamics, spotRate));
             _shortRateDynamics[currency] = dynamics;
             return this;
         }

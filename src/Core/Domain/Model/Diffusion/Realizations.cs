@@ -11,5 +11,22 @@
         public void AddPath(SimulatedPath path) {
             ((List<SimulatedPath>)Paths).Add(path);
         }
+
+        public SimulatedPath Average() {             
+            if (Paths.Count == 0) {
+                throw new InvalidOperationException("Cannot compute average of empty realizations.");
+            }
+            int pathLength = Paths[0].Length;
+            double[] averageValues = new double[pathLength];
+            foreach (var path in Paths) {
+                for (int i = 0; i < pathLength; i++) {
+                    averageValues[i] += path[i];
+                }
+            }
+            for (int i = 0; i < pathLength; i++) {
+                averageValues[i] /= Paths.Count;
+            }
+            return new SimulatedPath(averageValues);
+        }
     }
 }

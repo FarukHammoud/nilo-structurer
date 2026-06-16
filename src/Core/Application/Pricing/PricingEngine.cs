@@ -32,12 +32,12 @@ namespace Application {
 
             IPricerConfiguration pricerConfiguration = _pricerFactory.CreateConfiguration(request);
             if (pathIndependentContracts.Any()) {
-                IPayoffPricer<IPathIndependentPayoff> pricer = _pricerFactory.CreatePathIndependentPricer(request.ModelConfiguration);
+                IPricer<IPathIndependentPayoff> pricer = _pricerFactory.CreatePathIndependentPricer(request.ModelConfiguration);
                 IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Dates).Distinct();
                 PriceContracts(pathIndependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
             }
             if (pathDependentContracts.Any()) {
-                IPayoffPricer<IPathDependentPayoff> pricer = _pricerFactory.CreatePathDependentPricer(request.ModelConfiguration);
+                IPricer<IPathDependentPayoff> pricer = _pricerFactory.CreatePathDependentPricer(request.ModelConfiguration);
                 IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Dates).Distinct();
                 PriceContracts(pathDependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
             }
@@ -47,7 +47,7 @@ namespace Application {
 
         private void PriceContracts<T>(
             IEnumerable<IGeneralContract<T>> contracts,
-            IPayoffPricer<T> pricer,
+            IPricer<T> pricer,
             IPricerConfiguration? config,
             DateTime valuationDate,
             HashSet<(IMarketData, DateTime)> shiftedMarketData,
@@ -63,7 +63,7 @@ namespace Application {
         }
 
         private PriceWithPrecision PriceContract<T>(
-            IPayoffPricer<T> pricer,
+            IPricer<T> pricer,
             IGeneralContract<T> contract,
             IMarketData marketData,
             DateTime pricingDate,
@@ -71,7 +71,7 @@ namespace Application {
             IDiscounter discounter = marketData.GetDiscounter(pricingCurrency);
             double price = 0.0, precisionSquared = 0.0;
             foreach (T payoff in contract.Payoffs) {
-                PriceWithPrecision payoffPv = pricer.Price(payoff, discounter, marketData, payoff.PaymentDate, pricingDate, pricingCurrency);
+                PriceWithPrecision payoffPv = pricer.PricePayoff(payoff, pricingDate, pricingCurrency);
                 double fxRate = marketData.GetFxRate(payoffPv.Currency, pricingCurrency);
                 price += payoffPv.Value * fxRate;
                 precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);

@@ -1,5 +1,5 @@
 ﻿using Domain;
 
 namespace Application {
-    public interface IPathDependentPricer : IPayoffPricer<IPathDependentPayoff>;
+    public interface IPathDependentPricer : IPricer<IPathDependentPayoff>;
 }

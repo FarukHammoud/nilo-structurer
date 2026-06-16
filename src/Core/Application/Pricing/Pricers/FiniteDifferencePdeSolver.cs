@@ -13,13 +13,13 @@ namespace Application {
             _finiteDifferenceBsPdeSolver = new FiniteDifferenceBsPdeSolver();
         }
 
-        public PriceWithPrecision Price(IPathIndependentPayoff payoff, IDiscounter discounter, IFxConverter fxConverter, DateTime maturity, DateTime today, Currency pricingCurrency) {
+        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
             // TODO: Convert payoff in a payoff by entry, or change signature
             // _finiteDifferenceBsPdeSolver.PriceEuropean()
             throw new NotImplementedException();
         }
 
-        public PriceWithPrecision Price(IPathDependentPayoff payoff, IDiscounter discounter, IFxConverter fxConverter, DateTime maturity, DateTime today, Currency pricingCurrency) {
+        public PriceWithPrecision PricePayoff(IPathDependentPayoff payoff, DateTime today, Currency pricingCurrency) {
             // TODO: Convert payoff in a payoff by entry, or change signature
             // _finiteDifferenceBsPdeSolver.PriceAmerican()
             throw new NotImplementedException();

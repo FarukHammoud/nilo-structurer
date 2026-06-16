@@ -2,8 +2,10 @@
     // a crime against humanity, only the time to decide the api to register dynamics
     public class ProcessDynamicsMarketData : IProcessDynamics, IUnderlyingMarketData {
         private readonly IProcessDynamics _dynamics;
-        public ProcessDynamicsMarketData(IProcessDynamics dynamics) {
+        private readonly double _spotRate;
+        public ProcessDynamicsMarketData(IProcessDynamics dynamics, double spotRate) {
             _dynamics = dynamics;
+            _spotRate = spotRate;
         }
 
         public StochasticDifferentialEquation GetSDE(double state, DateTime t_1, DateTime t) {
@@ -15,11 +17,11 @@
         }
 
         public double GetSpot() {
-            throw new NotImplementedException();
+            return _spotRate;
         }
 
         public double GetCarry() {
-            throw new NotImplementedException();
+            return 0;
         }
 
         public ILocalVolatilityModel GetVolatility() {
