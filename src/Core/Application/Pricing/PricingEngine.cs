@@ -1,6 +1,9 @@
 ﻿using Domain;
 
 namespace Application {
+    /// <summary>
+    /// PricingEngine dispatches pricing requests to the appropriate pricers based on the contract type and model configuration. It handles both path-independent and path-dependent contracts, constructs the necessary time grids, and aggregates results for various indicators.
+    /// </summary>
     public class PricingEngine : IPricingEngine {
 
         private readonly IPricerFactory _pricerFactory;
@@ -22,65 +25,43 @@ namespace Application {
 
         public Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> Run(PricingRequest request) {
             Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults = new();
-          
+
             HashSet<(IMarketData, DateTime)> shiftedMarketData = request.Indicators
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
                 .ToHashSet();
 
-            IEnumerable<IPathIndependentContract> pathIndependentContracts = request.Position.OfType<IPathIndependentContract>();
-            IEnumerable<IPathDependentContract> pathDependentContracts = request.Position.OfType<IPathDependentContract>();
-
+            IEnumerable<DateTime> timeGrid           = _timeGridBuilder.Build(request.Position, request.ModelConfiguration, request.PricingDate);
             IPricerConfiguration pricerConfiguration = _pricerFactory.CreateConfiguration(request);
-            if (pathIndependentContracts.Any()) {
-                IPricer<IPathIndependentPayoff> pricer = _pricerFactory.CreatePathIndependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathIndependentContracts.SelectMany(contract => contract.Dates).Distinct();
-                PriceContracts(pathIndependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
+
+            foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
+
+                subResults[(marketData, pricingDate)] = new();
+                foreach (IContract contract in request.Position) {
+
+                    IPricer pricer         = _pricerFactory.CreatePricer(request.ModelConfiguration);
+                    pricer.Initialize(marketData, timeGrid.ToList(), pricerConfiguration);
+                    IDiscounter discounter = marketData.GetDiscounter(request.PricingCurrency);
+                    double price           = 0.0, precisionSquared = 0.0;
+
+                    foreach (IPayoff payoff in contract.Payoffs) {
+                        PriceWithPrecision payoffPv = pricer.PricePayoff(payoff, pricingDate, request.PricingCurrency);
+                        double fxRate               = marketData.GetFxRate(payoffPv.Currency, request.PricingCurrency);
+                        price += payoffPv.Value * fxRate;
+                        precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);
+                    }
+
+                    subResults[(marketData, pricingDate)][contract] = new PriceWithPrecision() {
+                        Value = price,
+                        Precision = Math.Sqrt(precisionSquared),
+                        Currency = request.PricingCurrency,
+                    };
+                }
             }
-            if (pathDependentContracts.Any()) {
-                IPricer<IPathDependentPayoff> pricer = _pricerFactory.CreatePathDependentPricer(request.ModelConfiguration);
-                IEnumerable<DateTime> maturities = pathDependentContracts.SelectMany(contract => contract.Dates).Distinct();
-                PriceContracts(pathDependentContracts, pricer, pricerConfiguration, request.PricingDate, shiftedMarketData, subResults, request.PricingCurrency);
+            if (request.ModelConfiguration.Discounting is StochasticRatesDiscounting) {
+
             }
 
             return GetIndicatorResults(request, subResults);
-        }
-
-        private void PriceContracts<T>(
-            IEnumerable<IGeneralContract<T>> contracts,
-            IPricer<T> pricer,
-            IPricerConfiguration? config,
-            DateTime valuationDate,
-            HashSet<(IMarketData, DateTime)> shiftedMarketData,
-            Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults,
-            Currency pricingCurrency) where T : IPayoff {
-            IEnumerable<DateTime> timeGrid = _timeGridBuilder.Build(contracts, valuationDate);
-            foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
-                pricer.Initialize(marketData, timeGrid.ToList(), config);
-                subResults[(marketData, pricingDate)] = contracts.ToDictionary(
-                    c => (IContract)c,
-                    c => PriceContract(pricer, c, marketData, pricingDate, pricingCurrency));
-            }
-        }
-
-        private PriceWithPrecision PriceContract<T>(
-            IPricer<T> pricer,
-            IGeneralContract<T> contract,
-            IMarketData marketData,
-            DateTime pricingDate,
-            Currency pricingCurrency) where T : IPayoff {
-            IDiscounter discounter = marketData.GetDiscounter(pricingCurrency);
-            double price = 0.0, precisionSquared = 0.0;
-            foreach (T payoff in contract.Payoffs) {
-                PriceWithPrecision payoffPv = pricer.PricePayoff(payoff, pricingDate, pricingCurrency);
-                double fxRate = marketData.GetFxRate(payoffPv.Currency, pricingCurrency);
-                price += payoffPv.Value * fxRate;
-                precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);
-            }
-            return new PriceWithPrecision() {
-                Value = price,
-                Precision = Math.Sqrt(precisionSquared),
-                Currency = pricingCurrency
-            };
         }
 
         private Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults) {

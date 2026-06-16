@@ -105,5 +105,9 @@ namespace Application {
                 Currency = payoff.Currency,
             };
         }
+
+        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+            return PricePayoff((IPathIndependentPayoff)payoff, today, pricingCurrency);
+        }
     }
 }

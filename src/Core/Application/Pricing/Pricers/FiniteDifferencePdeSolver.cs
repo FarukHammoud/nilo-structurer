@@ -14,14 +14,14 @@ namespace Application {
         }
 
         public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
-            // TODO: Convert payoff in a payoff by entry, or change signature
-            // _finiteDifferenceBsPdeSolver.PriceEuropean()
-            throw new NotImplementedException();
+            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
         }
 
         public PriceWithPrecision PricePayoff(IPathDependentPayoff payoff, DateTime today, Currency pricingCurrency) {
-            // TODO: Convert payoff in a payoff by entry, or change signature
-            // _finiteDifferenceBsPdeSolver.PriceAmerican()
+            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
+        }
+
+        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             throw new NotImplementedException();
         }
     }

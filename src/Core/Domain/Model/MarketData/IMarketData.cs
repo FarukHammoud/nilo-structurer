@@ -3,7 +3,7 @@
         IList<Underlying> Underlyings { get; }
         IList<Currency> Currencies { get; }
         IDiscounter GetDiscounter(Currency currency);
-        IProcessDynamics? GetShortRateDynamics(Currency currency);
+        IProcessDynamics GetShortRateDynamics(Currency currency);
         double GetCorrelation(Underlying underlying1, Underlying underlying2);
         IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying);
     }

@@ -2,20 +2,13 @@
 
 namespace Application {
     public class PricerFactory : IPricerFactory {
-        public IPricer<IPathIndependentPayoff> CreatePathIndependentPricer(ModelConfiguration config)
+        public IPricer CreatePricer(ModelConfiguration config)
             => config.Pricing switch {
-                MonteCarlo => new PathIndependentDiffusionPricer(),
+                MonteCarlo => new DiffusionPricer(),
                 PDE => new FiniteDifferencePdeSolver(),
                 BinaryTree => new BinaryTreePricer(),
-                _ => throw new NotSupportedException($"No path-independent pricer for {config.Pricing}")
-            };
-
-        public IPricer<IPathDependentPayoff> CreatePathDependentPricer(ModelConfiguration config)
-            => config.Pricing switch {
-                MonteCarlo => new PathDependentDiffusionPricer(),
-                PDE => new FiniteDifferencePdeSolver(),
                 LongStaffSchwartz => new AmericanPathDependentDiffusionPricer(),
-                _ => throw new NotSupportedException($"No path-dependent pricer for {config.Pricing}")
+                _ => throw new NotSupportedException($"No path-independent pricer for {config.Pricing}")
             };
 
         public IPricerConfiguration CreateConfiguration(PricingRequest request)

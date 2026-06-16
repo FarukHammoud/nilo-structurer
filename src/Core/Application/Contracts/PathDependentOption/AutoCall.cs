@@ -11,7 +11,7 @@ namespace Application {
         public DateTime Maturity => ObservationDates.Last();
         public double Notional { get; set; } = 1.0;
 
-        public IEnumerable<IPathDependentPayoff> Payoffs =>
+        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs =>
             [new MonoUnderlyingPathDependentPayoff() {
                 PayoffMap = (prices) => {
                     double priceAtMaturity = prices[Maturity];
@@ -26,6 +26,7 @@ namespace Application {
                 },
                 ObservationDates = [Maturity],
                 PaymentDate = Maturity,
+                Maturity = Maturity,
                 Underlying = Underlying,
                 MonitoringFrequency = MonitoringFrequency.None,
                 Currency = Currency
@@ -40,12 +41,13 @@ namespace Application {
                         PayoffMap = path => Notional * (1 + i * Coupon),
                         ObservationDates = [ObservationDates[i]],
                         PaymentDate = ObservationDates[i],
+                        Maturity = ObservationDates[i],
                         Underlying = Underlying,
                         MonitoringFrequency = MonitoringFrequency.None,
                         Currency = Currency,
                     }
             });
 
-        public IEnumerable<DateTime> Dates => Payoffs.SelectMany(p => p.ObservationDates).Distinct();
+        public IEnumerable<DateTime> Dates => PathDependentPayoffs.SelectMany(p => p.ObservationDates).Distinct();
     }
 }

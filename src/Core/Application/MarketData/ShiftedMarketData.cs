@@ -80,7 +80,7 @@ namespace Application {
             return _marketData.GetFxRate(from, to);
         }
 
-        public IProcessDynamics? GetShortRateDynamics(Currency currency) {
+        public IProcessDynamics GetShortRateDynamics(Currency currency) {
             return _marketData.GetShortRateDynamics(currency);
         }
 

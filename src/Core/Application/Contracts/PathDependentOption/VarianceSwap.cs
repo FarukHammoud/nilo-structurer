@@ -13,6 +13,7 @@ namespace Application {
                 Underlying = Underlying,
                 MonitoringFrequency = MonitoringFrequency.Daily,
                 Currency = Currency,
+                Maturity = Maturity,
                 PaymentDate = Maturity
             };
         

@@ -12,6 +12,7 @@ namespace Application {
                 Underlying = Underlying,
                 MonitoringFrequency = MonitoringFrequency.None,
                 Currency = Currency,
+                Maturity = Maturity,
                 PaymentDate = Maturity
             };
         }

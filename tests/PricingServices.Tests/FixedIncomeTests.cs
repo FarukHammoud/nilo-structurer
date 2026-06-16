@@ -86,12 +86,12 @@ namespace PricingServicesTests {
         [TestMethod]
         public void StochasticRatesVasicekBondPricing() {
             ZeroCouponBond bond = new() {
-                Maturity = DateTime.Today.AddYears(3),
+                Maturity = DateTime.Today.AddDays(3 * 365),
                 Currency = Currencies.USD,
                 Notional = 1000,
             };
             double kappa = 0.1;
-            double theta = 0.025;
+            double theta = 0.035;
             double sigma = 0.01;
             double spotRate = 0.025;
             MarketData marketData = new MarketData()
@@ -121,6 +121,7 @@ namespace PricingServicesTests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
                 WithControlVariate = false,
+                NumberOfDrawings = 500000
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);

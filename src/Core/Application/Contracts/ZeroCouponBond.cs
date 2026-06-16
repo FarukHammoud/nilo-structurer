@@ -3,7 +3,7 @@ namespace Application {
     public class ZeroCouponBond : IPathIndependentContract {
 
         public CashFlow CashFlows => new CashFlow([Tuple.Create(Maturity, Notional)]) { Currency = this.Currency };
-        public IEnumerable<IPathIndependentPayoff> Payoffs => CashFlows.Payoffs;
+        public IEnumerable<IPathIndependentPayoff> PathIndependentPayoffs => CashFlows.PathIndependentPayoffs;
 
         public required DateTime Maturity { get; set; }
         public required Currency Currency { get; set; }

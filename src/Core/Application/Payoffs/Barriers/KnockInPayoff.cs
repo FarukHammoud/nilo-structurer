@@ -33,6 +33,7 @@ namespace Application{
         public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
 
         public DateTime PaymentDate => _basePayoff.PaymentDate;
+        public DateTime Maturity => _basePayoff.Maturity;
 
         // Target API for the knock-in condition, to be used by the pricer 
         public IKnockInBarrier KnockInCondition => new SingleUnderlyingKnockInBarrier() {

@@ -29,6 +29,7 @@ namespace Application {
         public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
 
         public DateTime PaymentDate => _basePayoff.PaymentDate;
+        public DateTime Maturity => _basePayoff.Maturity;
 
         public IKnockOutBarrier KnockOutCondition => throw new NotImplementedException();
     }

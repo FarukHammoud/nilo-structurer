@@ -2,7 +2,7 @@
 
 namespace Application {
     public class CallDownAndOut : IPathDependentContract {
-        public IEnumerable<IPathDependentPayoff> Payoffs => [ 
+        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs => [ 
             (IPathDependentPayoff) new DownAndOutPayoff(
                 new MonoUnderlyingPathDependentPayoff() {
                     PayoffMap = d => Math.Max(0, d.Values.Last() - Strike),
@@ -10,7 +10,8 @@ namespace Application {
                     Underlying = Underlying,
                     MonitoringFrequency = MonitoringFrequency.Continuous,
                     Currency = Currency,
-                    PaymentDate = Maturity
+                    PaymentDate = Maturity,
+                    Maturity = Maturity
                 }, BarrierLevel, Underlying)];
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }

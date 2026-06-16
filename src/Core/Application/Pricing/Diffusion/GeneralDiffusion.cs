@@ -26,6 +26,7 @@ namespace Application {
             double spot;
             if (underlying is ShortRate shortRate) {
                 dynamics = marketData.GetShortRateDynamics(shortRate.Currency);
+                scheme = new EulerMaruyamaScheme();
             } else {
                 ILocalVolatilityModel volatility       = underlyingData.GetVolatility();
                 Func<DateTime, DateTime, double> drift = (t_1, t) => driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);

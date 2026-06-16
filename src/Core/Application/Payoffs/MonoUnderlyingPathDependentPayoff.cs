@@ -17,5 +17,6 @@ namespace Application {
         public required IReadOnlyList<DateTime> ObservationDates { get; init; }
 
         public required DateTime PaymentDate { get; init; }
+        public required DateTime Maturity { get; init; }
     }
 }

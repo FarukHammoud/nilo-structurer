@@ -3,8 +3,7 @@
 namespace Application {
     // TODO: Replace by a sort of dependency injection on client side
     public interface IPricerFactory {
-        IPricer<IPathIndependentPayoff> CreatePathIndependentPricer(ModelConfiguration config);
-        IPricer<IPathDependentPayoff> CreatePathDependentPricer(ModelConfiguration config);
+        IPricer CreatePricer(ModelConfiguration config);
         IPricerConfiguration CreateConfiguration(PricingRequest request);
     }
 }

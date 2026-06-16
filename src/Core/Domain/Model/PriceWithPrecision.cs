@@ -4,7 +4,7 @@ namespace Domain {
     public record PriceWithPrecision {
         public PriceWithPrecision(IEnumerable<double> values, Currency currency) {
             Value = Statistics.Mean(values);
-            Precision = Statistics.StandardDeviation(values);
+            Precision = Statistics.StandardDeviation(values) / Math.Sqrt(values.Count());
             Currency = currency;
         }
 

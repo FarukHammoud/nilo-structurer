@@ -64,5 +64,9 @@ namespace Application {
                 Currency = marketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : marketData.Currencies.First()
             };
         }
+
+        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+            return PricePayoff((IPathDependentPayoff)payoff, today, pricingCurrency);
+        }
     }
 }

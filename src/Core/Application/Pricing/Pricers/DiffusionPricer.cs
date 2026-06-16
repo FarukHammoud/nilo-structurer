@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class PathIndependentDiffusionPricer : IPathIndependentPricer {
+    public class DiffusionPricer : IPricer<IPayoff>, IPathIndependentPricer, IPathDependentPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private DiffusionResult? _diffusion;
@@ -27,50 +27,71 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
+        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
-            
+
             Dictionary<Underlying, List<double>> lastResults = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path.Last).ToList());
-            double[] payoffsAtMaturity = new double[_diffusionConfiguration.NumberOfDrawings];
-            for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
-                Dictionary<Underlying, double> priceAtMaturity = lastResults.ToDictionary(entry => entry.Key, entry => entry.Value[ω]);
-                payoffsAtMaturity[ω] = payoff.ComputePayoff(priceAtMaturity);
+            IEnumerable<DateTime> datesOfInterest = payoff.MonitoringFrequency == MonitoringFrequency.Continuous ?
+                _diffusionConfiguration.TimeDiscretization : payoff.ObservationDates;
+            Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
+ 
+            foreach (DateTime date in datesOfInterest) {
+                int index = _diffusionConfiguration.TimeDiscretization.IndexOf(date);
+                pricesAtDiscretizationPoints[date] = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[index]).ToList());
             }
+
+            double[] prices        = new double[_diffusionConfiguration.NumberOfDrawings];
+            IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
+            double discountFactor  = discounter.GetDiscountFactor(payoff.PaymentDate, today);
+            for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
+                Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[ω]));
+                prices[ω] = payoff.ComputePayoff(pricesAtInterestDates);
+            }
+
             List<double> discountedPayoffs = new();
             IDictionary<Currency, ShortRate> shortRates = _diffusionConfiguration.MarketData.Underlyings.OfType<ShortRate>().ToDictionary(x => x.Currency, x => x);
             if (shortRates.ContainsKey(pricingCurrency)) {
                 ShortRate shortRate = shortRates[pricingCurrency];
                 double t = (payoff.PaymentDate - today).TotalYears;
-                for (int i = 0; i < payoffsAtMaturity.Length; i++) {
-                    double rate = lastResults[shortRate][i];
-                    double payoffValue = payoffsAtMaturity[i];
-                    // single step is probably not enough, 
-                    // df is integral of short rate
-                    // need to map stochastic rates configuration into a path dependent pricer
-                    double discountFactor = Math.Exp(-rate * t);
-                    discountedPayoffs.Add(discountFactor * payoffValue);
+                List<DateTime> dates = _diffusionConfiguration.TimeDiscretization;
+                for (int ω = 0; ω < prices.Length; ω++) {
+                    double payoffValue = prices[ω];
+                    SimulatedPath shortRatePath = _diffusion.DiffusionValues[shortRate][ω];
+                    double integral = 0;
+                    for (int k = 0; k < shortRatePath.Values.Count() - 1; k++) {
+                        double dt = (dates[k + 1] - dates[k]).TotalYears;
+                        integral += shortRatePath.Values[k] * dt;
+                    }
+                    double stochasticDF = Math.Exp(-integral);
+                    discountedPayoffs.Add(stochasticDF * payoffValue);
                 }
             } else {
-                IDiscounter discounter         = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
-                double discountFactor          = discounter.GetDiscountFactor(payoff.PaymentDate, today);
-                discountedPayoffs = payoffsAtMaturity.Select(payoffValue => discountFactor * payoffValue).ToList();
+                discountedPayoffs = prices.Select(payoffValue => discountFactor * payoffValue).ToList();
             }
              
-
-            if (_diffusionConfiguration.WithControlVariate) {
+            if (_diffusionConfiguration.WithControlVariate && payoff is IPathIndependentPayoff) {
                 List<List<double>> controlVariates   = lastResults.Select(entry => entry.Value).ToList();
                 Dictionary<Underlying, double> spots = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths[0][0]);
                 List<double> expectations            = lastResults.Keys.Select(underlying => spots[underlying] / new UnderlyingDiscounterProvider(underlying, _diffusionConfiguration.Currency, _diffusionConfiguration.MarketData).GetDiscountFactor(payoff.PaymentDate, today)).ToList();
                 List<double> realizedAverages        = lastResults.Values.Select(values => values.Average()).ToList(); // debugging purposes
 
-                IVarianceReducer varianceReducer = new ControlVariateReducer(controlVariates, expectations, payoffsAtMaturity.ToList());
+                IVarianceReducer varianceReducer = new ControlVariateReducer(controlVariates, expectations, prices.ToList());
                 discountedPayoffs = varianceReducer.Adjust(discountedPayoffs);
             }
+
             return new PriceWithPrecision(discountedPayoffs, payoff.Currency);
         }
 
+        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
+            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
+        }
+
+        public PriceWithPrecision PricePayoff(IPathDependentPayoff payoff, DateTime today, Currency pricingCurrency) {
+            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
+        }
     }
+
 }
