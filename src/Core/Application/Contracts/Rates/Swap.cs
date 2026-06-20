@@ -1,6 +1,6 @@
 ﻿using Domain;
 
-namespace Application.Contracts {
+namespace Application {
     public class Swap : IPathIndependentContract{
         private IEnumerable<Tuple<DateTime, double>> _cashFlows;
 

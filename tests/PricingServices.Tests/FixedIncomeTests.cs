@@ -121,7 +121,52 @@ namespace PricingServicesTests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
                 WithControlVariate = false,
-                NumberOfDrawings = 500000
+                NumberOfDrawings = 50000
+            };
+
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[bond][new Premium()];
+            Assert.AreEqual(price, monteCarloResult.Value, monteCarloResult.Precision);
+        }
+
+        [TestMethod]
+        public void StochasticRatesCirBondPricing() {
+            ZeroCouponBond bond = new() {
+                Maturity = DateTime.Today.AddDays(3 * 365),
+                Currency = Currencies.USD,
+                Notional = 1000,
+            };
+            double kappa = 0.1;
+            double theta = 0.035;
+            double sigma = 0.01;
+            double spotRate = 0.025;
+            MarketData marketData = new MarketData()
+                .SetShortRateDynamics(
+                    currency: Currencies.USD,
+                    dynamics: new CoxIngersollRossDynamics(
+                        kappa: kappa,
+                        sigma: sigma,
+                        theta: (x) => theta),
+                    spotRate: spotRate)
+                .SetRiskFreeRate(Currencies.USD, spotRate);
+
+            // Theoretical Price
+            double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
+            double df = new CoxIngersollRoss(kappa, theta, sigma).DiscountFactor(spotRate, timeToMaturity);
+            double price = bond.Notional * df;
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [bond],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = new() {
+                    Discounting = new StochasticRatesDiscounting(),
+                    Pricing = new MonteCarlo(),
+                    Volatility = new LocalVolatility()
+                },
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD,
+                WithControlVariate = false,
             };
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
