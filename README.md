@@ -13,6 +13,7 @@ Most tests compare pricer vs benchmark models on simple cases using a range of k
 * For continuous knock-in, knock-out barrier : Reiner & Rubinstein
 * For quanto options : Reiner
 * For American Puts Aproximation: Barone-Adesi Whaley
+* For Swaptions : Jamshidian
 
 On-going path-dependent pricer project: Asian Options, Autocalls, etcs.
 
@@ -24,8 +25,10 @@ We implement several indicators (greeks but not only) via finite differences, us
 - Merton, R. C. (1976). Option Pricing when Underlying Stock Returns are Discontinuous. Journal of Financial Economics, 3(1–2), 125–144.
 - Cox, J., Ross, S. & Rubinstein, M. (1979). *Option Pricing: A Simplified Approach.* Journal of Financial Economics.
 - Stulz, R. (1982). *Options on the Minimum or the Maximum of Two Risky Assets.* Journal of Financial Economics.
+- Jamshidian, F. (1989). "An Exact Bond Option Formula." The Journal of Finance, 44(1), 205–209.
 - Rubinstein, M. & Reiner, E. (1991). Breaking Down the Barriers. Risk Magazine, 4(8), 28–35.
 - Reiner, E. (1992). Quanto Mechanics. Risk Magazine, 5(3), 59–63.
 - Derman, E. & Kani, I. (1994). *Riding on a Smile.* Risk, 7(2), 32–39.
 - Longstaff, F. A. & Schwartz, E. S. (2001). Valuing American Options by Simulation: A Simple Least-Squares Approach. Review of Financial Studies, 14(1), 113–147.
 - Schadner, W. (2026). An Explicit Solution to Black–Scholes Implied Volatility.
+  
