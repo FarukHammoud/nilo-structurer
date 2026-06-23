@@ -183,11 +183,10 @@ namespace PricingServices.Tests {
                 Notional = -1.0,
                 Currency = Currencies.USD,
             };
-            CashFlow cashFlow = new([ 
-                Tuple.Create(DateTime.Today, -spotPrice), 
-                Tuple.Create(DateTime.Today.AddMonths(4), strike) ]) {
-                 Currency = Currencies.USD
-            };
+            CashFlows cashFlow = new([
+                new CashFlow() { PaymentDate = DateTime.Today, Amount = -spotPrice, Currency = Currencies.USD },
+                new CashFlow() { PaymentDate = DateTime.Today.AddMonths(4), Amount = strike, Currency = Currencies.USD}]
+            ) {Currency = Currencies.USD};
             Book book = new([ call, put, cashFlow ]);
 
             MarketData marketData = new MarketData()

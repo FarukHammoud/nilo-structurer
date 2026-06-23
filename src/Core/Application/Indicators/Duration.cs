@@ -12,7 +12,7 @@ namespace Application {
                 return null;
             }
             double price = resultsByShift[(unshiftedMarketData, pricingDate)].Value;
-            CashFlow cashFlows = bond.CashFlows;
+            CashFlows cashFlows = bond.CashFlows;
             DateTime startDate = bond.StartDate;
             IEnumerable<DateTime> dates = cashFlows.Dates;
             IEnumerable<double> values = cashFlows.Values;

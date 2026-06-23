@@ -1,8 +1,8 @@
 ﻿namespace Domain {
     public class Vasicek {
-        private readonly double _kappa;  // mean reversion speed
-        private readonly double _theta;  // long-term mean
-        private readonly double _sigma;  // volatility
+        public readonly double _kappa;  // mean reversion speed
+        public readonly double _theta;  // long-term mean
+        public readonly double _sigma;  // volatility
 
         public Vasicek(double kappa, double theta, double sigma) {
             _kappa = kappa;

@@ -8,6 +8,6 @@ namespace Application {
         public required Swap Swap { get; init; }
         public required double Strike { get; init; }
         public required DateTime Expiry { get; init; }
-        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs => Swap.PathIndependentPayoffs;
+        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs => throw new NotImplementedException();
     }
 }
