@@ -1,7 +1,4 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Domain {
     public class PolynomialRegressionBasis : IRegressionBasis {
@@ -17,6 +14,22 @@ namespace Domain {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j <= _degree; j++) {
                     X[i, j] = Math.Pow(x[i], j);
+                }
+            }
+            return X;
+        }
+
+        public Matrix<double> Build(List<Vector<double>> xs) {
+            int variables = xs.Count;
+            int vectorLength = xs[0].Count;
+            Matrix<double> X = Matrix<double>.Build.Dense(vectorLength, _degree + 1);
+
+            for (int i = 0; i < vectorLength; i++) {
+                X[i, 0] = 1.0;
+                for (int degree = 1; degree <= _degree; degree++) {
+                    for (int variable = 0; variable < variables; variable++) {
+                        X[i, variable * _degree + degree] = Math.Pow(xs[variable][i], degree);
+                    }
                 }
             }
             return X;

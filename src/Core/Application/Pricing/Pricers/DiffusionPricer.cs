@@ -4,7 +4,7 @@ namespace Application {
     public class DiffusionPricer : IPricer<IPayoff>, IPathIndependentPricer, IPathDependentPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
-        private DiffusionResult? _diffusion;
+        private Diffusion? _diffusion;
         
         private Func<IMarketData, List<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
             MarketData         = marketData,
@@ -33,24 +33,20 @@ namespace Application {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
 
-            Dictionary<Underlying, List<double>> lastResults = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path.Last).ToList());
             IEnumerable<DateTime> datesOfInterest = payoff.MonitoringFrequency == MonitoringFrequency.Continuous ?
                 _diffusionConfiguration.TimeDiscretization : payoff.ObservationDates;
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
  
             foreach (DateTime date in datesOfInterest) {
-                int index = _diffusionConfiguration.TimeDiscretization.IndexOf(date);
-                pricesAtDiscretizationPoints[date] = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths.Select(path => path[index]).ToList());
+                pricesAtDiscretizationPoints[date] = _diffusion[date];
             }
 
             double[] prices        = new double[_diffusionConfiguration.NumberOfDrawings];
-            IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
-            double discountFactor  = discounter.GetDiscountFactor(payoff.PaymentDate, today);
             for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
                 Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[ω]));
                 prices[ω] = payoff.ComputePayoff(pricesAtInterestDates);
             }
-
+      
             List<double> discountedPayoffs = new();
             IDictionary<Currency, ShortRate> shortRates = _diffusionConfiguration.MarketData.Underlyings.OfType<ShortRate>().ToDictionary(x => x.Currency, x => x);
             if (shortRates.ContainsKey(pricingCurrency)) {
@@ -59,7 +55,7 @@ namespace Application {
                 List<DateTime> dates = _diffusionConfiguration.TimeDiscretization;
                 for (int ω = 0; ω < prices.Length; ω++) {
                     double payoffValue = prices[ω];
-                    SimulatedPath shortRatePath = _diffusion.DiffusionValues[shortRate][ω];
+                    SimulatedPath shortRatePath = _diffusion[shortRate][ω];
                     double integral = 0;
                     for (int k = 0; k < shortRatePath.Values.Count() - 1; k++) {
                         double dt = (dates[k + 1] - dates[k]).TotalYears;
@@ -69,12 +65,16 @@ namespace Application {
                     discountedPayoffs.Add(stochasticDF * payoffValue);
                 }
             } else {
+                IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
+                double discountFactor  = discounter.GetDiscountFactor(payoff.PaymentDate, today);
                 discountedPayoffs = prices.Select(payoffValue => discountFactor * payoffValue).ToList();
             }
              
             if (_diffusionConfiguration.WithControlVariate && payoff is IPathIndependentPayoff) {
+                Dictionary<Underlying, List<double>> lastResults = _diffusion.Lasts();
+
                 List<List<double>> controlVariates   = lastResults.Select(entry => entry.Value).ToList();
-                Dictionary<Underlying, double> spots = _diffusion.DiffusionValues.ToDictionary(x => x.Key, x => x.Value.Paths[0][0]);
+                Dictionary<Underlying, double> spots = _diffusion.Underlyings.ToDictionary(udl => udl, udl => _diffusion[udl].Paths[0][0]);
                 List<double> expectations            = lastResults.Keys.Select(underlying => spots[underlying] / new UnderlyingDiscounterProvider(underlying, _diffusionConfiguration.Currency, _diffusionConfiguration.MarketData).GetDiscountFactor(payoff.PaymentDate, today)).ToList();
                 List<double> realizedAverages        = lastResults.Values.Select(values => values.Average()).ToList(); // debugging purposes
 

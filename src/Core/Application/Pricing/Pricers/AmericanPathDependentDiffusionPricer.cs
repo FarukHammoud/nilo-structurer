@@ -5,7 +5,7 @@ namespace Application {
     public class AmericanPathDependentDiffusionPricer : IPathDependentPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
-        private DiffusionResult? _diffusion;
+        private Diffusion? _diffusion;
 
         public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
             if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
@@ -33,7 +33,7 @@ namespace Application {
             IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
 
             List<DateTime> datesOfInterest = payoff.ObservationDates.ToList();
-            Underlying underlying          = _diffusion.DiffusionValues.Keys.First();
+            Underlying underlying          = _diffusion.Underlyings.First();
 
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
             if (payoff.MonitoringFrequency == MonitoringFrequency.Continuous) {
@@ -46,7 +46,7 @@ namespace Application {
                 payoffMap,
                 today,
                 datesOfInterest,
-                _diffusion.DiffusionValues[underlying], 
+                _diffusion[underlying], 
                 discounter);
             return new PriceWithPrecision() {
                 Value = price.Value,

@@ -12,6 +12,10 @@
             ((List<SimulatedPath>)Paths).Add(path);
         }
 
+        public List<double> GetTranche(int position) {
+            return Paths.Select(path => path[position]).ToList();
+        }
+
         public SimulatedPath Average() {             
             if (Paths.Count == 0) {
                 throw new InvalidOperationException("Cannot compute average of empty realizations.");

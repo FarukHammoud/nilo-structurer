@@ -4,5 +4,6 @@
     public sealed record PDE : PricingConfig;
     public sealed record MonteCarlo : PricingConfig;
     public sealed record LongStaffSchwartz : PricingConfig;
+    public sealed record American : PricingConfig; // Generalized LS
     public sealed record BinaryTree : PricingConfig;
 }

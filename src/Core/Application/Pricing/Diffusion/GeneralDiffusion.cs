@@ -3,14 +3,14 @@
 namespace Application {
     public class GeneralDiffusion {
 
-        public static DiffusionResult DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
+        public static Diffusion DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
-            DiffusionResult result = new();
+            Diffusion diffusion = new(configuration.TimeDiscretization);
             foreach (Underlying underlying in configuration.MarketData.Underlyings) {
-                result[underlying] = DiffuseUnderlying(configuration, underlying, noises);
+                diffusion[underlying] = DiffuseUnderlying(configuration, underlying, noises);
             }
-            return result;
+            return diffusion;
         }
 
         private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {

@@ -4,10 +4,10 @@ namespace Domain {
     // Longstaff-Schwartz: Valuying American Options by Simulation, 2001 
     public class LongstaffSchwartzAmericanSimulation {
         private IRegressionBasis _regressionBasis;
+        private const int REGRESSION_DEGREE = 3;
         public LongstaffSchwartzAmericanSimulation(IRegressionBasis? regressionBasis = null) {
-            _regressionBasis = regressionBasis ?? new LaguerreRegressionBasis(3);
+            _regressionBasis = regressionBasis ?? new LaguerreRegressionBasis(REGRESSION_DEGREE);
         }
-
 
         public ValueWithPrecision PriceAmerican(Func<double, double> payoff, DateTime valuationDate, List<DateTime> callableDates, Realizations realizations, IDiscounter discounter) {
             IReadOnlyList<SimulatedPath> paths = realizations.Paths;
@@ -57,6 +57,9 @@ namespace Domain {
                 .Select(j => paths[j][step] / spot).ToArray());
             Vector<double> y = Vector<double>.Build.DenseOfArray(itmIndices
                 .Select(j => GetDiscountedCashFlow(cashFlows, j, step + 1, callableDates, discounter, callableDates[step])).ToArray());
+            if (itmIndices.Length < REGRESSION_DEGREE) {
+                return y.ToArray();
+            }
             // Fit regression to estimate continuation value
             Matrix<double> X = _regressionBasis.Build(x);
             Vector<double> beta = X.Solve(y);

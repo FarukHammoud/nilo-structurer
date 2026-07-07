@@ -35,5 +35,9 @@ namespace Domain {
             }
             return X;
         }
+
+        public Matrix<double> Build(List<Vector<double>> xs) {
+            throw new NotImplementedException();
+        }
     }
 }

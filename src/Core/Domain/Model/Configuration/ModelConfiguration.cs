@@ -27,5 +27,11 @@
             Volatility = new ConstantVolatility(),
             Pricing = new LongStaffSchwartz(),
         };
+
+        public static ModelConfiguration American => new() {
+            Discounting = new DiscountCurveDiscounting(),
+            Volatility = new ConstantVolatility(),
+            Pricing = new American(),
+        };
     }
 }
