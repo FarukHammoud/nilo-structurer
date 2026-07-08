@@ -557,23 +557,23 @@ namespace PricingServices.Tests {
             double bump = 0.01;
             double downPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
             double upPrice = Stulz.CallWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
-            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+            double theoreticalSensitivity = (upPrice - downPrice) / (2 * bump);
 
             // Price using General Diffusion
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensitivity() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
 
            
             Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of option is long correlation");
-            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -608,23 +608,23 @@ namespace PricingServices.Tests {
             double bump = 0.01;
             double downPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
             double upPrice = Stulz.CallBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
-            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+            double theoreticalSensitivity = (upPrice - downPrice) / (2 * bump);
 
             // Price using General Diffusion
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensitivity() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
 
 
             Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of call option is short correlation");
-            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -659,23 +659,23 @@ namespace PricingServices.Tests {
             double bump = 0.01;
             double downPrice = Stulz.PutWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
             double upPrice = Stulz.PutWorstOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
-            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+            double theoreticalSensitivity = (upPrice - downPrice) / (2 * bump);
 
             // Price using General Diffusion
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensitivity() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
 
 
             Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of put option is short correlation");
-            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -710,23 +710,23 @@ namespace PricingServices.Tests {
             double bump = 0.01;
             double downPrice = Stulz.PutBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho - bump, timeToMaturity);
             double upPrice = Stulz.PutBestOf(spotMSFT, spotAAPL, strike, riskFreeRate, volatilityMSFT, volatilityAAPL, rho + bump, timeToMaturity);
-            double theoreticalSensibility = (upPrice - downPrice) / (2 * bump);
+            double theoreticalSensitivity = (upPrice - downPrice) / (2 * bump);
 
             // Price using General Diffusion
             PricingRequest request = new() {
                 Position = [contract],
                 MarketData = marketData,
-                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensibility() },
+                Indicators = new List<IIndicator>() { new Premium(), new CorrelationSensitivity() },
                 ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensibility()];
+            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
 
 
             Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of put option is long correlation");
-            Assert.AreEqual(theoreticalSensibility, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo sensibility should be close to the theoretical Stulz sensibility");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
     }
 }

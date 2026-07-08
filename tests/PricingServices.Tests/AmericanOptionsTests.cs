@@ -69,7 +69,7 @@ namespace PricingServices.Tests {
                     Underlying = MSFT,
                 };
             }
-            FlowContract flowsContract = new FlowContract()
+            IContract flowsContract = new Contract()
                 .AddFlow(new AmericanExercisableFlow() {
                     ExerciseParty = ExerciseParty.Holder,
                     StartDate = DateTime.Today,

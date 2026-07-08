@@ -62,7 +62,7 @@ namespace PricingServicesTests {
             double foreignRate = 0.02;
             double rho = -0.6;
             double fxSpot = 0.1;
-            CompositeForward contract = new() {
+            CompositeConverse contract = new() {
                 Maturity = DateTime.Today.AddMonths(360),
                 Strike = 30.0,
                 Underlying = MSFT,
@@ -255,6 +255,61 @@ namespace PricingServicesTests {
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][premium];
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void QuantoForward() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            double volatility = 0.3;
+            double fxVolatility = 0.1;
+            double spotPrice = 100.0;
+            double domesticRate = 0.01;
+            double foreignRate = 0.02;
+            double rho = -0.6;
+            double fxSpot = 0.1;
+            QuantoConverse contract = new() {
+                Maturity = DateTime.Today.AddMonths(360),
+                Strike = 30.0,
+                Underlying = MSFT,
+                Currency = Currencies.EUR,
+                FxRate = fxSpot
+            };
+            // Theotetical price using Black-Scholes formula
+            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+
+            // we need one discounter by currency
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatility))
+                .For<CurrencyPairMarketData>(CurrencyPairs.USDEUR, md => md
+                    .SetSpot(fxSpot)
+                    .SetVolatility(fxVolatility))
+                .SetRiskFreeRate(Currencies.USD, foreignRate)
+                .SetRiskFreeRate(Currencies.EUR, domesticRate)
+                .SetCorrelation(MSFT, CurrencyPairs.USDEUR, rho);
+
+            // Theotetical price
+            double quantoAdjustment = rho * volatility * fxVolatility;
+            double b = foreignRate - quantoAdjustment;
+            double thoreticalPrice = fxSpot * (spotPrice * Math.Exp((b - domesticRate) * timeToMaturity) - contract.Strike * Math.Exp(-domesticRate * timeToMaturity));
+            double theoreticalPrice2 = (new ReinerQuanto(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, contract.FxRate, domesticRate, foreignRate, volatility, fxVolatility, rho)).Premium 
+                - (new ReinerQuanto(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, contract.FxRate, domesticRate, foreignRate, volatility, fxVolatility, rho)).Premium;
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.EUR,
+                NumberOfDrawings = 250000,
+            };
+
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+
+            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision);
         }
     }
 }

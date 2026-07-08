@@ -1,7 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    public class Swap : IFlowsContract {
+    public class Swap : IContract {
         public IEnumerable<CashFlow> FixedFlows { get; init; }
         public ShortRate FloatingRate { get; init; }
 
@@ -20,7 +20,7 @@ namespace Application {
         public IEnumerable<IPathIndependentPayoff> PathIndependentPayoffs => GetFlows();
         public double Notional { get; set; } = 1.0;
 
-        public IList<IFlow> Flows => (IList<IFlow>) GetFlows();
+        public IEnumerable<IFlow> Flows => GetFlows();
 
         public IEnumerable<IPathIndependentPayoff> GetFlows() {
             foreach (CashFlow fixedFlow in FixedFlows) {

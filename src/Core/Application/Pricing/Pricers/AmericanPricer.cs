@@ -23,7 +23,7 @@ namespace Application {
         }
 
         public PriceWithPrecision Price(
-            IFlowsContract contract,
+            IContract contract,
             DateTime today,
             Currency pricingCurrency) {
 
@@ -60,7 +60,7 @@ namespace Application {
             _regressionBasis = regressionBasis ?? new PolynomialRegressionBasis(REGRESSION_DEGREE);
         }
 
-        public ValueWithPrecision PriceAmerican(IFlowsContract contract, DateTime valuationDate, Diffusion diffusion, IDiscounter discounter) {
+        public ValueWithPrecision PriceAmerican(IContract contract, DateTime valuationDate, Diffusion diffusion, IDiscounter discounter) {
 
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
@@ -147,7 +147,7 @@ namespace Application {
             return continuationValues.ToArray();
         }
 
-        private static IList<IFlow> ExpandAmericanFlows(IList<IFlow> flows, IEnumerable<DateTime> discretizationDates) {
+        private static IList<IFlow> ExpandAmericanFlows(IEnumerable<IFlow> flows, IEnumerable<DateTime> discretizationDates) {
             List<IFlow> expandedFlows = new();
             foreach (IFlow flow in flows) {
                 if (flow is AmericanExercisableFlow americanFlow) {

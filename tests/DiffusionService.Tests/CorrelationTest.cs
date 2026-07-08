@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.Statistics;
 
 namespace BrownianServices.Tests {

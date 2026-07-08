@@ -43,7 +43,10 @@ namespace Application {
                     IDiscounter discounter = marketData.GetDiscounter(request.PricingCurrency);
                     double price           = 0.0, precisionSquared = 0.0;
 
-                    foreach (IPayoff payoff in contract.Payoffs) {
+                    foreach (IFlow flow in contract.Flows) {
+                        if (flow is not IPayoff payoff) {
+                            throw new InvalidOperationException($"Flow {flow} is not a payoff.");
+                        }
                         PriceWithPrecision payoffPv = pricer.PricePayoff(payoff, pricingDate, request.PricingCurrency);
                         double fxRate               = marketData.GetFxRate(payoffPv.Currency, request.PricingCurrency);
                         price += payoffPv.Value * fxRate;

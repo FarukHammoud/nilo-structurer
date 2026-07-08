@@ -1,6 +1,9 @@
 ﻿using Domain;
 
 namespace Application {
+    /// <summary>
+    /// CallEvents still unplugged in pricing
+    /// </summary>
     public class AutoCall : IPathDependentContract {
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }

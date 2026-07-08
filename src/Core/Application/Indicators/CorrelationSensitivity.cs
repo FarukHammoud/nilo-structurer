@@ -1,9 +1,9 @@
 ﻿using Domain;
 
 namespace Application {
-    public class CorrelationSensibility : IIndicator {
+    public class CorrelationSensitivity : IIndicator {
         private double _bump;
-        public CorrelationSensibility(double bump = 0.01) { 
+        public CorrelationSensitivity(double bump = 0.01) { 
             _bump = bump;
         }
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) {
@@ -40,9 +40,9 @@ namespace Application {
                 PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[(First, Second)][0]];
                 PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[(First, Second)][1]];
                 double rho = unshiftedMarketData.GetCorrelation(First, Second);
-                double correlationSensibilityValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
-                double correlationSensibilityPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                result.Result[(First,Second)] = new ValueWithPrecision() { Value = correlationSensibilityValue, Precision = correlationSensibilityPrecision };
+                double correlationSensitivityValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
+                double correlationSensitivityPrecision = (valueUp.Precision + valueDown.Precision) / 2;
+                result.Result[(First,Second)] = new ValueWithPrecision() { Value = correlationSensitivityValue, Precision = correlationSensitivityPrecision };
             }
             return result;
         }
