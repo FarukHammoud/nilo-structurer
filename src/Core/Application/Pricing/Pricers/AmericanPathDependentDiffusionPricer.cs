@@ -40,8 +40,7 @@ namespace Application {
                 datesOfInterest = _diffusionConfiguration.TimeDiscretization;
             }
             LongstaffSchwartzAmericanSimulation longstaffSchwartzPricer = new LongstaffSchwartzAmericanSimulation();
-            Func<double, double> payoffMap = spot => payoff.ComputePayoff(new Dictionary<DateTime, Dictionary<Underlying, double>> {
-                { payoff.PaymentDate, new Dictionary<Underlying, double> { [underlying] = spot} } });
+            Func<double, double> payoffMap = spot => payoff.ComputePayoff(new Scenario(payoff.PaymentDate, underlying, spot));
             ValueWithPrecision price = longstaffSchwartzPricer.PriceAmerican(
                 payoffMap,
                 today,

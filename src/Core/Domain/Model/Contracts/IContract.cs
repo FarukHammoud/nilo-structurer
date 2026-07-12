@@ -1,4 +1,7 @@
 ﻿namespace Domain {
+    /// <summary>
+    /// A contract is a sequence of flows ordered by observation order
+    /// </summary>
     public interface IContract {
         double Notional { get; }
         IEnumerable<IFlow> Flows { get; }

@@ -1,6 +1,6 @@
 ﻿namespace Domain {
     public interface IPayoff : IFlow {
-        double ComputePayoff(Dictionary<DateTime, Dictionary<Underlying, double>> prices);
+        double ComputePayoff(Scenario scenario);
         IReadOnlyList<DateTime> ObservationDates { get; } // Maybe Fixing Dates?
         MonitoringFrequency MonitoringFrequency { get; }
         IEnumerable<Underlying> Dependencies { get; }

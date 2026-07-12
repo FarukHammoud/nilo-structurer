@@ -6,6 +6,6 @@ namespace Application{
             : base(basePayoff, level, underlying) {
         }
 
-        public override Func<Dictionary<DateTime, double>, bool> IsTouched => prices => prices.Values.Any(price => price >= Level);
+        public override Func<SimulatedPath, bool> IsTouched => prices => prices.Values.Any(price => price >= Level);
     }
 }

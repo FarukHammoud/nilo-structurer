@@ -8,7 +8,7 @@ namespace Application {
         public Underlying Underlying { get; set; }
         public Currency Currency => _basePayoff.Currency;
         public MonitoringFrequency MonitoringFrequency => MonitoringFrequency.Continuous;
-        public abstract Func<Dictionary<DateTime, double>, bool> IsTouched { get; }
+        public abstract Func<SimulatedPath, bool> IsTouched { get; }
         public KnockOutPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying, double rebate = 0) {
             _basePayoff = basePayoff;
             Level = level;
@@ -16,12 +16,12 @@ namespace Application {
             Rebate = rebate;
         }
 
-        public double ComputePayoff(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
-            Dictionary<DateTime, double> barrierUnderlyingPrices = prices.Pivot()[Underlying];
-            if (IsTouched(barrierUnderlyingPrices)) {
+        public double ComputePayoff(Scenario scenario) {
+            SimulatedPath path = scenario[Underlying];
+            if (IsTouched(path)) {
                 return Rebate;
             }
-            return _basePayoff.ComputePayoff(prices);
+            return _basePayoff.ComputePayoff(scenario);
         }
 
         public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);

@@ -43,8 +43,8 @@ namespace Application {
 
             double[] prices        = new double[_diffusionConfiguration.NumberOfDrawings];
             for (int ω = 0; ω < _diffusionConfiguration.NumberOfDrawings; ω++) {
-                Dictionary<DateTime, Dictionary<Underlying, double>> pricesAtInterestDates = pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[ω]));
-                prices[ω] = payoff.ComputePayoff(pricesAtInterestDates);
+                Scenario scenario = new Scenario(pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[ω])));
+                prices[ω] = payoff.ComputePayoff(scenario);
             }
       
             List<double> discountedPayoffs = new();

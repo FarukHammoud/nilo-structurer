@@ -10,7 +10,7 @@ namespace Application{
         public Underlying Underlying { get; set; }
         public Currency Currency => _basePayoff.Currency;
         public MonitoringFrequency MonitoringFrequency => MonitoringFrequency.Continuous;
-        public abstract Func<Dictionary<DateTime, double>, bool> IsTouched { get; }
+        public abstract Func<SimulatedPath, bool> IsTouched { get; }
         public KnockInPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying) {
             _basePayoff = basePayoff;
             Level = level;
@@ -18,10 +18,10 @@ namespace Application{
         }
 
 
-        public double ComputePayoff(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
-            Dictionary<DateTime, double> barrierUnderlyingPrices = prices.Pivot()[Underlying];
-            if (IsTouched(barrierUnderlyingPrices)) {
-                return _basePayoff.ComputePayoff(prices);
+        public double ComputePayoff(Scenario scenario) {
+            SimulatedPath path = scenario[Underlying];
+            if (IsTouched(path)) {
+                return _basePayoff.ComputePayoff(scenario);
             }
             return 0;
             // switch to this version an implement barrier on pricer side

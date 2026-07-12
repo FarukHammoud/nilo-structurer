@@ -2,7 +2,7 @@
     public interface IKnockInBarrier {
         IReadOnlyList<DateTime> ObservationDates { get; }
         MonitoringFrequency MonitoringFrequency { get; }
-        bool IsTriggered(Dictionary<DateTime, double> path);
+        bool IsTriggered(SimulatedPath path);
         IPayoff ActivatedPayoff { get; }
     }
 }

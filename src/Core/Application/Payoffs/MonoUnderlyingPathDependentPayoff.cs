@@ -7,9 +7,11 @@ namespace Application {
         public required Currency Currency { get; init; }
         public required MonitoringFrequency MonitoringFrequency { get; init; }
 
-        public double ComputePayoff(Dictionary<DateTime, Dictionary<Underlying, double>> prices) {
-            Dictionary<DateTime, double> underlyingValues = Underlying.GetValues(prices);
-            return PayoffMap(underlyingValues);
+        public double ComputePayoff(Scenario scenario) {
+            SimulatedPath path = scenario[Underlying];
+            Dictionary<DateTime, double> pathValues = Enumerable.Range(0, scenario.Dates.Count)
+                .ToDictionary(i => scenario.Dates[i], i => path.Values[i]);
+            return PayoffMap(pathValues);
         }
 
         public IEnumerable<Underlying> Dependencies => Underlying.Dependencies;

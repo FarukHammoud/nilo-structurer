@@ -38,13 +38,13 @@ namespace Application {
         public Dictionary<DateTime, Dictionary<Underlying, List<double>>> ByDate() {
             return _byDate;
         }
-        public Dictionary<DateTime, Dictionary<Underlying, double>> Scenario(int ω) {
-            return _byDate.ToDictionary(
+        public Scenario Scenario(int ω) {
+            return new Scenario(_byDate.ToDictionary(
                     pair => pair.Key,
                     pair => pair.Value.ToDictionary(
                         udlAndPath => udlAndPath.Key,
                         udlAndPath => udlAndPath.Value[ω])
-                    );
+                    ));
         }
 
         public Dictionary<Underlying, List<double>> Lasts() {
@@ -64,7 +64,7 @@ namespace Application {
             }
         }
 
-        public List<Dictionary<DateTime, Dictionary<Underlying, double>>> Scenarios() {
+        public List<Scenario> Scenarios() {
             return Enumerable.Range(0, NumberOfEvents).Select(Scenario).ToList();
         }
 

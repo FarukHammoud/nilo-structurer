@@ -9,9 +9,9 @@ namespace Application {
         public required IReadOnlyList<DateTime> ObservationDates { get; init; } 
 
         public required IPayoff ActivatedPayoff { get; init; }
-        public required Func<Dictionary<DateTime, double>, bool> IsTouched { get; init; }
+        public required Func<SimulatedPath, bool> IsTouched { get; init; }
 
-        public bool IsTriggered(Dictionary<DateTime, double> path) {
+        public bool IsTriggered(SimulatedPath path) {
             return IsTriggered(path);
         }
     }
