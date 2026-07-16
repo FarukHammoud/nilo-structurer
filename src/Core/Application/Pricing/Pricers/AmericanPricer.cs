@@ -83,7 +83,16 @@ namespace Application {
                 if (flow is IPayoff payoff) {
 
                     cashFlows.SetColumn(step, scenarios.Select(payoff.ComputePayoff).ToArray());
-                
+
+                } else if (flow is IAutoCallFlow autoCallFlow) {
+                    
+                    for (int j = 0; j < N; j++) {
+                        if (autoCallFlow.IsTriggered(scenarios[j])) {
+                            cashFlows.ClearRow(j);
+                            cashFlows[j, step] = autoCallFlow.Rebate.ComputePayoff(scenarios[j]);
+                        }
+                    }
+
                 } else if (flow is IExercisableFlow exercisableFlow) {
 
                     IPayoff exercisePayoff = exercisableFlow.Payoff;

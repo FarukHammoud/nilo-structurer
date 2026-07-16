@@ -1,10 +1,7 @@
 ﻿using Domain;
 
 namespace Application {
-    /// <summary>
-    /// CallEvents still unplugged in pricing
-    /// </summary>
-    public class AutoCall : IPathDependentContract {
+    public class AutoCall : IContract {
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }
         public required double Coupon { get; set; }
@@ -14,10 +11,9 @@ namespace Application {
         public DateTime Maturity => ObservationDates.Last();
         public double Notional { get; set; } = 1.0;
 
-        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs =>
-            [new MonoUnderlyingPathDependentPayoff() {
-                PayoffMap = (prices) => {
-                    double priceAtMaturity = prices[Maturity];
+        private IPayoff FinalPayoff =>
+            new MonoUnderlyingPathIndependentPayoff() {
+                Payoff = (priceAtMaturity) => {
                     if (priceAtMaturity < ProtectionBarrier) {
                         return Notional * priceAtMaturity / InitialPrice;
 
@@ -27,30 +23,28 @@ namespace Application {
                         return Notional * (1 + Coupon * (ObservationDates.Count));
                     }
                 },
-                ObservationDates = [Maturity],
                 PaymentDate = Maturity,
                 Maturity = Maturity,
                 Underlying = Underlying,
-                MonitoringFrequency = MonitoringFrequency.None,
                 Currency = Currency
-            }];
+            };
 
-        public IEnumerable<ICallEvent> CallEvents => 
+        private List<IAutoCallFlow> AutoCallEvents => 
             Enumerable.Range(0, ObservationDates.Count - 1)
-                .Select(i => (ICallEvent) new CallEvent() { 
+                .Select(i => (IAutoCallFlow) new AutoCallFlow() { 
                     Date = ObservationDates[i],
-                    IsTriggered = prices => prices[Underlying] > InitialPrice,
-                    Redemption = new MonoUnderlyingPathDependentPayoff() {
-                        PayoffMap = path => Notional * (1 + i * Coupon),
-                        ObservationDates = [ObservationDates[i]],
+                    TriggerMap = prices => prices[Underlying][i] > InitialPrice,
+                    Rebate = new MonoUnderlyingPathIndependentPayoff() {
+                        Payoff = (priceAtMaturity) => Notional * (1 + i * Coupon),
                         PaymentDate = ObservationDates[i],
                         Maturity = ObservationDates[i],
                         Underlying = Underlying,
-                        MonitoringFrequency = MonitoringFrequency.None,
                         Currency = Currency,
                     }
-            });
+            }).ToList();
 
-        public IEnumerable<DateTime> Dates => PathDependentPayoffs.SelectMany(p => p.ObservationDates).Distinct();
+        public IEnumerable<DateTime> Dates => AutoCallEvents.Select(p => p.Date).Distinct();
+
+        public IEnumerable<IFlow> Flows => AutoCallEvents.Union([(IFlow)FinalPayoff]);
     }
 }

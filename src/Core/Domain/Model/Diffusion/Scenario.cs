@@ -1,5 +1,7 @@
 ﻿namespace Domain {
-    // Underlying -> SimulatedPath
+    /// <summary>
+    /// Represents a specific scenario. i.e one realization of all underlying involved.
+    /// </summary>
     public class Scenario {
 
         public Dictionary<Underlying, SimulatedPath> Values { get; } = new();
