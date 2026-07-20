@@ -2,7 +2,7 @@
 
 namespace Application {
     public class TimeGridBuilder : ITimeGridBuilder {
-        public IEnumerable<DateTime> Build(IEnumerable<IContract> contracts, ModelConfiguration model, DateTime valuationDate) {
+        public IList<DateTime> Build(IEnumerable<IContract> contracts, ModelConfiguration model, DateTime valuationDate) {
             List<DateTime> dates = contracts.SelectMany(contract => contract.Dates)
                 .Where(date => date > valuationDate)
                 .Append(valuationDate)

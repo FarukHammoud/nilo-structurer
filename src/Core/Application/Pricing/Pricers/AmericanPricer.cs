@@ -2,13 +2,13 @@
 using MathNet.Numerics.LinearAlgebra;
 
 namespace Application {
-    public class AmericanPricer : IFlowsPricer {
+    public class AmericanPricer : IPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private Diffusion? _diffusion;
         private const int REGRESSION_DEGREE = 3;
 
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+        public void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
             if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
                 _diffusionConfiguration = new DiffusionConfiguration() {
                     NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
@@ -41,7 +41,7 @@ namespace Application {
             };
         }
 
-        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, List<DateTime> timeDiscretization) {
+        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
             IList<Underlying> underlyings = marketData.Underlyings;
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
@@ -49,10 +49,6 @@ namespace Application {
                 TimeDiscretization = timeDiscretization,
                 Currency = marketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : marketData.Currencies.First()
             };
-        }
-
-        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
-            return PricePayoff((IPathDependentPayoff)payoff, today, pricingCurrency);
         }
 
         private IRegressionBasis _regressionBasis;

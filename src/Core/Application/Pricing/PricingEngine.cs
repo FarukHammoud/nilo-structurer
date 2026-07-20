@@ -30,34 +30,15 @@ namespace Application {
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
                 .ToHashSet();
 
-            IEnumerable<DateTime> timeGrid           = _timeGridBuilder.Build(request.Position, request.ModelConfiguration, request.PricingDate);
+            IList<DateTime> timeGrid                 = _timeGridBuilder.Build(request.Position, request.ModelConfiguration, request.PricingDate);
             IPricerConfiguration pricerConfiguration = _pricerFactory.CreateConfiguration(request);
 
             foreach ((IMarketData marketData, DateTime pricingDate) in shiftedMarketData) {
-
                 subResults[(marketData, pricingDate)] = new();
                 foreach (IContract contract in request.Position) {
-
                     IPricer pricer         = _pricerFactory.CreatePricer(request.ModelConfiguration);
-                    pricer.Initialize(marketData, timeGrid.ToList(), pricerConfiguration);
-                    IDiscounter discounter = marketData.GetDiscounter(request.PricingCurrency);
-                    double price           = 0.0, precisionSquared = 0.0;
-
-                    foreach (IFlow flow in contract.Flows) {
-                        if (flow is not IPayoff payoff) {
-                            throw new InvalidOperationException($"Flow {flow} is not a payoff.");
-                        }
-                        PriceWithPrecision payoffPv = pricer.PricePayoff(payoff, pricingDate, request.PricingCurrency);
-                        double fxRate               = marketData.GetFxRate(payoffPv.Currency, request.PricingCurrency);
-                        price += payoffPv.Value * fxRate;
-                        precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);
-                    }
-
-                    subResults[(marketData, pricingDate)][contract] = new PriceWithPrecision() {
-                        Value = price,
-                        Precision = Math.Sqrt(precisionSquared),
-                        Currency = request.PricingCurrency,
-                    };
+                    pricer.Initialize(marketData, timeGrid, pricerConfiguration);
+                    subResults[(marketData, pricingDate)][contract] = pricer.Price(contract, pricingDate, request.PricingCurrency);
                 }
             }
             if (request.ModelConfiguration.Discounting is StochasticRatesDiscounting) {

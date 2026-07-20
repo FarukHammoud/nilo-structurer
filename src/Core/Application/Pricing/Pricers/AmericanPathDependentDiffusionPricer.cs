@@ -1,13 +1,13 @@
 ﻿using Domain;
-using System.Runtime.CompilerServices;
 
 namespace Application {
-    public class AmericanPathDependentDiffusionPricer : IPathDependentPricer {
+    public class AmericanPathDependentDiffusionPricer : PayoffPricer, IPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private Diffusion? _diffusion;
 
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+        public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            base.Initialize(marketData, timeDiscretization, pricerConfiguration);
             if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
                 _diffusionConfiguration = new DiffusionConfiguration() {
                     NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
@@ -21,8 +21,8 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public  PriceWithPrecision PricePayoff(
-            IPathDependentPayoff payoff,  
+        public override PriceWithPrecision PricePayoff(
+            IPayoff payoff,  
             DateTime today,
             Currency pricingCurrency) {
 
@@ -32,7 +32,7 @@ namespace Application {
 
             IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
 
-            List<DateTime> datesOfInterest = payoff.ObservationDates.ToList();
+            IList<DateTime> datesOfInterest = payoff.ObservationDates.ToList();
             Underlying underlying          = _diffusion.Underlyings.First();
 
             Dictionary<DateTime, Dictionary<Underlying, List<double>>> pricesAtDiscretizationPoints = new();
@@ -54,7 +54,7 @@ namespace Application {
             };
         }
 
-        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, List<DateTime> timeDiscretization) {
+        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
             IList<Underlying> underlyings = marketData.Underlyings;
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
@@ -62,10 +62,6 @@ namespace Application {
                 TimeDiscretization = timeDiscretization,
                 Currency = marketData.Currencies.Contains(Currencies.USD) ? Currencies.USD : marketData.Currencies.First()
             };
-        }
-
-        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
-            return PricePayoff((IPathDependentPayoff)payoff, today, pricingCurrency);
         }
     }
 }

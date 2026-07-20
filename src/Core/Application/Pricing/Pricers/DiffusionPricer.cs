@@ -1,18 +1,19 @@
 ﻿using Domain;
 
 namespace Application {
-    public class DiffusionPricer : IPricer<IPayoff>, IPathIndependentPricer, IPathDependentPricer {
+    public class DiffusionPricer : PayoffPricer, IPricer {
 
         private DiffusionConfiguration? _diffusionConfiguration;
         private Diffusion? _diffusion;
         
-        private Func<IMarketData, List<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
+        private Func<IMarketData, IList<DateTime>, DiffusionConfiguration> _diffusionConfigurationFactory = (marketData, timeDiscretization) => new DiffusionConfiguration {
             MarketData         = marketData,
             TimeDiscretization = timeDiscretization,
             Currency           = Currencies.USD,
         };
 
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+        public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            base.Initialize(marketData, timeDiscretization, pricerConfiguration);
             if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
                 _diffusionConfiguration = new DiffusionConfiguration {
                     NumberOfDrawings   = diffusionPricerConfiguration.NumberOfDrawings,
@@ -27,7 +28,7 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+        public override PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             
             if (_diffusion == null || _diffusionConfiguration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
@@ -52,7 +53,7 @@ namespace Application {
             if (shortRates.ContainsKey(pricingCurrency)) {
                 ShortRate shortRate = shortRates[pricingCurrency];
                 double t = (payoff.PaymentDate - today).TotalYears;
-                List<DateTime> dates = _diffusionConfiguration.TimeDiscretization;
+                IList<DateTime> dates = _diffusionConfiguration.TimeDiscretization;
                 for (int ω = 0; ω < prices.Length; ω++) {
                     double payoffValue = prices[ω];
                     SimulatedPath shortRatePath = _diffusion[shortRate][ω];
@@ -83,14 +84,6 @@ namespace Application {
             }
 
             return new PriceWithPrecision(discountedPayoffs, payoff.Currency);
-        }
-
-        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
-            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
-        }
-
-        public PriceWithPrecision PricePayoff(IPathDependentPayoff payoff, DateTime today, Currency pricingCurrency) {
-            return PricePayoff((IPayoff)payoff, today, pricingCurrency);
         }
     }
 

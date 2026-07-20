@@ -1,6 +1,10 @@
 ﻿using Domain;
 
 namespace Application {
+    /// <summary>
+    /// Factory class to create pricers based on the model configuration.
+    /// At term it needs to be replaced by dependency injection on client side.
+    /// </summary>
     public class PricerFactory : IPricerFactory {
         public IPricer CreatePricer(ModelConfiguration config)
             => config.Pricing switch {
@@ -8,7 +12,8 @@ namespace Application {
                 PDE => new FiniteDifferencePdeSolver(),
                 BinaryTree => new BinaryTreePricer(),
                 LongStaffSchwartz => new AmericanPathDependentDiffusionPricer(),
-                _ => throw new NotSupportedException($"No path-independent pricer for {config.Pricing}")
+                American => new AmericanPricer(),
+                _ => throw new NotSupportedException($"No registered pricer for {config.Pricing}")
             };
 
         public IPricerConfiguration CreateConfiguration(PricingRequest request)
@@ -20,6 +25,11 @@ namespace Application {
                 },
                 BinaryTree => new BinaryTreePricerConfiguration(),
                 LongStaffSchwartz => new DiffusionPricerConfiguration {
+                    NumberOfDrawings = request.NumberOfDrawings,
+                    Currency = request.PricingCurrency,
+                    WithControlVariate = request.WithControlVariate
+                },
+                American => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,
                     WithControlVariate = request.WithControlVariate

@@ -9,7 +9,7 @@ namespace Domain {
             _regressionBasis = regressionBasis ?? new LaguerreRegressionBasis(REGRESSION_DEGREE);
         }
 
-        public ValueWithPrecision PriceAmerican(Func<double, double> payoff, DateTime valuationDate, List<DateTime> callableDates, Realizations realizations, IDiscounter discounter) {
+        public ValueWithPrecision PriceAmerican(Func<double, double> payoff, DateTime valuationDate, IList<DateTime> callableDates, Realizations realizations, IDiscounter discounter) {
             IReadOnlyList<SimulatedPath> paths = realizations.Paths;
             int N = realizations.Size;
             int steps = callableDates.Count;
@@ -40,7 +40,7 @@ namespace Domain {
             return new ValueWithPrecision(pathPrices);
         }
 
-        private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, List<DateTime> callableDates, IDiscounter discounter, DateTime valuationDate) {
+        private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, IList<DateTime> callableDates, IDiscounter discounter, DateTime valuationDate) {
             int steps = cashFlows.ColumnCount;
             for (int t = fromStep; t < steps; t++) {
                 if (cashFlows[j, t] != 0) {
@@ -50,7 +50,7 @@ namespace Domain {
             return 0.0;
         }
 
-        private double[] EstimateContinuationValues(IReadOnlyList<SimulatedPath> paths, Matrix<double> cashFlows, int step, int[] itmIndices, List<DateTime> callableDates, IDiscounter discounter) {
+        private double[] EstimateContinuationValues(IReadOnlyList<SimulatedPath> paths, Matrix<double> cashFlows, int step, int[] itmIndices, IList<DateTime> callableDates, IDiscounter discounter) {
             // x = (normalized) prices, y = discounted next cash flows
             double spot = paths.Average(path => path[0]);
             Vector<double> x = Vector<double>.Build.DenseOfArray(itmIndices

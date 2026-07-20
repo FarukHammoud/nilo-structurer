@@ -1,12 +1,12 @@
 ﻿using Domain;
 namespace Application {
-    public class BinaryTreePricer : IPathIndependentPricer {
+    public class BinaryTreePricer : PayoffPricer, IPricer {
 
         private TreeNode? _root;
         private TreeNode? _richardsonExtrapolationRoot;
         private IMarketData _marketData;
 
-        private Func<List<DateTime>, List<DateTime>> _intermediateDatesGenerator = (dates) => dates
+        private Func<IList<DateTime>, IList<DateTime>> _intermediateDatesGenerator = (dates) => dates
             .Zip(dates.Skip(1), (start, end) => Enumerable
             .Range(0, 2)
             .Select(i => start.AddDays((end - start).TotalDays * i / 2)))
@@ -74,7 +74,8 @@ namespace Application {
             }
         }
 
-        public void Initialize(IMarketData marketData, List<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+        public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            base.Initialize(marketData, timeDiscretization, pricerConfiguration);
             IList<Underlying> underlyings = marketData.Underlyings;
             _marketData = marketData;
             if (underlyings.Count != 1) {
@@ -88,13 +89,13 @@ namespace Application {
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
 
-        public PriceWithPrecision PricePayoff(IPathIndependentPayoff payoff, DateTime today, Currency pricingCurrency) {
-            if (_root == null || _richardsonExtrapolationRoot == null) {
-                throw new InvalidOperationException("Pricer not initialized. Call Initialize() before pricing.");
+        public override PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+            if (_root == null || _richardsonExtrapolationRoot == null || payoff is not IPathIndependentPayoff pathIndependentPayoff) {
+                throw new InvalidOperationException("Pricer not initialized or payoff is not path-independent. Call Initialize() before pricing.");
             }
             IDiscounter discounter = _marketData.GetDiscounter(pricingCurrency);
-            double p1 = _root.GetValue(payoff, discounter);
-            double p2 = _richardsonExtrapolationRoot.GetValue(payoff, discounter);
+            double p1 = _root.GetValue(pathIndependentPayoff, discounter);
+            double p2 = _richardsonExtrapolationRoot.GetValue(pathIndependentPayoff, discounter);
 
             // First-order Richardson extrapolation: eliminates the O(1/n) term
             double extrapolated = 2 * p2 - p1;
@@ -104,10 +105,6 @@ namespace Application {
                 Precision = precision,
                 Currency = payoff.Currency,
             };
-        }
-
-        public PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
-            return PricePayoff((IPathIndependentPayoff)payoff, today, pricingCurrency);
         }
     }
 }
