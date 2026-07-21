@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using System.Net.Http.Headers;
 
 namespace PricingServices {
     [TestClass]

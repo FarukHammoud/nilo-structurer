@@ -33,5 +33,11 @@
             Volatility = new ConstantVolatility(),
             Pricing = new American(),
         };
+
+        public static ModelConfiguration StochasticRates => new() {
+            Discounting = new StochasticRatesDiscounting(),
+            Volatility = new ConstantVolatility(),
+            Pricing = new American(),
+        };
     }
 }

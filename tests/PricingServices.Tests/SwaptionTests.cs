@@ -1,6 +1,5 @@
 ﻿using Application;
 using Domain;
-using MathNet.Numerics.Statistics;
 
 namespace PricingServices {
     [TestClass]
@@ -55,7 +54,7 @@ namespace PricingServices {
                 Strike = 0.025,
                 Expiry = DateTime.Today.AddMonths(6)
             };
-            AmericanPricer pricer = new AmericanPricer();
+            
             MarketData marketData = new MarketData()
                 .SetShortRateDynamics(
                     currency: Currencies.USD,
@@ -66,12 +65,19 @@ namespace PricingServices {
                     spotRate: spotRate)
                 .SetRiskFreeRate(Currencies.USD, spotRate);
 
-            pricer.Initialize(marketData, [DateTime.Today, DateTime.Today.AddMonths(6), DateTime.Today.AddMonths(18)]);
-            PriceWithPrecision swaptionPrice = pricer.Price(swaption, DateTime.Today, Currencies.USD);
+            PricingRequest request = new() {
+                Position = [swaption],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.StochasticRates,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult pricerPrice = (GlobalIndicatorResult)results[swaption][new Premium()];
             Vasicek model = new Vasicek(kappa, theta, sigma);
             double theoreticalSwaptionPrice = SwaptionCriticalRateFinder.Price(swaption, model, DateTime.Today, theta);
-            Assert.AreEqual(theoreticalSwaptionPrice, swaptionPrice.Value, 1e-4);
+            Assert.AreEqual(theoreticalSwaptionPrice, pricerPrice.Value, 3.09 * pricerPrice.Precision);
         }
-
     }
 }

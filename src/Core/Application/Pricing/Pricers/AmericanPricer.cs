@@ -4,22 +4,23 @@ using MathNet.Numerics.LinearAlgebra;
 namespace Application {
     public class AmericanPricer : IPricer {
 
-        private DiffusionConfiguration? _diffusionConfiguration;
+        private IDiffusionConfiguration? _configuration;
         private Diffusion? _diffusion;
         private const int REGRESSION_DEGREE = 3;
 
         public void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
-            if (pricerConfiguration is DiffusionPricerConfiguration diffusionPricerConfiguration) {
-                _diffusionConfiguration = new DiffusionConfiguration() {
-                    NumberOfDrawings = diffusionPricerConfiguration.NumberOfDrawings,
+            if (pricerConfiguration is DiffusionPricerConfiguration diffusionConfiguration) {
+                _configuration = new DiffusionConfiguration() {
+                    NumberOfDrawings = diffusionConfiguration.NumberOfDrawings,
                     MarketData = marketData,
                     TimeDiscretization = timeDiscretization,
-                    Currency = Currencies.USD
+                    Currency = Currencies.USD,
+                    HasStochasticRate = diffusionConfiguration.HasStochasticRate,
                 };
             } else {
-                _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
+                _configuration = getDiffusionConfiguration(marketData, timeDiscretization);
             }
-            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
+            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_configuration);
         }
 
         public PriceWithPrecision Price(
@@ -27,11 +28,11 @@ namespace Application {
             DateTime today,
             Currency pricingCurrency) {
 
-            if (_diffusion == null || _diffusionConfiguration == null) {
+            if (_diffusion == null || _configuration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
 
-            IDiscounter discounter = _diffusionConfiguration.MarketData.GetDiscounter(pricingCurrency);
+            IDiscounter discounter = _configuration.MarketData.GetDiscounter(pricingCurrency);
 
             ValueWithPrecision price = PriceAmerican(contract, today, _diffusion, discounter);
             return new PriceWithPrecision() {
@@ -41,7 +42,7 @@ namespace Application {
             };
         }
 
-        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
+        public IDiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
             IList<Underlying> underlyings = marketData.Underlyings;
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,
@@ -58,7 +59,7 @@ namespace Application {
 
         public ValueWithPrecision PriceAmerican(IContract contract, DateTime valuationDate, Diffusion diffusion, IDiscounter discounter) {
 
-            if (_diffusion == null || _diffusionConfiguration == null) {
+            if (_diffusion == null || _configuration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
             }
 
@@ -70,11 +71,8 @@ namespace Application {
             int N = diffusion.NumberOfEvents;
             int steps = flows.Count();
             Matrix<double> cashFlows = Matrix<double>.Build.Dense(N, steps);
-            // Set terminal cash flows at maturity set to payoff
-            //IPayoff finalPayoff = (IPayoff) flows.Last();
-            
-            //cashFlows.SetColumn(steps - 1, scenarios.Select(finalPayoff.ComputePayoff).ToArray());
-            for (int step = steps - 1; step >= 0; step--) { // Backward induction
+            // Backward 
+            for (int step = steps - 1; step >= 0; step--) {
                 IFlow flow = flows[step];
                 if (flow is IPayoff payoff) {
 
@@ -106,7 +104,6 @@ namespace Application {
                             int j = itmIndices[k];
                             cashFlows.ClearRow(j);
                             cashFlows[j, step] = exerciseValues[k];
-
                         }
                     }
                 }
@@ -118,14 +115,28 @@ namespace Application {
             return new ValueWithPrecision(pathPrices);
         }
 
-        private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, IList<DateTime> callableDates, IDiscounter discounter, DateTime valuationDate) {
+        private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, IList<DateTime> flowDates, IDiscounter discounter, DateTime valuationDate) {
             int steps = cashFlows.ColumnCount;
-            for (int t = fromStep; t < steps; t++) {
-                if (cashFlows[j, t] != 0) {
-                    return cashFlows[j, t] * discounter.GetDiscountFactor(callableDates[t], valuationDate);
+            int paths = cashFlows.RowCount;
+            double sum = 0;
+            if (_configuration.HasStochasticRate) {
+                IDictionary<Currency, ShortRate> shortRates = _configuration.Underlyings.OfType<ShortRate>().ToDictionary(x => x.Currency, x => x);
+                if (shortRates.ContainsKey(_configuration.Currency)) {
+                    for (int t = fromStep; t < steps; t++) {
+                        ShortRate shortRate = shortRates[_configuration.Currency];
+                        IList<DateTime> dates = _configuration.TimeDiscretization;
+                        SimulatedPath shortRatePath = _diffusion[shortRate][j];
+                        ShortRateDiscounter stochasticDiscounter = new ShortRateDiscounter(shortRatePath, dates);
+                        double stochasticDF = stochasticDiscounter.GetDiscountFactor(flowDates[t], valuationDate);
+                        sum += cashFlows[j, t] * stochasticDF;
+                    }
+                }
+            } else {
+                for (int t = fromStep; t < steps; t++) {
+                    sum += cashFlows[j, t] * discounter.GetDiscountFactor(flowDates[t], valuationDate);
                 }
             }
-            return 0.0;
+            return sum;
         }
 
         private double[] EstimateContinuationValues(Diffusion diffusion, Matrix<double> cashFlows, int step, int[] itmIndices, IList<DateTime> callableDates, IDiscounter discounter) {

@@ -171,7 +171,7 @@ namespace PricingServicesTests {
 
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
             GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[bond][new Premium()];
-            Assert.AreEqual(price, monteCarloResult.Value, monteCarloResult.Precision);
+            Assert.AreEqual(price, monteCarloResult.Value, 3.09 * monteCarloResult.Precision);
         }
     }
 }

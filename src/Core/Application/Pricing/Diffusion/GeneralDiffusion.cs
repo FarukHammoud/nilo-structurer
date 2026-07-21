@@ -3,17 +3,17 @@
 namespace Application {
     public class GeneralDiffusion {
 
-        public static Diffusion DiffuseMultiUnderlying(DiffusionConfiguration configuration) {
+        public static Diffusion DiffuseMultiUnderlying(IDiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
-                .CreateCorrelatedBrownians(configuration.BrowniansConfiguration);
+                .CreateCorrelatedBrownians(configuration);
             Diffusion diffusion = new(configuration.TimeDiscretization);
-            foreach (Underlying underlying in configuration.MarketData.Underlyings) {
+            foreach (Underlying underlying in configuration.Underlyings) {
                 diffusion[underlying] = DiffuseUnderlying(configuration, underlying, noises);
             }
             return diffusion;
         }
 
-        private static Realizations DiffuseUnderlying(DiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
+        private static Realizations DiffuseUnderlying(IDiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises) {
             int steps    = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
             IMarketData marketData               = configuration.MarketData;

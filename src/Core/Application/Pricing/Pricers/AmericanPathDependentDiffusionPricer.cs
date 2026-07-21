@@ -3,7 +3,7 @@
 namespace Application {
     public class AmericanPathDependentDiffusionPricer : PayoffPricer, IPricer {
 
-        private DiffusionConfiguration? _diffusionConfiguration;
+        private IDiffusionConfiguration? _diffusionConfiguration;
         private Diffusion? _diffusion;
 
         public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
@@ -54,7 +54,7 @@ namespace Application {
             };
         }
 
-        public DiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
+        public IDiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
             IList<Underlying> underlyings = marketData.Underlyings;
             return new DiffusionConfiguration() {
                 NumberOfDrawings = 50000,

@@ -48,6 +48,8 @@ namespace PricingServices.Tests {
             Assert.AreEqual(theoreticalPrice, lsResult.Value, 3.09 * lsResult.Precision, "");
         }
 
+
+
         [TestMethod]
         public void AmericanPutFlowsShouldHaveTheSamePremiumInAmericanPricer() {
             Equity MSFT = new("MSFT", Currencies.USD);
@@ -83,9 +85,18 @@ namespace PricingServices.Tests {
                     .SetVolatility(volatility))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
-            AmericanPricer pricer = new();
-            pricer.Initialize(marketData, Enumerable.Range(0,19).Select(DateTime.Today.AddMonths).ToList());
-            PriceWithPrecision price = pricer.Price(flowsContract, DateTime.Today, Currencies.USD);
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.American,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD,
+                NumberOfDrawings = 10000,
+            };
+            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            GlobalIndicatorResult americanResult = (GlobalIndicatorResult)results[contract][new Premium()];
 
             // Theotetical price using Barone Adesi Whaley formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -93,7 +104,7 @@ namespace PricingServices.Tests {
 
       
             // 8.84 - 8.91
-            Assert.AreEqual(theoreticalPrice, price.Value, 3.09 * price.Precision, "");
+            Assert.AreEqual(theoreticalPrice, americanResult.Value, 3.09 * americanResult.Precision, "");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Application {
         /// </summary>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        public BrowniansResult CreateCorrelatedBrownians(BrowniansConfiguration configuration) {
+        public BrowniansResult CreateCorrelatedBrownians(IBrowniansConfiguration configuration) {
             int n = configuration.Underlyings.Count;
             int steps = configuration.NumberOfSteps;
             int drawings = configuration.NumberOfDrawings;
@@ -62,7 +62,7 @@ namespace Application {
             return brownian;
         }
 
-        private Dictionary<Underlying, double[][]> GetOrCreateBrownians(BrowniansConfiguration configuration) {
+        private Dictionary<Underlying, double[][]> GetOrCreateBrownians(IBrowniansConfiguration configuration) {
             return configuration.Underlyings
                 .Select(underlying => (underlying, index:configuration.Underlyings.IndexOf(underlying)))
                 .ToDictionary(

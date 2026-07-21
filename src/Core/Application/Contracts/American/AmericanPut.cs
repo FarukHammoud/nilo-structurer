@@ -15,7 +15,7 @@ namespace Application {
                 PaymentDate = Maturity,
                 Maturity = Maturity,
                 MonitoringFrequency = MonitoringFrequency.Continuous,
-                ObservationDates = Enumerable.Range(0, (Maturity - DateTime.Now).Days + 1).Select(i => DateTime.Now.AddDays(i)).ToArray()
+                ObservationDates = Enumerable.Range(0, (Maturity - DateTime.Now).Days + 2).Select(i => DateTime.Now.AddDays(i)).ToArray()
             }];
 
         public double Notional { get; set; } = 1;

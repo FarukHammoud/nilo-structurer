@@ -2,14 +2,23 @@
 
 namespace Application {
     public class ShortRateDiscounter : IDiscounter {
-        private readonly Realizations _realizations;
-        private readonly IDiscounter internalDiscounter;
-        private ShortRateDiscounter(Realizations realizations, List<DateTime> timeDiscretization) {
-            throw new NotImplementedException();
+        private readonly IDiscounter _internalDiscounter;
+        public ShortRateDiscounter(SimulatedPath shortRatePath, IList<DateTime> timeDiscretization) {
+            Curve curve = new Curve();
+            IList<DateTime> dates = timeDiscretization;
+            double integral = 0;
+            for (int k = 0; k < shortRatePath.Values.Count() - 1; k++) {
+                double dt = (dates[k + 1] - dates[k]).TotalYears;
+                integral += shortRatePath.Values[k] * dt;
+                curve.setNode(dates[k], Math.Exp(-integral));
+            }
+            _internalDiscounter = new CurveDiscounter {
+                Curve = curve
+            };
         }
 
         public double GetDiscountFactor(DateTime date, DateTime today) {
-            throw new NotImplementedException();
+            return _internalDiscounter.GetDiscountFactor(date, today);
         }
     }
 }
