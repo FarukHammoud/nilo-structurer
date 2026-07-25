@@ -7,7 +7,7 @@ namespace Application {
             return [(marketData, pricingDate)];
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             if (contract is not Bond bond) {
                 return null;
             }

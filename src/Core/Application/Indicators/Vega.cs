@@ -25,16 +25,16 @@ namespace Application {
                 });
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             Dictionary<Underlying, List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlying(unshiftedMarketData, pricingDate);
             ByUnderlyingIndicatorResult result = new();
             foreach (Underlying underlying in marketDataByUnderlying.Keys) {
                 IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
-                PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
-                PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
+                PriceEstimate valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
+                PriceEstimate valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
                 double vegaValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
-                double vegaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                result.Result[underlying] = new ValueWithPrecision() { Value = vegaValue, Precision = vegaPrecision };
+                double vegaPrecision = (valueUp.StandardError + valueDown.StandardError) / 2;
+                result[underlying] = new Estimate(value: vegaValue, standardError: vegaPrecision);
             }
             return result;
         }

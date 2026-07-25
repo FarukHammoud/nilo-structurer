@@ -15,12 +15,12 @@ namespace Application {
                 (new ShiftedMarketData(marketData).ShiftDiscountRate(currency, +_bump), pricingDate)}).ToList();
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             IList<(IMarketData, DateTime)> marketDatas = GetShiftedMarketData(unshiftedMarketData, pricingDate);
-            PriceWithPrecision minusValue = resultsByShift[marketDatas[0]];
-            PriceWithPrecision plusValue = resultsByShift[marketDatas[1]];
+            PriceEstimate minusValue = resultsByShift[marketDatas[0]];
+            PriceEstimate plusValue = resultsByShift[marketDatas[1]];
             double rho = (plusValue.Value - minusValue.Value) / (2 * _bump);
-            double precision = (plusValue.Precision + minusValue.Precision) / 2;
+            double precision = (plusValue.StandardError + minusValue.StandardError) / 2;
             return new GlobalIndicatorResult(value : rho, precision : precision);
         }
 

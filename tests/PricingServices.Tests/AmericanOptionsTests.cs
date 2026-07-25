@@ -41,11 +41,11 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD,
                 NumberOfDrawings = 10000,
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult lsResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var lsResult = results.Get(contract, new Premium());
 
             // 8.84 - 8.91
-            Assert.AreEqual(theoreticalPrice, lsResult.Value, 3.09 * lsResult.Precision, "");
+            Assert.AreEqual(theoreticalPrice, lsResult.Value, 3.09 * lsResult.StandardError, "");
         }
 
         [TestMethod]
@@ -93,8 +93,8 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD,
                 NumberOfDrawings = 10000,
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult americanResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var americanResult = results.Get(contract, new Premium());
 
             // Theotetical price using Barone Adesi Whaley formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
@@ -102,7 +102,7 @@ namespace PricingServices.Tests {
 
       
             // 8.84 - 8.91
-            Assert.AreEqual(theoreticalPrice, americanResult.Value, 3.09 * americanResult.Precision, "");
+            Assert.AreEqual(theoreticalPrice, americanResult.Value, 3.09 * americanResult.StandardError, "");
         }
     }
 }

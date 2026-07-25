@@ -21,7 +21,7 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
         }
 
-        public override PriceWithPrecision PricePayoff(
+        public override PriceEstimate PricePayoff(
             IPayoff payoff,  
             DateTime today,
             Currency pricingCurrency) {
@@ -41,17 +41,13 @@ namespace Application {
             }
             LongstaffSchwartzAmericanSimulation longstaffSchwartzPricer = new LongstaffSchwartzAmericanSimulation();
             Func<double, double> payoffMap = spot => payoff.ComputePayoff(new Scenario(payoff.PaymentDate, underlying, spot));
-            ValueWithPrecision price = longstaffSchwartzPricer.PriceAmerican(
+            Estimate price = longstaffSchwartzPricer.PriceAmerican(
                 payoffMap,
                 today,
                 datesOfInterest,
                 _diffusion[underlying], 
                 discounter);
-            return new PriceWithPrecision() {
-                Value = price.Value,
-                Precision = price.Precision,
-                Currency = payoff.Currency  
-            };
+            return new PriceEstimate(price, payoff.Currency);
         }
 
         public IDiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {

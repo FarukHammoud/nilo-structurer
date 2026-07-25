@@ -9,23 +9,23 @@ namespace Application {
         virtual public void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
             _marketData = marketData;
         }
-        public abstract PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency);
-        public PriceWithPrecision Price(IContract contract, DateTime today, Currency pricingCurrency) {
+        public abstract PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency);
+        public PriceEstimate Price(IContract contract, DateTime today, Currency pricingCurrency) {
             double price = 0.0, precisionSquared = 0.0;
             foreach (IFlow flow in contract.Flows) {
                 if (flow is not IPayoff payoff) {
                     throw new InvalidOperationException($"Flow {flow} is not a payoff.");
                 }
-                PriceWithPrecision payoffPv = PricePayoff(payoff, today, pricingCurrency);
+                PriceEstimate payoffPv = PricePayoff(payoff, today, pricingCurrency);
                 double fxRate               = _marketData.GetFxRate(payoffPv.Currency, pricingCurrency);
                 price += payoffPv.Value * fxRate;
-                precisionSquared += Math.Pow(payoffPv.Precision * fxRate, 2);
+                precisionSquared += Math.Pow(payoffPv.StandardError * fxRate, 2);
             }
-            return new PriceWithPrecision() {
-                Value = price,
-                Precision = Math.Sqrt(precisionSquared),
-                Currency = pricingCurrency
-            };
+            return new PriceEstimate(
+                value : price,
+                standardError : Math.Sqrt(precisionSquared),
+                currency : pricingCurrency
+            );
         }
     }
 }

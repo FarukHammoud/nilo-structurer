@@ -36,8 +36,8 @@ namespace PricingServicesTests {
                 .Sum(i => bond.Coupon * bond.Notional * Math.Exp(-riskFreeRate * i)) 
                 + bond.Notional * Math.Exp(-riskFreeRate * 10));
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[bond][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(bond, new Premium());
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 1E-1, "The Monte Carlo price should be close to the theoretical bond price");
         }
@@ -69,7 +69,7 @@ namespace PricingServicesTests {
                 PricingCurrency = Currencies.USD,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
+            PricingResults results = new PricingEngine().Run(request);
   
             double price = (Enumerable.Range(1, 10)
                 .Sum(i => bond.Coupon * bond.Notional * Math.Exp(-riskFreeRate * i))
@@ -78,7 +78,7 @@ namespace PricingServicesTests {
             double macaulayDuration = (1/price) * (Enumerable.Range(1, 10)
                 .Sum(i => i *bond.Coupon * bond.Notional * Math.Exp(-riskFreeRate * i))
                 + 10 * bond.Notional * Math.Exp(-riskFreeRate * 10));
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[bond][new Duration()];
+            var monteCarloResult = results.Get(bond, new Duration());
 
             Assert.AreEqual(macaulayDuration, monteCarloResult.Value, 1E-1, "The Monte Carlo price should be close to the theoretical bond duration");
         }
@@ -124,9 +124,9 @@ namespace PricingServicesTests {
                 NumberOfDrawings = 50000
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[bond][new Premium()];
-            Assert.AreEqual(price, monteCarloResult.Value, monteCarloResult.Precision);
+            PricingResults results = new PricingEngine().Run(request);
+            Estimate monteCarloResult = results.Get(bond, new Premium());
+            Assert.AreEqual(price, monteCarloResult.Value, monteCarloResult.StandardError);
         }
 
         [TestMethod]
@@ -169,9 +169,9 @@ namespace PricingServicesTests {
                 WithControlVariate = false,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[bond][new Premium()];
-            Assert.AreEqual(price, monteCarloResult.Value, 3.09 * monteCarloResult.Precision);
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(bond, new Premium())   ;
+            Assert.AreEqual(price, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError);
         }
     }
 }

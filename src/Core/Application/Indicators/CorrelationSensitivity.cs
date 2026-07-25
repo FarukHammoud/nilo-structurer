@@ -33,16 +33,16 @@ namespace Application {
             return result;
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             Dictionary<(Underlying First, Underlying Second), List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlyingPair(unshiftedMarketData, pricingDate);
             ByUnderlyingPairIndicatorResult result = new();
             foreach ((Underlying First, Underlying Second) in marketDataByUnderlying.Keys) {
-                PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[(First, Second)][0]];
-                PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[(First, Second)][1]];
+                PriceEstimate valueDown = resultsByShift[marketDataByUnderlying[(First, Second)][0]];
+                PriceEstimate valueUp = resultsByShift[marketDataByUnderlying[(First, Second)][1]];
                 double rho = unshiftedMarketData.GetCorrelation(First, Second);
                 double correlationSensitivityValue = (valueUp.Value - valueDown.Value) / (2 * _bump);
-                double correlationSensitivityPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                result.Result[(First,Second)] = new ValueWithPrecision() { Value = correlationSensitivityValue, Precision = correlationSensitivityPrecision };
+                double correlationSensitivityPrecision = (valueUp.StandardError + valueDown.StandardError) / 2;
+                result[(First, Second)] = new Estimate(value : correlationSensitivityValue, standardError : correlationSensitivityPrecision);
             }
             return result;
         }

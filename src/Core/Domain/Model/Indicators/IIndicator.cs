@@ -21,6 +21,6 @@
             IContract contract,   
             IMarketData unshiftedMarketData, 
             DateTime pricingDate, 
-            Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift);
+            Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift);
     }
 }

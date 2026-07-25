@@ -18,16 +18,16 @@ namespace Application {
                 });
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             Dictionary<Underlying, List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlying(unshiftedMarketData, pricingDate);
             ByUnderlyingIndicatorResult result = new();
             foreach (Underlying underlying in marketDataByUnderlying.Keys) {
                 IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
-                PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
-                PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
+                PriceEstimate valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
+                PriceEstimate valueUp = resultsByShift[marketDataByUnderlying[underlying][1]];
                 double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * underlyingMarketData.GetSpot());
-                double deltaPrecision = (valueUp.Precision + valueDown.Precision) / 2;
-                result.Result[underlying] = new ValueWithPrecision() { Value = deltaValue, Precision = deltaPrecision };
+                double deltaPrecision = (valueUp.StandardError + valueDown.StandardError) / 2;
+                result[underlying] = new Estimate(value : deltaValue, standardError : deltaPrecision);
             }
             return result;
         }

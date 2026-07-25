@@ -75,12 +75,12 @@ namespace PricingServices {
                 PricingCurrency = Currencies.USD,
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult onlyFloatingSwapPrice = (GlobalIndicatorResult)results[onlyFloatingSwap][new Premium()];
+            var onlyFloatingSwapPrice = results.Get(onlyFloatingSwap, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
             double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
             double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
             double theoreticalFloatingLegPrice = onlyFloatingSwap.Notional * (P_0_T0 - P_0_T1);
-            Assert.AreEqual(theoreticalFloatingLegPrice, onlyFloatingSwapPrice.Value, 3.09 * onlyFloatingSwapPrice.Precision);
+            Assert.AreEqual(theoreticalFloatingLegPrice, onlyFloatingSwapPrice.Value, 3.09 * onlyFloatingSwapPrice.StandardError);
         }
 
         [TestMethod]
@@ -116,14 +116,14 @@ namespace PricingServices {
                 PricingCurrency = Currencies.USD,
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult swapPrice = (GlobalIndicatorResult)results[swap][new Premium()];
+            var swapPrice = results.Get(swap, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
             double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
             double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
             double theoreticalFixedLegPrice = swap.Notional * (P_0_T1 * swap.FixedRate);
             double theoreticalFloatingLegPrice = swap.Notional * (P_0_T0 - P_0_T1);
             double theoreticalSwapPrice = theoreticalFloatingLegPrice - theoreticalFixedLegPrice;
-            Assert.AreEqual(theoreticalSwapPrice, swapPrice.Value, 3.09 * swapPrice.Precision);
+            Assert.AreEqual(theoreticalSwapPrice, swapPrice.Value, 3.09 * swapPrice.StandardError);
         }
 
         [TestMethod]
@@ -162,11 +162,11 @@ namespace PricingServices {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
             };
-            var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult swaptionPrice = (GlobalIndicatorResult)results[swaption][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var swaptionPrice = results.Get(swaption, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
             double theoreticalSwaptionPrice = SwaptionCriticalRateFinder.Price(swaption, model, DateTime.Today, currentRate: spotRate);
-            Assert.AreEqual(theoreticalSwaptionPrice, swaptionPrice.Value, 3.09 * swaptionPrice.Precision);
+            Assert.AreEqual(theoreticalSwaptionPrice, swaptionPrice.Value, 3.09 * swaptionPrice.StandardError);
         }
     }
 }

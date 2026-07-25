@@ -41,10 +41,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -79,10 +79,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -117,10 +117,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -155,10 +155,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -206,9 +206,9 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[book][new Premium()];
-            Assert.IsLessThan(3.09 * monteCarloResult.Precision, monteCarloResult.Value, "The Monte Carlo price should be close to 0");
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(book, new Premium());
+            Assert.IsLessThan(3.09 * monteCarloResult.StandardError, monteCarloResult.Value, "The Monte Carlo price should be close to 0");
         }
 
         [TestMethod]
@@ -244,10 +244,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -286,10 +286,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -335,10 +335,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -381,10 +381,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -427,10 +427,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -473,10 +473,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD,
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -519,10 +519,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -568,12 +568,12 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new CorrelationSensitivity(), MSFT, AAPL);
 
            
-            Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of option is long correlation");
-            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
+            Assert.IsPositive(monteCarloResult.Value, "Worst-of option is long correlation");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -619,12 +619,12 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new CorrelationSensitivity(), MSFT, AAPL);
 
 
-            Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of call option is short correlation");
-            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
+            Assert.IsNegative(monteCarloResult.Value, "Best-of call option is short correlation");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -670,12 +670,12 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new CorrelationSensitivity(), MSFT, AAPL);
 
 
-            Assert.IsNegative(monteCarloResult.Result[(MSFT, AAPL)].Value, "Worst-of put option is short correlation");
-            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
+            Assert.IsNegative(monteCarloResult.Value, "Worst-of put option is short correlation");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
 
         [TestMethod]
@@ -721,12 +721,12 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingPairIndicatorResult monteCarloResult = (ByUnderlyingPairIndicatorResult)results[contract][new CorrelationSensitivity()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new CorrelationSensitivity(), MSFT, AAPL);
 
 
-            Assert.IsPositive(monteCarloResult.Result[(MSFT, AAPL)].Value, "Best-of put option is long correlation");
-            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Result[(MSFT, AAPL)].Value, 3.09 * monteCarloResult.Result[(MSFT, AAPL)].Precision, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
+            Assert.IsPositive(monteCarloResult.Value, "Best-of put option is long correlation");
+            Assert.AreEqual(theoreticalSensitivity, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo Sensitivity should be close to the theoretical Stulz Sensitivity");
         }
     }
 }

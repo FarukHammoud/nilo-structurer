@@ -46,10 +46,10 @@ namespace PricingServicesTests {
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice * fxRate, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice * fxRate, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -97,10 +97,10 @@ namespace PricingServicesTests {
                 NumberOfDrawings = 250000,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -148,10 +148,10 @@ namespace PricingServicesTests {
                 NumberOfDrawings = 250000,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -199,10 +199,10 @@ namespace PricingServicesTests {
                 PricingCurrency = Currencies.EUR,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][premium];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, premium);
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -251,10 +251,10 @@ namespace PricingServicesTests {
             };
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][premium];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, premium);
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
         }
 
         [TestMethod]
@@ -306,10 +306,10 @@ namespace PricingServicesTests {
                 NumberOfDrawings = 250000,
             };
 
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][new Premium()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.Precision);
+            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError);
         }
     }
 }

@@ -89,7 +89,7 @@ namespace Application {
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
 
-        public override PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+        public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             if (_root == null || _richardsonExtrapolationRoot == null || payoff is not IPathIndependentPayoff pathIndependentPayoff) {
                 throw new InvalidOperationException("Pricer not initialized or payoff is not path-independent. Call Initialize() before pricing.");
             }
@@ -100,11 +100,11 @@ namespace Application {
             // First-order Richardson extrapolation: eliminates the O(1/n) term
             double extrapolated = 2 * p2 - p1;
             double precision = Math.Abs(p2 - p1); // rough error estimate
-            return new PriceWithPrecision() {
-                Value = extrapolated,
-                Precision = precision,
-                Currency = payoff.Currency,
-            };
+            return new PriceEstimate(
+                value : extrapolated,
+                standardError : precision,
+                currency : payoff.Currency
+            );
         }
     }
 }

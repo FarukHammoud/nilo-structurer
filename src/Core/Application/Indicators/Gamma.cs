@@ -19,17 +19,17 @@ namespace Application {
                 });
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {   
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {   
             Dictionary<Underlying, List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlying(unshiftedMarketData, pricingDate);
             ByUnderlyingIndicatorResult result = new();
             foreach (Underlying underlying in marketDataByUnderlying.Keys) {
                 IUnderlyingMarketData underlyingMarketData = unshiftedMarketData.GetUnderlyingMarketData(underlying);
-                PriceWithPrecision valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
-                PriceWithPrecision centralValue = resultsByShift[marketDataByUnderlying[underlying][1]];
-                PriceWithPrecision valueUp = resultsByShift[marketDataByUnderlying[underlying][2]]; double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * underlyingMarketData.GetSpot());
+                PriceEstimate valueDown = resultsByShift[marketDataByUnderlying[underlying][0]];
+                PriceEstimate centralValue = resultsByShift[marketDataByUnderlying[underlying][1]];
+                PriceEstimate valueUp = resultsByShift[marketDataByUnderlying[underlying][2]]; double deltaValue = (valueUp.Value - valueDown.Value) / (0.02 * underlyingMarketData.GetSpot());
                 double gammaValue = (valueUp.Value - 2 * centralValue.Value + valueDown.Value) / Math.Pow(0.02 * underlyingMarketData.GetSpot(), 2);
-                double gammaPrecision = Math.Sqrt(Math.Pow(valueUp.Precision, 2) + 4 * Math.Pow(centralValue.Precision, 2) + Math.Pow(valueDown.Precision, 2)) / Math.Pow(0.02 * underlyingMarketData.GetSpot(), 2);
-                result.Result[underlying] = new ValueWithPrecision() { Value = gammaValue, Precision = gammaPrecision };
+                double gammaPrecision = Math.Sqrt(Math.Pow(valueUp.StandardError, 2) + 4 * Math.Pow(centralValue.StandardError, 2) + Math.Pow(valueDown.StandardError, 2)) / Math.Pow(0.02 * underlyingMarketData.GetSpot(), 2);
+                result[underlying] = new Estimate(value : gammaValue, standardError : gammaPrecision);
             }
             return result;
         }

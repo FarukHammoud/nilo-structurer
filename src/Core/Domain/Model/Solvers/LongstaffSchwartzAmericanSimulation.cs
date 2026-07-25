@@ -9,7 +9,7 @@ namespace Domain {
             _regressionBasis = regressionBasis ?? new LaguerreRegressionBasis(REGRESSION_DEGREE);
         }
 
-        public ValueWithPrecision PriceAmerican(Func<double, double> payoff, DateTime valuationDate, IList<DateTime> callableDates, Realizations realizations, IDiscounter discounter) {
+        public Estimate PriceAmerican(Func<double, double> payoff, DateTime valuationDate, IList<DateTime> callableDates, Realizations realizations, IDiscounter discounter) {
             IReadOnlyList<SimulatedPath> paths = realizations.Paths;
             int N = realizations.Size;
             int steps = callableDates.Count;
@@ -37,7 +37,7 @@ namespace Domain {
             IEnumerable<double> pathPrices = Enumerable.Range(0, N)
                 .Select(j => GetDiscountedCashFlow(cashFlows, j, 0, callableDates, discounter, valuationDate));
             double price = pathPrices.Average();
-            return new ValueWithPrecision(pathPrices);
+            return new Estimate(pathPrices);
         }
 
         private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, IList<DateTime> callableDates, IDiscounter discounter, DateTime valuationDate) {

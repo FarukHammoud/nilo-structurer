@@ -14,7 +14,7 @@ namespace Application {
             _finiteDifferenceBsPdeSolver = new FiniteDifferenceBsPdeSolver();
         }
 
-        public override PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+        public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             throw new NotImplementedException();
         }
 

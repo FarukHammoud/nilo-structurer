@@ -4,7 +4,7 @@ namespace Application.Indicators {
     public class ImpliedVolatility : IIndicator {
         public IList<(IMarketData, DateTime)> GetShiftedMarketData(IMarketData marketData, DateTime pricingDate) => [(marketData, pricingDate)];
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             double price = resultsByShift[(unshiftedMarketData, pricingDate)].Value;
             if (contract is VanillaContract vanilla) {
                 double impliedVolatility = BlackScholesFactory.Create(vanilla, unshiftedMarketData, pricingDate)

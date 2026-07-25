@@ -1,4 +1,5 @@
 ﻿using Domain;
+using System.Diagnostics;
 
 namespace Application {
     /// <summary>
@@ -15,7 +16,7 @@ namespace Application {
         }
 
         // Target signature for the asynchronous pricing method
-        public async Task<Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>>> RunAsync(PricingRequest request,
+        public async Task<PricingResults> RunAsync(PricingRequest request,
             IProgress<PricingProgress>? progress = null,
             CancellationToken cancellationToken = default) {
             return await Task.Run(() => {
@@ -23,8 +24,9 @@ namespace Application {
             }, cancellationToken);
         }
 
-        public Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> Run(PricingRequest request) {
-            Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults = new();
+        public PricingResults Run(PricingRequest request) {
+            var stopwatch = Stopwatch.StartNew();
+            Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceEstimate>> subResults = new();
 
             HashSet<(IMarketData, DateTime)> shiftedMarketData = request.Indicators
                 .SelectMany(indicator => indicator.GetShiftedMarketData(request.MarketData, request.PricingDate))
@@ -41,16 +43,14 @@ namespace Application {
                     subResults[(marketData, pricingDate)][contract] = pricer.Price(contract, pricingDate, request.PricingCurrency);
                 }
             }
-            if (request.ModelConfiguration.Discounting is StochasticRatesDiscounting) {
-
-            }
-
-            return GetIndicatorResults(request, subResults);
+            var indicatorResults = GetIndicatorResults(request, subResults);
+            stopwatch.Stop();
+            return new PricingResults(indicatorResults, stopwatch.Elapsed);
         }
 
-        private Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceWithPrecision>> subResults) {
+        private Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> GetIndicatorResults(PricingRequest request, Dictionary<(IMarketData, DateTime), Dictionary<IContract, PriceEstimate>> subResults) {
             // Transform subResults to the desired output format
-            Dictionary<IContract, Dictionary<(IMarketData, DateTime), PriceWithPrecision>> pivotedSubResults = subResults.Pivot();
+            Dictionary<IContract, Dictionary<(IMarketData, DateTime), PriceEstimate>> pivotedSubResults = subResults.Pivot();
             Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> indicatorResult = new();
             foreach (IContract contract in request.Position) {
                 indicatorResult.Add(contract, new());

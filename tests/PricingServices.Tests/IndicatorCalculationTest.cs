@@ -43,11 +43,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Delta()];   
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Delta(), MSFT);   
 
-
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
+            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
         }
 
         [TestMethod]
@@ -94,10 +93,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][deltaFx];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, deltaFx, CurrencyPairs.EURUSD);
 
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Result[CurrencyPairs.EURUSD].Value, 3.09 * monteCarloResult.Result[CurrencyPairs.EURUSD].Precision, "The Monte Carlo delta fx should be close to the theoretical Black-Scholes delta");
+            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo delta fx should be close to the theoretical Black-Scholes delta");
         }
 
         [TestMethod]
@@ -136,10 +135,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult)results[contract][new Gamma()];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, new Gamma(), MSFT);
 
-            Assert.AreEqual(theoreticalGamma, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
+            Assert.AreEqual(theoreticalGamma, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
         }
 
         [TestMethod]
@@ -177,10 +176,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            Dictionary<IContract, Dictionary<IIndicator, IIndicatorResult>> results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][rho];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, rho);
 
-            Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
+            Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
         }
 
         [TestMethod]
@@ -221,9 +220,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][theta];
+            var monteCarloResult = results.Get(contract, theta);
 
-            Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
+            Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
         }
 
         [TestMethod]
@@ -263,9 +262,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            ByUnderlyingIndicatorResult monteCarloResult = (ByUnderlyingIndicatorResult) results[contract][vega];
+            var monteCarloResult = results.Get(contract, vega, MSFT);
 
-            Assert.AreEqual(theoreticalVega, monteCarloResult.Result[MSFT].Value, 3.09 * monteCarloResult.Result[MSFT].Precision, "The Monte Carlo vega should be close to the theoretical Black-Scholes vega");
+            Assert.AreEqual(theoreticalVega, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo vega should be close to the theoretical Black-Scholes vega");
         }
 
         [TestMethod]
@@ -299,10 +298,10 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
-            var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult) results[contract][impliedVolatility];
+            PricingResults results = new PricingEngine().Run(request);
+            var monteCarloResult = results.Get(contract, impliedVolatility);
 
-            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
+            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
         }
 
         [TestMethod]
@@ -336,9 +335,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult monteCarloResult = (GlobalIndicatorResult)results[contract][impliedVolatility];
+            var monteCarloResult = results.Get(contract, impliedVolatility);
 
-            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.Precision, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
+            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
         }
     }
 }

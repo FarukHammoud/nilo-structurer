@@ -54,14 +54,14 @@ namespace PricingServices {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.EUR
             };
-            var results = new PricingEngine().Run(request);
-            double conversePremium = ((GlobalIndicatorResult)results[converse][new Premium()]).Value;
-            double converseQuantoPremium = ((GlobalIndicatorResult)results[quantoConverse][new Premium()]).Value;
-            double converseDelta = ((ByUnderlyingIndicatorResult)results[converse][new Delta()]).Result[MSFT].Value;
-            double converseQuantoDelta = ((ByUnderlyingIndicatorResult)results[quantoConverse][new Delta()]).Result[MSFT].Value;
-            double converseSensitivity = ((ByUnderlyingPairIndicatorResult)results[converse][correlationSensitivity]).Result[(MSFT, CurrencyPairs.USDEUR)].Value;
-            double converseQuantoSensitivity = ((ByUnderlyingPairIndicatorResult)results[quantoConverse][correlationSensitivity]).Result[(MSFT, CurrencyPairs.USDEUR)].Value;
-            double comboSensitivity = ((ByUnderlyingPairIndicatorResult)results[combo][correlationSensitivity]).Result[(MSFT, CurrencyPairs.USDEUR)].Value;
+            PricingResults results = new PricingEngine().Run(request);
+            var conversePremium = results.Get(converse, new Premium()).Value;
+            var converseQuantoPremium = results.Get(quantoConverse, new Premium()).Value;
+            var converseDelta = results.Get(converse, new Delta(), MSFT).Value;
+            var converseQuantoDelta = results.Get(quantoConverse, new Delta(), MSFT).Value;
+            var converseSensitivity = results.Get(converse, correlationSensitivity, MSFT, CurrencyPairs.USDEUR).Value;
+            double converseQuantoSensitivity = results.Get(quantoConverse, correlationSensitivity, MSFT, CurrencyPairs.USDEUR).Value;
+            double comboSensitivity = results.Get(combo, correlationSensitivity, MSFT, CurrencyPairs.USDEUR).Value;
             Assert.IsNegative(comboSensitivity, "The Combo should have negative correlation Sensitivity");
         }
     }

@@ -23,7 +23,7 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_configuration);
         }
 
-        public PriceWithPrecision Price(
+        public PriceEstimate Price(
             IContract contract,
             DateTime today,
             Currency pricingCurrency) {
@@ -34,12 +34,8 @@ namespace Application {
 
             IDiscounter discounter = _configuration.MarketData.GetDiscounter(pricingCurrency);
 
-            ValueWithPrecision price = PriceAmerican(contract, today, _diffusion, discounter);
-            return new PriceWithPrecision() {
-                Value = price.Value,
-                Precision = price.Precision,
-                Currency = pricingCurrency
-            };
+            Estimate price = PriceAmerican(contract, today, _diffusion, discounter);
+            return new PriceEstimate(price, pricingCurrency);
         }
 
         public IDiffusionConfiguration getDiffusionConfiguration(IMarketData marketData, IList<DateTime> timeDiscretization) {
@@ -57,7 +53,7 @@ namespace Application {
             _regressionBasis = regressionBasis ?? new PolynomialRegressionBasis(REGRESSION_DEGREE);
         }
 
-        public ValueWithPrecision PriceAmerican(IContract contract, DateTime valuationDate, Diffusion diffusion, IDiscounter discounter) {
+        public Estimate PriceAmerican(IContract contract, DateTime valuationDate, Diffusion diffusion, IDiscounter discounter) {
 
             if (_diffusion == null || _configuration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
@@ -106,7 +102,7 @@ namespace Application {
             IEnumerable<double> pathPrices = Enumerable.Range(0, N)
                 .Select(j => GetDiscountedCashFlow(cashFlows, j, 0, flowDates, discounter, valuationDate));
             double price = pathPrices.Average();
-            return new ValueWithPrecision(pathPrices);
+            return new Estimate(pathPrices);
         }
 
         private double GetDiscountedCashFlow(Matrix<double> cashFlows, int j, int fromStep, IList<DateTime> flowDates, IDiscounter discounter, DateTime valuationDate) {

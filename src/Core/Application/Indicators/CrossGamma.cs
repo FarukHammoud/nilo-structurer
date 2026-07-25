@@ -44,19 +44,19 @@ namespace Application {
             return result;
         }
 
-        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceWithPrecision> resultsByShift) {
+        public IIndicatorResult GetResult(IContract contract, IMarketData unshiftedMarketData, DateTime pricingDate, Dictionary<(IMarketData, DateTime), PriceEstimate> resultsByShift) {
             Dictionary<(Underlying First, Underlying Second), List<(IMarketData, DateTime)>> marketDataByUnderlying = GetShiftedMarketDataByUnderlyingPair(unshiftedMarketData, pricingDate);
             ByUnderlyingIndicatorResult result = new();
             foreach ((Underlying First, Underlying Second) in marketDataByUnderlying.Keys) {
                 IUnderlyingMarketData firstMarketData = unshiftedMarketData.GetUnderlyingMarketData(First);
                 IUnderlyingMarketData secondMarketData = unshiftedMarketData.GetUnderlyingMarketData(Second);
-                PriceWithPrecision valueDownDown = resultsByShift[marketDataByUnderlying[(First, Second)][0]];
-                PriceWithPrecision valueDownUp = resultsByShift[marketDataByUnderlying[(First, Second)][1]];
-                PriceWithPrecision valueUpDown = resultsByShift[marketDataByUnderlying[(First, Second)][2]];
-                PriceWithPrecision valueUpUp = resultsByShift[marketDataByUnderlying[(First, Second)][3]];
+                PriceEstimate valueDownDown = resultsByShift[marketDataByUnderlying[(First, Second)][0]];
+                PriceEstimate valueDownUp = resultsByShift[marketDataByUnderlying[(First, Second)][1]];
+                PriceEstimate valueUpDown = resultsByShift[marketDataByUnderlying[(First, Second)][2]];
+                PriceEstimate valueUpUp = resultsByShift[marketDataByUnderlying[(First, Second)][3]];
                 double crossGammaValue = (valueUpUp.Value - valueDownUp.Value - valueUpDown.Value + valueDownDown.Value) / (4 * _bump * _bump * firstMarketData.GetSpot() * secondMarketData.GetSpot());
-                double crossGammaPrecision = (valueUpUp.Precision + valueDownDown.Precision) / 2;
-                result.Result[First] = new ValueWithPrecision() { Value = crossGammaValue, Precision = crossGammaPrecision };
+                double crossGammaPrecision = (valueUpUp.StandardError + valueDownDown.StandardError) / 2;
+                result[First] = new Estimate(value : crossGammaValue, standardError: crossGammaPrecision);
             }
             return result;
         }

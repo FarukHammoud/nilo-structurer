@@ -29,7 +29,7 @@ namespace Application {
             _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_configuration);
         }
 
-        public override PriceWithPrecision PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+        public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
             
             if (_diffusion == null || _configuration == null) {
                 throw new Exception("Pricer not initialized. Please call Initialize method before pricing.");
@@ -79,7 +79,7 @@ namespace Application {
                 discountedPayoffs = varianceReducer.Adjust(discountedPayoffs);
             }
 
-            return new PriceWithPrecision(discountedPayoffs, payoff.Currency);
+            return new PriceEstimate(discountedPayoffs, payoff.Currency);
         }
     }
 
