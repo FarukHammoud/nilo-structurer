@@ -10,11 +10,12 @@ namespace PricingServices {
             double theta = 0.035;
             double sigma = 0.01;
             Swaption swaption = new Swaption {
-                Notional = 1,
-                Swap = new Swap(new ShortRate(Currencies.USD), 0.025, [DateTime.Today.AddMonths(18)]) {
+                Swap = new Swap() {
+                    FloatingRate = new ShortRate(Currencies.USD),
+                    FixedRate = 0.025,
+                    Dates = [DateTime.Today.AddMonths(18)],
                     Currency = Currencies.USD
                 },
-                Strike = 0.025,
                 Expiry = DateTime.Today.AddMonths(6)
             };
             Vasicek model = new Vasicek(kappa, theta, sigma);
@@ -28,11 +29,12 @@ namespace PricingServices {
             double theta = 0.035;
             double sigma = 0.01;
             Swaption swaption = new Swaption {
-                Notional = 1,
-                Swap = new Swap(new ShortRate(Currencies.USD), 0.025, [DateTime.Today.AddMonths(18)]) {
+                Swap = new Swap() {
+                    FloatingRate = new ShortRate(Currencies.USD),
+                    FixedRate = 0.025,
+                    Dates = [DateTime.Today.AddMonths(18)],
                     Currency = Currencies.USD
                 },
-                Strike = 0.025,
                 Expiry = DateTime.Today.AddMonths(6)
             };
             Vasicek model = new Vasicek(kappa, theta, sigma);
@@ -41,20 +43,107 @@ namespace PricingServices {
         }
 
         [TestMethod]
+        public void SwapFloatingLegPriceInAmericanPricerWithVasicekModel() {
+            double kappa = 0.1;
+            double theta = 0.035;
+            double sigma = 0.01;
+            double spotRate = 0.03;
+            Swap onlyFloatingSwap = new Swap() {
+                FloatingRate = new ShortRate(Currencies.USD),
+                FixedRate = 0.0,
+                Dates = [DateTime.Today.AddMonths(18)],
+                Notional = 10000, // so premium is in bps
+                Currency = Currencies.USD
+            };
+
+            MarketData marketData = new MarketData()
+                .SetShortRateDynamics(
+                    currency: Currencies.USD,
+                    dynamics: new VasicekDynamics(
+                        kappa: kappa,
+                        sigma: sigma,
+                        theta: (x) => theta),
+                    spotRate: spotRate)
+                .SetRiskFreeRate(Currencies.USD, spotRate);
+
+            PricingRequest request = new() {
+                Position = [onlyFloatingSwap],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.StochasticRates,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD,
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult onlyFloatingSwapPrice = (GlobalIndicatorResult)results[onlyFloatingSwap][new Premium()];
+            Vasicek model = new Vasicek(kappa, theta, sigma);
+            double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
+            double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
+            double theoreticalFloatingLegPrice = onlyFloatingSwap.Notional * (P_0_T0 - P_0_T1);
+            Assert.AreEqual(theoreticalFloatingLegPrice, onlyFloatingSwapPrice.Value, 3.09 * onlyFloatingSwapPrice.Precision);
+        }
+
+        [TestMethod]
+        public void SwapPriceInAmericanPricerWithVasicekModel() {
+            double kappa = 0.1;
+            double theta = 0.035;
+            double sigma = 0.01;
+            double spotRate = 0.03;
+            Swap swap = new Swap() {
+                FloatingRate = new ShortRate(Currencies.USD),
+                FixedRate = 0.025,
+                Dates = [DateTime.Today.AddMonths(18)],
+                Notional = 10000, // so premium is in bps
+                Currency = Currencies.USD
+            };
+
+            MarketData marketData = new MarketData()
+                .SetShortRateDynamics(
+                    currency: Currencies.USD,
+                    dynamics: new VasicekDynamics(
+                        kappa: kappa,
+                        sigma: sigma,
+                        theta: (x) => theta),
+                    spotRate: spotRate)
+                .SetRiskFreeRate(Currencies.USD, spotRate);
+
+            PricingRequest request = new() {
+                Position = [swap],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.StochasticRates,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD,
+            };
+            var results = new PricingEngine().Run(request);
+            GlobalIndicatorResult swapPrice = (GlobalIndicatorResult)results[swap][new Premium()];
+            Vasicek model = new Vasicek(kappa, theta, sigma);
+            double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
+            double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
+            double theoreticalFixedLegPrice = swap.Notional * (P_0_T1 * swap.FixedRate);
+            double theoreticalFloatingLegPrice = swap.Notional * (P_0_T0 - P_0_T1);
+            double theoreticalSwapPrice = theoreticalFloatingLegPrice - theoreticalFixedLegPrice;
+            Assert.AreEqual(theoreticalSwapPrice, swapPrice.Value, 3.09 * swapPrice.Precision);
+        }
+
+        [TestMethod]
         public void SwaptionShouldPriceInAmericanPricerWithVasicekModel() {
             double kappa = 0.1;
             double theta = 0.035;
             double sigma = 0.01;
             double spotRate = 0.03;
+            Swap swap = new Swap() {
+                FloatingRate = new ShortRate(Currencies.USD),
+                FixedRate = 0.025,
+                Dates = [DateTime.Today.AddMonths(18)],
+                Notional = 10000, // so premium is in bps
+                Currency = Currencies.USD
+            };
             Swaption swaption = new Swaption {
-                Notional = 1,
-                Swap = new Swap(new ShortRate(Currencies.USD), 0.025, [DateTime.Today.AddMonths(18)]) {
-                    Currency = Currencies.USD
-                },
-                Strike = 0.025,
+                Swap = swap,
                 Expiry = DateTime.Today.AddMonths(6)
             };
-            
+
             MarketData marketData = new MarketData()
                 .SetShortRateDynamics(
                     currency: Currencies.USD,
@@ -71,13 +160,13 @@ namespace PricingServices {
                 Indicators = [new Premium()],
                 ModelConfiguration = ModelConfiguration.StochasticRates,
                 PricingDate = DateTime.Today,
-                PricingCurrency = Currencies.USD
+                PricingCurrency = Currencies.USD,
             };
             var results = new PricingEngine().Run(request);
-            GlobalIndicatorResult pricerPrice = (GlobalIndicatorResult)results[swaption][new Premium()];
+            GlobalIndicatorResult swaptionPrice = (GlobalIndicatorResult)results[swaption][new Premium()];
             Vasicek model = new Vasicek(kappa, theta, sigma);
-            double theoreticalSwaptionPrice = SwaptionCriticalRateFinder.Price(swaption, model, DateTime.Today, theta);
-            Assert.AreEqual(theoreticalSwaptionPrice, pricerPrice.Value, 3.09 * pricerPrice.Precision);
+            double theoreticalSwaptionPrice = SwaptionCriticalRateFinder.Price(swaption, model, DateTime.Today, currentRate: spotRate);
+            Assert.AreEqual(theoreticalSwaptionPrice, swaptionPrice.Value, 3.09 * swaptionPrice.Precision);
         }
     }
 }

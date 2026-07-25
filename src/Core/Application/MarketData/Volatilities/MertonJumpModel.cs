@@ -10,7 +10,7 @@ namespace Application {
             _volatility = volatility;
         }
 
-        public double getVolatility(double spot, double timeToMaturity) {
+        public double GetVolatility(double spot, double timeToMaturity) {
             return _volatility;
         }
     }

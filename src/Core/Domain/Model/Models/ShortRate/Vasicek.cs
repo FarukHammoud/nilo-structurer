@@ -24,5 +24,10 @@
 
         public double DiscountFactor(double r, double tau)
             => A(tau) * Math.Exp(-B(tau) * r);
+
+        // E[r(t)]
+        public double ExpectedShortRate(double r0, double tau) {
+            return r0 * Math.Exp(-_kappa * tau) + _theta * (1 - Math.Exp(-_kappa * tau));
+        }
     }
 }

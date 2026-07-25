@@ -48,8 +48,6 @@ namespace PricingServices.Tests {
             Assert.AreEqual(theoreticalPrice, lsResult.Value, 3.09 * lsResult.Precision, "");
         }
 
-
-
         [TestMethod]
         public void AmericanPutFlowsShouldHaveTheSamePremiumInAmericanPricer() {
             Equity MSFT = new("MSFT", Currencies.USD);

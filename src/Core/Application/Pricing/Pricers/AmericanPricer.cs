@@ -66,7 +66,7 @@ namespace Application {
             IEnumerable<DateTime> dates = diffusion.Dates;
             IList<IFlow> flows = ExpandAmericanFlows(contract.Flows, dates);
             IList<DateTime> flowDates = flows.Select(flow => flow.Date).ToList();
-            var scenarios = diffusion.Scenarios();
+            List<Scenario> scenarios = diffusion.Scenarios();
 
             int N = diffusion.NumberOfEvents;
             int steps = flows.Count();
@@ -77,33 +77,27 @@ namespace Application {
                 if (flow is IPayoff payoff) {
 
                     cashFlows.SetColumn(step, scenarios.Select(payoff.ComputePayoff).ToArray());
-
                 } else if (flow is IAutoCallFlow autoCallFlow) {
-                    
+
                     for (int j = 0; j < N; j++) {
                         if (autoCallFlow.IsTriggered(scenarios[j])) {
                             cashFlows.ClearRow(j);
                             cashFlows[j, step] = autoCallFlow.Rebate.ComputePayoff(scenarios[j]);
                         }
                     }
-
                 } else if (flow is IExercisableFlow exercisableFlow) {
 
                     IPayoff exercisePayoff = exercisableFlow.Payoff;
-                    bool[] ITM = scenarios.Select(exercisePayoff.ComputePayoff).Select(payoff => payoff > 0).ToArray();
-                    if (!ITM.Any(x => x)) continue;
 
-                    int[] itmIndices            = Enumerable.Range(0, N).Where(j => ITM[j]).ToArray();
-                    double[] continuationValues = EstimateContinuationValues(diffusion, cashFlows, step, itmIndices, flowDates, discounter);
-                    double[] exerciseValues     = itmIndices.Select(j => exercisePayoff.ComputePayoff(scenarios[j])).ToArray();
+                    double[] continuationValues = EstimateContinuationValues(diffusion, cashFlows, step, flowDates, discounter);
+                    double[] exerciseValues     = scenarios.Select(exercisePayoff.ComputePayoff).ToArray();
 
                     // Exercise decision
-                    for (int k = 0; k < itmIndices.Length; k++) {
-                        if (exercisableFlow.ExerciseParty == ExerciseParty.Holder && exerciseValues[k] > continuationValues[k] ||
-                            exercisableFlow.ExerciseParty == ExerciseParty.Issuer && exerciseValues[k] < continuationValues[k]) {
-                            int j = itmIndices[k];
+                    for (int j = 0; j < N; j++) {
+                        if (exercisableFlow.ExerciseParty == ExerciseParty.Holder && exerciseValues[j] > continuationValues[j] ||
+                            exercisableFlow.ExerciseParty == ExerciseParty.Issuer && exerciseValues[j] < continuationValues[j]) {
                             cashFlows.ClearRow(j);
-                            cashFlows[j, step] = exerciseValues[k];
+                            cashFlows[j, step] = exerciseValues[j];
                         }
                     }
                 }
@@ -123,8 +117,8 @@ namespace Application {
                 IDictionary<Currency, ShortRate> shortRates = _configuration.Underlyings.OfType<ShortRate>().ToDictionary(x => x.Currency, x => x);
                 if (shortRates.ContainsKey(_configuration.Currency)) {
                     for (int t = fromStep; t < steps; t++) {
-                        ShortRate shortRate = shortRates[_configuration.Currency];
-                        IList<DateTime> dates = _configuration.TimeDiscretization;
+                        ShortRate shortRate         = shortRates[_configuration.Currency];
+                        IList<DateTime> dates       = _configuration.TimeDiscretization;
                         SimulatedPath shortRatePath = _diffusion[shortRate][j];
                         ShortRateDiscounter stochasticDiscounter = new ShortRateDiscounter(shortRatePath, dates);
                         double stochasticDF = stochasticDiscounter.GetDiscountFactor(flowDates[t], valuationDate);
@@ -139,21 +133,22 @@ namespace Application {
             return sum;
         }
 
-        private double[] EstimateContinuationValues(Diffusion diffusion, Matrix<double> cashFlows, int step, int[] itmIndices, IList<DateTime> callableDates, IDiscounter discounter) {
+        private double[] EstimateContinuationValues(Diffusion diffusion, Matrix<double> cashFlows, int step, IList<DateTime> flowDates, IDiscounter discounter) {
             // x = (normalized) prices, y = discounted next cash flows
+            int N = diffusion.NumberOfEvents;
             Dictionary<Underlying, double> spots = diffusion.Spots();
-            DateTime stepDate = diffusion.Dates[step];
-            var diffusionOnDate = diffusion.ByDate()[stepDate];
+            DateTime stepDate = flowDates[step];
+            var diffusionOnDate = diffusion[stepDate];
             List<Vector<double>> xs = new List<Vector<double>>();
             foreach (Underlying underlying in diffusion.Underlyings) {
                 double spot = spots[underlying];
-                xs.Add(Vector<double>.Build.DenseOfArray(itmIndices
-                    .Select(i => diffusionOnDate[underlying][i] / spot)
+                xs.Add(Vector<double>.Build.DenseOfArray(diffusionOnDate[underlying]
+                    .Select(value => value / spot)
                     .ToArray()));
             }
-            Vector<double> y = Vector<double>.Build.DenseOfArray(itmIndices
-                .Select(j => GetDiscountedCashFlow(cashFlows, j, step + 1, callableDates, discounter, callableDates[step])).ToArray());
-            if (itmIndices.Length < REGRESSION_DEGREE) {
+            Vector<double> y = Vector<double>.Build.DenseOfArray(Enumerable.Range(0, N)
+                .Select(j => GetDiscountedCashFlow(cashFlows, j, step + 1, flowDates, discounter, flowDates[step])).ToArray());
+            if (N < REGRESSION_DEGREE) {
                 return y.ToArray();
             }
             // Fit regression to estimate continuation value

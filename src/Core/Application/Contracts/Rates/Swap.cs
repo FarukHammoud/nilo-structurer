@@ -2,34 +2,43 @@
 
 namespace Application {
     public class Swap : IContract {
-        public IEnumerable<CashFlow> FixedFlows { get; init; }
-        public ShortRate FloatingRate { get; init; }
-
-        public Swap(ShortRate floatingRate, double fixedRate, IEnumerable<DateTime> paymentDates) {
-            FixedFlows = paymentDates.Select(date => new CashFlow {
-                PaymentDate = date,
-                Amount = fixedRate,
-                Currency = floatingRate.Currency
-            });
-            FloatingRate = floatingRate;
-        }
-
-        public IEnumerable<DateTime> Dates => FixedFlows.Select(e => e.PaymentDate);
-        public IEnumerable<Double> Values => FixedFlows.Select(e => e.Amount);
+        public required double FixedRate { get; init; }
+        public required ShortRate FloatingRate { get; init; }
+        public required IEnumerable<DateTime> Dates { get; init; }
         public required Currency Currency { get; set; }
-        public IEnumerable<IPathIndependentPayoff> PathIndependentPayoffs => GetFlows();
         public double Notional { get; set; } = 1.0;
+
+        public IEnumerable<CashFlow> FixedFlows => Dates.Select(date => new CashFlow {
+            PaymentDate = date,
+            Amount = Notional * FixedRate,
+            Currency = FloatingRate.Currency
+        });
 
         public IEnumerable<IFlow> Flows => GetFlows();
 
-        public IEnumerable<IPathIndependentPayoff> GetFlows() {
+        // Should in fact be the forward rate Ti -> Ti+1
+        // That is the Log(DiscountFactor(Ti, Ti+1)) / (Ti+1 - Ti)
+
+        private double GetForwardRate(DateTime start, DateTime end, Dictionary<DateTime, double> shortRatePath) {
+            double kappa = 0.1;
+            double theta = 0.035;
+            double sigma = 0.01;
+            double dt = (end - start).TotalYears;
+            Vasicek model = new Vasicek(kappa, theta, sigma);
+            double P_T0_T1 = model.DiscountFactor(shortRatePath[start], dt);
+            return (1 / P_T0_T1 - 1) / dt;
+        }
+
+        public IEnumerable<IPathDependentPayoff> GetFlows() {
             foreach (CashFlow fixedFlow in FixedFlows) {
-                yield return new MonoUnderlyingPathIndependentPayoff() {
-                    Payoff = (floating) => floating - fixedFlow.Amount,
+                yield return new MonoUnderlyingPathDependentPayoff() {
+                    PayoffMap = (prices) => Notional * (GetForwardRate(fixedFlow.PaymentDate.AddYears(-1), fixedFlow.PaymentDate, prices) - FixedRate),
                     Underlying = FloatingRate,
                     Maturity = fixedFlow.PaymentDate,
                     PaymentDate = fixedFlow.PaymentDate,
                     Currency = Currency,
+                    MonitoringFrequency = MonitoringFrequency.Daily,
+                    ObservationDates = [fixedFlow.PaymentDate]
                 };
             }
         }

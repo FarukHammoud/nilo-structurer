@@ -14,6 +14,7 @@ namespace Application {
 
         public static double FindCriticalRate(Swaption swaption, Vasicek model) {
             DateTime swaptionExpiry = swaption.Expiry;
+            double notional = swaption.Swap.Notional;
             double inf = 0;
             double sup = 1;
             for (int i = 0; i < MAX_ITERATIONS; i++) {
@@ -23,9 +24,9 @@ namespace Application {
                     DateTime date = flow.PaymentDate;
                     sum += flow.Amount * model.DiscountFactor(rate, (date - swaptionExpiry).TotalYears);
                 }
-                sum += model.DiscountFactor(rate, (swaption.Swap.FixedFlows.Last().PaymentDate - swaptionExpiry).TotalYears);
+                sum += notional * model.DiscountFactor(rate, (swaption.Swap.FixedFlows.Last().PaymentDate - swaptionExpiry).TotalYears);
                 // Binary search
-                if (sum > 1) {
+                if (sum > notional) {
                     inf = rate;
                 } else {
                     sup = rate;
@@ -54,7 +55,7 @@ namespace Application {
                 double P_t_T0 = model.DiscountFactor(currentRate, (expiryDate - valuationDate).TotalYears);
                 double hi = Math.Log(P_t_Ti / (impliedStrikes[i] * P_t_T0)) / sigmaPi + 0.5 * sigmaPi;
                 double zeroBondPut = impliedStrikes[i] * P_t_T0 * N(-hi + sigmaPi) - P_t_Ti * N(-hi);
-                swaptionPrice += (flow.Amount + (i == last ? 1 : 0)) * zeroBondPut;
+                swaptionPrice += (flow.Amount + (i == last ? swaption.Swap.Notional : 0)) * zeroBondPut;
             }
             return swaptionPrice;
         }

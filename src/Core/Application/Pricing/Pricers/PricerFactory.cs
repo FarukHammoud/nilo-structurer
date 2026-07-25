@@ -21,18 +21,21 @@ namespace Application {
                 MonteCarlo => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,
-                    WithControlVariate = request.WithControlVariate
+                    WithControlVariate = request.WithControlVariate,
+                    HasStochasticRate = request.ModelConfiguration.Discounting is StochasticRatesDiscounting
                 },
                 BinaryTree => new BinaryTreePricerConfiguration(),
                 LongStaffSchwartz => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,
-                    WithControlVariate = request.WithControlVariate
+                    WithControlVariate = request.WithControlVariate,
+                    HasStochasticRate = request.ModelConfiguration.Discounting is StochasticRatesDiscounting
                 },
                 American => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,
-                    WithControlVariate = request.WithControlVariate
+                    WithControlVariate = request.WithControlVariate,
+                    HasStochasticRate = request.ModelConfiguration.Discounting is StochasticRatesDiscounting
                 },
                 _ => throw new NotSupportedException($"No configuration for {request.ModelConfiguration.Pricing}")
             };

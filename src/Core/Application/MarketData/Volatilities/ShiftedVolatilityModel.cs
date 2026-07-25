@@ -10,8 +10,8 @@ namespace Application {
             _volatilityShift = volatilityShift;
         }
 
-        public double getVolatility(double spot, double timeToMaturity) {
-            return _volatilityModel.getVolatility(spot, timeToMaturity) + _volatilityShift;
+        public double GetVolatility(double spot, double timeToMaturity) {
+            return _volatilityModel.GetVolatility(spot, timeToMaturity) + _volatilityShift;
         }
     }
 }

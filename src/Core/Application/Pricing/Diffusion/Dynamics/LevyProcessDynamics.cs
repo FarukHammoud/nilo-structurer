@@ -16,7 +16,7 @@ namespace Application {
         }
 
         public StochasticDifferentialEquation GetSDE(double spot, DateTime t_1, DateTime t) {
-            double σ = _volatility.getVolatility(spot, t.Year);
+            double σ = _volatility.GetVolatility(spot, t.Year);
             double μ = _drift(t_1, t);
             return new StochasticDifferentialEquation(
                 Drift: (s, t) => μ * s,

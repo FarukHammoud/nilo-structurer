@@ -3,10 +3,11 @@
 namespace Application {
     // A swaption is an option to enter into a swap contract at a future date.
     public class Swaption : IContract {
-        public double Notional { get; init; }
         public required Swap Swap { get; init; }
-        public required double Strike { get; init; }
         public required DateTime Expiry { get; init; }
+        public double Notional => Swap.Notional;
+        public double Strike => Swap.FixedRate;
+       
         public IEnumerable<IFlow> Flows => new List<IFlow> {
             new ExercisableFlow() {
                 Payoff = new DeterministicPayoff() {

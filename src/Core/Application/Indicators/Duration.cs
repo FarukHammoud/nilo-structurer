@@ -24,7 +24,7 @@ namespace Application {
                 duration += discountedValue * (date - startDate).TotalYears;
             }
             duration /= price;
-            return new GlobalIndicatorResult { Value = duration };
+            return new GlobalIndicatorResult(value : duration);
         }
 
         public override bool Equals(object? obj) => obj?.GetType() == GetType();

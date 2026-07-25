@@ -11,7 +11,7 @@ namespace Application {
             IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(contract.Underlying);
             double timeToMaturity = (contract.Maturity - pricingDate).TotalYears;
             double r = marketData.GetDiscounter(contract.Currency).GetForwardRate(pricingDate, contract.Maturity);
-            double σ = underlyingData.GetVolatility().getVolatility(underlyingData.GetSpot(), timeToMaturity);
+            double σ = underlyingData.GetVolatility().GetVolatility(underlyingData.GetSpot(), timeToMaturity);
             double b = r - underlyingData.GetCarry();
             OptionType optionType = contract is ICall ? OptionType.Call : OptionType.Put;
 

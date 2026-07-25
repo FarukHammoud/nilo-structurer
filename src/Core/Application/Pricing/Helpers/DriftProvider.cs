@@ -11,8 +11,8 @@ namespace Application {
                     IDiscounter foreignDiscounter = marketData.GetDiscounter(underlying.Currency);
                     μ = foreignDiscounter.GetForwardRate(t_1, t);
                     CurrencyPair fxPair = new CurrencyPair(equity.Currency, diffusionCurrency);
-                    double sigma_S = marketData.GetUnderlyingMarketData(equity).GetVolatility().getVolatility(0, 0); // todo
-                    double sigma_X = marketData.GetUnderlyingMarketData(fxPair).GetVolatility().getVolatility(0, 0);
+                    double sigma_S = marketData.GetUnderlyingMarketData(equity).GetVolatility().GetVolatility(0, 0); // todo
+                    double sigma_X = marketData.GetUnderlyingMarketData(fxPair).GetVolatility().GetVolatility(0, 0);
                     double rho = marketData.GetCorrelation(equity, fxPair);
                     double quantoAdjustment = - rho * sigma_S * sigma_X;
                     μ += quantoAdjustment;

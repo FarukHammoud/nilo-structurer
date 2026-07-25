@@ -21,7 +21,7 @@ namespace Application {
             PriceWithPrecision plusValue = resultsByShift[marketDatas[1]];
             double theta = - 365 * (plusValue.Value - minusValue.Value) / (2 * _bump);
             double precision = 365 * (plusValue.Precision + minusValue.Precision) / 2;
-            return new GlobalIndicatorResult() { Value = theta, Precision = precision };
+            return new GlobalIndicatorResult(value:theta, precision:precision);
         }
 
         public override bool Equals(object? obj) => obj?.GetType() == GetType();

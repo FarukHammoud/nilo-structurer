@@ -84,7 +84,7 @@ namespace Application {
             Underlying underlying = underlyings[0];
             IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(underlying);
             double spot = underlyingMarketData.GetSpot();
-            double volatility = underlyingMarketData.GetVolatility().getVolatility(spot, 0);
+            double volatility = underlyingMarketData.GetVolatility().GetVolatility(spot, 0);
             _root = new TreeNode(spot, volatility, timeDiscretization);
             _richardsonExtrapolationRoot = new TreeNode(spot, volatility, _intermediateDatesGenerator(timeDiscretization));
         }
