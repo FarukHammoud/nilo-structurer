@@ -1,36 +1,37 @@
 ﻿using Domain;
 
 namespace Application {
-    public abstract class KnockOutPayoff : IPathDependentPayoff, IOutKnockablePayoff {
-        private readonly IPathDependentPayoff _basePayoff;
-        public double Level { get; set; }
+    public abstract class KnockOutPayoff : IPayoff, IContinuousKnockOutBarrier {
+        private readonly IPayoff _basePayoff;
+        public double BarrierLevel { get; set; }
         public double Rebate { get; set; }
         public Underlying Underlying { get; set; }
+        public DateTime StartDate { get; set; }
         public Currency Currency => _basePayoff.Currency;
         public MonitoringFrequency MonitoringFrequency => MonitoringFrequency.Continuous;
-        public abstract Func<SimulatedPath, bool> IsTouched { get; }
-        public KnockOutPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying, double rebate = 0) {
+        public KnockOutPayoff(IPayoff basePayoff, double level, Underlying underlying, DateTime startDate, double rebate = 0) {
             _basePayoff = basePayoff;
-            Level = level;
+            BarrierLevel = level;
             Underlying = underlying;
             Rebate = rebate;
+            StartDate = startDate;
         }
 
         public double ComputePayoff(Scenario scenario) {
-            SimulatedPath path = scenario[Underlying];
-            if (IsTouched(path)) {
-                return Rebate;
-            }
             return _basePayoff.ComputePayoff(scenario);
+        }
+
+        public double GetRedemption(Scenario scenario) {
+            return Rebate;
         }
 
         public IEnumerable<Underlying> Dependencies => _basePayoff.Dependencies.Append(Underlying);
 
-        public IReadOnlyList<DateTime> ObservationDates => _basePayoff.ObservationDates;
+        public IReadOnlyList<DateTime> ObservationDates => TimeGridBuilder.WeeklyGrid(_basePayoff.ObservationDates.Union([StartDate]));
 
         public DateTime PaymentDate => _basePayoff.PaymentDate;
         public DateTime Maturity => _basePayoff.Maturity;
 
-        public IKnockOutBarrier KnockOutCondition => throw new NotImplementedException();
+        public abstract bool IsUp { get; }
     }
 }

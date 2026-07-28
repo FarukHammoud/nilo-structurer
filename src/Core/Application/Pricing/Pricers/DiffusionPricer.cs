@@ -44,9 +44,20 @@ namespace Application {
             }
 
             double[] prices        = new double[_configuration.NumberOfDrawings];
+            Random random = new Random(); 
             for (int ω = 0; ω < _configuration.NumberOfDrawings; ω++) {
                 Scenario scenario = new Scenario(pricesAtDiscretizationPoints.ToDictionary(entry => entry.Key, entry => entry.Value.ToDictionary(e => e.Key, e => e.Value[ω])));
                 prices[ω] = payoff.ComputePayoff(scenario);
+                if (payoff is IContinuousBarrier barrier) {
+                    double upBarrier = barrier.BarrierLevel;
+                    SimulatedPath underlyingPath = _diffusion[barrier.Underlying][ω];
+                    double volatility = _configuration.MarketData.GetUnderlyingMarketData(barrier.Underlying).GetVolatility().GetVolatility(0,0); // only works for constant volatility
+                    if (barrier is IContinuousKnockOutBarrier outBarrier && GeometricBrownianBridge.HasCrossed(underlyingPath, datesOfInterest.ToList(), upBarrier, barrier.IsUp, volatility, random)) {
+                        prices[ω] = outBarrier.GetRedemption(scenario);
+                    } else if (barrier is IContinuousKnockInBarrier && !GeometricBrownianBridge.HasCrossed(underlyingPath, datesOfInterest.ToList(), upBarrier, barrier.IsUp, volatility, random)) {
+                        prices[ω] = 0;
+                    }
+                }
             }
       
             List<double> discountedPayoffs = new();
@@ -82,5 +93,4 @@ namespace Application {
             return new PriceEstimate(discountedPayoffs, payoff.Currency);
         }
     }
-
 }

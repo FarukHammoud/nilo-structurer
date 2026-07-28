@@ -13,18 +13,18 @@ namespace Application {
 
             if (pathIndependent) {
                 if (model.Discounting is StochasticRatesDiscounting) {
-                    return _dailyGrid(dates);
+                    return DailyGrid(dates);
                 }
                 return dates;
             }
-            return _dailyGrid(dates);
+            return DailyGrid(dates);
         }
 
-        private Func<List<DateTime>, List<DateTime>> _dailyGrid = dates => Enumerable.Range(0, (int)(dates.Max() - dates.Min()).TotalDays + 1)
+        public static Func<IEnumerable<DateTime>, List<DateTime>> DailyGrid = dates => Enumerable.Range(0, (int)(dates.Max() - dates.Min()).TotalDays + 1)
                 .Select(i => dates.Min().AddDays(i))
                 .ToList();
 
-        private Func<List<DateTime>, List<DateTime>> _weeklyGrid = dates => Enumerable.Range(0, (int)((dates.Max() - dates.Min()).TotalDays / 7) + 1)
+        public static Func<IEnumerable<DateTime>, List<DateTime>> WeeklyGrid = dates => Enumerable.Range(0, (int)((dates.Max() - dates.Min()).TotalDays / 7) + 1)
                 .Select(i => dates.Min().AddDays(i * 7))
                 .Append(dates.Max())
                 .Distinct()

@@ -13,6 +13,7 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             CallUpAndOut contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 1e9,
@@ -55,6 +56,7 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             PutDownAndIn contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 1e-6,
@@ -94,6 +96,7 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             CallUpAndIn contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 400.0,
@@ -135,8 +138,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = 450.0;
-            double adjustedBarrier = barrierLevel * Math.Exp(+ 0.5826 * volatility * Math.Sqrt(1/365.0));
             CallUpAndOut contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -154,7 +157,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Up, BarrierType.KnockOut);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -179,8 +182,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = spotPrice * 0.9;
-            double adjustedBarrier = barrierLevel * Math.Exp(-0.5826 * volatility * Math.Sqrt(1 / 365.0));
             CallDownAndIn contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -198,7 +201,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockIn);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockIn);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -223,8 +226,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = spotPrice * 0.9;
-            double adjustedBarrier = barrierLevel * Math.Exp(-0.5826 * volatility * Math.Sqrt(1 / 365.0));
             CallDownAndOut contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -242,7 +245,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockOut);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Call, BarrierDirection.Down, BarrierType.KnockOut);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -267,8 +270,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = 400.0;
-            double adjustedBarrier = barrierLevel * Math.Exp(0.5826 * volatility * Math.Sqrt(1 / 365.0));
             PutUpAndIn contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = 400.0,
@@ -286,7 +289,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockIn);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockIn);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -311,8 +314,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = 450.0;
-            double adjustedBarrier = barrierLevel * Math.Exp(+0.5826 * volatility * Math.Sqrt(1 / 365.0));
             PutUpAndOut contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -330,7 +333,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockOut);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Up, BarrierType.KnockOut);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -355,8 +358,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = spotPrice * 0.9;
-            double adjustedBarrier = barrierLevel * Math.Exp(-0.5826 * volatility * Math.Sqrt(1 / 365.0));
             PutDownAndIn contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -374,7 +377,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockIn);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockIn);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion
@@ -399,8 +402,8 @@ namespace PricingServices.Tests {
             double spotPrice = 370.17;
             double riskFreeRate = 0.0265;
             double barrierLevel = spotPrice * 0.9;
-            double adjustedBarrier = barrierLevel * Math.Exp(-0.5826 * volatility * Math.Sqrt(1 / 365.0));
             PutDownAndOut contract = new() {
+                StartDate = DateTime.Today,
                 Maturity = DateTime.Today.AddMonths(6),
                 Strike = 380.0,
                 BarrierLevel = barrierLevel,
@@ -418,7 +421,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            ReinerRubinstein model = new(spotPrice, contract.Strike, adjustedBarrier, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockOut);
+            ReinerRubinstein model = new(spotPrice, contract.Strike, barrierLevel, timeToMaturity, riskFreeRate, volatility, 0.0, OptionType.Put, BarrierDirection.Down, BarrierType.KnockOut);
             double theoreticalPrice = model.Price();
 
             // Price using General Diffusion

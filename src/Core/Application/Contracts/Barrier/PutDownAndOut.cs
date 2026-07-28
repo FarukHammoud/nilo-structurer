@@ -1,22 +1,21 @@
 ﻿using Domain;
 
 namespace Application {
-    public class PutDownAndOut : IPathDependentContract {
-        public IEnumerable<IPathDependentPayoff> PathDependentPayoffs => [ 
+    public class PutDownAndOut : IContract {
+        public IEnumerable<IFlow> Flows => [ 
             new DownAndOutPayoff(
-                new MonoUnderlyingPathDependentPayoff() { 
-                    PayoffMap = d => Math.Max(0, Strike - d.Values.Last()), 
-                    ObservationDates =[Maturity], 
+                new MonoUnderlyingPathIndependentPayoff() { 
+                    Payoff = spot => Math.Max(0, Strike - spot), 
                     Underlying = Underlying, 
-                    MonitoringFrequency = MonitoringFrequency.Continuous,
                     Currency = Currency,
                     Maturity = Maturity,
                     PaymentDate = Maturity}
-                , BarrierLevel, Underlying)];
+                , BarrierLevel, Underlying, StartDate)];
         public required Underlying Underlying { get; set; }
         public required Currency Currency { get; set; }
         public required double Strike { get; set; }
         public required double BarrierLevel { get; set; }
+        public required DateTime StartDate { get; set; }
         public required DateTime Maturity { get; set; }
         public double Notional { get; set; }
     }

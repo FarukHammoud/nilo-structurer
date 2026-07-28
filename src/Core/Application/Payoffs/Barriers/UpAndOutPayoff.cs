@@ -2,10 +2,10 @@
 
 namespace Application{
     public class UpAndOutPayoff : KnockOutPayoff {
-        public UpAndOutPayoff(IPathDependentPayoff basePayoff, double level, Underlying underlying)
-            : base(basePayoff, level, underlying) {
+        public UpAndOutPayoff(IPayoff basePayoff, double level, Underlying underlying, DateTime startDate)
+            : base(basePayoff, level, underlying, startDate) {
         }
-
-        public override Func<SimulatedPath, bool> IsTouched => prices => prices.Values.Any(price => price >= Level);
+        
+        public override bool IsUp => true;
     }
 }
