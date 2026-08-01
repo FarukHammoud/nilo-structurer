@@ -6,4 +6,5 @@
     public sealed record LongStaffSchwartz : PricingConfig;
     public sealed record American : PricingConfig; // Generalized LS
     public sealed record BinaryTree : PricingConfig;
+    public sealed record DermanKani : PricingConfig;
 }

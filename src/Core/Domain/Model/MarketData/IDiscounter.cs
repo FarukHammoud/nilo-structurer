@@ -1,5 +1,6 @@
 ﻿namespace Domain{
     public interface IDiscounter {
+        // TODO: Invert it 
         double GetDiscountFactor(DateTime date, DateTime today);
         double GetForwardRate(DateTime from, DateTime to) {
             double dt = (to - from).TotalYears;

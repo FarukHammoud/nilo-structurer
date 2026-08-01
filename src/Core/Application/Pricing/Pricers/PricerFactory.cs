@@ -11,6 +11,7 @@ namespace Application {
                 MonteCarlo => new DiffusionPricer(),
                 PDE => new FiniteDifferencePdeSolver(),
                 BinaryTree => new BinaryTreePricer(),
+                DermanKani => new DermanKaniBinaryTreePricer(),
                 LongStaffSchwartz => new AmericanPathDependentDiffusionPricer(),
                 American => new AmericanPricer(),
                 _ => throw new NotSupportedException($"No registered pricer for {config.Pricing}")
@@ -25,6 +26,7 @@ namespace Application {
                     HasStochasticRate = request.ModelConfiguration.Discounting is StochasticRatesDiscounting
                 },
                 BinaryTree => new BinaryTreePricerConfiguration(),
+                DermanKani => new BinaryTreePricerConfiguration(),
                 LongStaffSchwartz => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,

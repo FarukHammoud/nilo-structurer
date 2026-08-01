@@ -1,9 +1,9 @@
 ﻿using Domain;
 
 namespace Application {
-    public class ConstantLocalVolatilityModel : ILocalVolatilityModel {
+    public class ConstantVolatilityModel : ILocalVolatilityModel {
         private double volatility;
-        public ConstantLocalVolatilityModel(double volatility) {
+        public ConstantVolatilityModel(double volatility) {
             this.volatility = volatility;
         }
         public double GetVolatility(double spot, double timeToMaturity) {

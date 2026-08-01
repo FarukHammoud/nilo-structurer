@@ -22,6 +22,12 @@
             Pricing = new BinaryTree(),
         };
 
+        public static ModelConfiguration DermanKani => new() {
+            Discounting = new DiscountCurveDiscounting(),
+            Volatility = new LocalVolatility(),
+            Pricing = new DermanKani(),
+        };
+
         public static ModelConfiguration LongstaffSchwartz => new() {
             Discounting = new DiscountCurveDiscounting(),
             Volatility = new ConstantVolatility(),

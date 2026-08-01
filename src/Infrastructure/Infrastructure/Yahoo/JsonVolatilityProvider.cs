@@ -13,7 +13,7 @@ namespace Infrastructure {
             // PLACEHOLDER: In a real implementation, you would read the JSON file at _path, parse it, and create appropriate ILocalVolatilityModel instances based on the data. For this example, we will return a constant local volatility model for each underlying.
             return underlyings.ToDictionary(
                 underlying => underlying, 
-                underlying => (ILocalVolatilityModel) new ConstantLocalVolatilityModel(0.2));
+                underlying => (ILocalVolatilityModel) new ConstantVolatilityModel(0.2));
         }
     }
 }

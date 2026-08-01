@@ -28,7 +28,7 @@ namespace Application {
         }
 
         public CurrencyPairMarketData SetVolatility(double volatility) {
-            _volatility = new ConstantLocalVolatilityModel(volatility);
+            _volatility = new ConstantVolatilityModel(volatility);
             return this;
         }
     }
