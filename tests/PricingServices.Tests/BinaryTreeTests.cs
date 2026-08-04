@@ -114,16 +114,16 @@ namespace PricingServices.Tests {
         }
 
         [TestMethod]
-        public void DermanKaniCallPremiumWithSkewedVolatility() {
+        // Result on Displaced Diffusion Option Pricing, Rubinstein, 1983
+        public void DermanKaniCallPremiumWithSkewedVolatilityShouldMatchBlackScholesShiftedPrice() {
             Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.03;
             double spotPrice = 100.0;
-            double atmVolatility = 0.1;
-            double skew = -0.0005;
-            double termStructure = 0.0;
-            ILocalVolatilityModel volatility = new LinearVolatilityModel(atmVolatility, skew, termStructure, spotPrice);
+            double volatility = 0.1;
+            double shift = -20;
+            ILocalVolatilityModel volatilityModel = new InverseLinearVolatilityModel(volatility, shift, riskFreeRate);
             EuropeanCall contract = new() {
-                Maturity = DateTime.Today.AddYears(5),
+                Maturity = DateTime.Today.AddMonths(18),
                 Strike = spotPrice,
                 Underlying = MSFT,
                 Currency = Currencies.USD
@@ -131,19 +131,61 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
-                    .SetVolatility(volatility))
+                    .SetVolatility(volatilityModel))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             DermanKaniBinaryTreePricer pricer = new();
-            pricer.Initialize(marketData, Enumerable.Range(0, 11).Select(i => DateTime.Today.AddMonths(i)).Append(contract.Maturity).ToList());
+            pricer.Initialize(marketData, Enumerable.Range(0, 17).Select(i => DateTime.Today.AddMonths(i)).Append(contract.Maturity).ToList());
             PriceEstimate price = pricer.Price(contract, DateTime.Today, Currencies.USD);
 
             // Theotetical price using Black-Scholes formula
             double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
-            double a = atmVolatility - skew * spotPrice;
-            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice + a/skew, contract.Strike + a/skew, timeToMaturity, riskFreeRate, Math.Abs(skew), riskFreeRate*(spotPrice+a/skew)).Premium;
+            double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice + shift * Math.Exp(-riskFreeRate * timeToMaturity), contract.Strike + shift, timeToMaturity, riskFreeRate, volatility).Premium;
 
             Assert.AreEqual(theoreticalPrice, price.Value, 3.09 * price.StandardError, "The Derman-Kani Binary Tree price should be close to the theoretical Black-Scholes price");
+        }
+
+        [TestMethod]
+        public void DermanKaniCallPremiumWithSkewedVolatilityVsDiffusion() {
+            Equity MSFT = new("MSFT", Currencies.USD);
+            double riskFreeRate = 0.03;
+            double spotPrice = 100.0;
+            double volatility = 0.1;
+            double shift = -20;
+
+            ILocalVolatilityModel volatilityModel = 
+                new InverseLinearVolatilityModel(volatility, shift, riskFreeRate);
+            
+            EuropeanCall contract = new() {
+                Maturity = DateTime.Today.AddMonths(18),
+                Strike = spotPrice,
+                Underlying = MSFT,
+                Currency = Currencies.USD
+            };
+
+            MarketData marketData = new MarketData()
+                .For<EquityMarketData>(MSFT, md => md
+                    .SetSpot(spotPrice)
+                    .SetVolatility(volatilityModel))
+                .SetRiskFreeRate(Currencies.USD, riskFreeRate);
+
+            DermanKaniBinaryTreePricer pricer = new();
+            pricer.Initialize(marketData, Enumerable.Range(0, 17).Select(i => DateTime.Today.AddMonths(i)).Append(contract.Maturity).ToList());
+            PriceEstimate price = pricer.Price(contract, DateTime.Today, Currencies.USD);
+
+            // Price using General Diffusion
+            PricingRequest request = new() {
+                Position = [contract],
+                MarketData = marketData,
+                Indicators = [new Premium()],
+                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                PricingDate = DateTime.Today,
+                PricingCurrency = Currencies.USD
+            };
+            PricingResults results = new PricingEngine().Run(request);
+            Estimate diffusionResult = results.Get(contract, new Premium());
+ 
+            Assert.AreEqual(diffusionResult.Value, price.Value, 3.09 * diffusionResult.StandardError, "The Derman-Kani Binary Tree price should be close to the diffusion price");
         }
     }
 }
