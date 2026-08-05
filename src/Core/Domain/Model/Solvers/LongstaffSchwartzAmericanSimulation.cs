@@ -44,7 +44,7 @@ namespace Domain {
             int steps = cashFlows.ColumnCount;
             for (int t = fromStep; t < steps; t++) {
                 if (cashFlows[j, t] != 0) {
-                    return cashFlows[j, t] * discounter.GetDiscountFactor(callableDates[t], valuationDate);
+                    return cashFlows[j, t] * discounter.GetDiscountFactor(valuationDate, callableDates[t]);
                 }
             }
             return 0.0;

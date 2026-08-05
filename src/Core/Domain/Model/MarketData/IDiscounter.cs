@@ -1,10 +1,10 @@
 ﻿namespace Domain{
     public interface IDiscounter {
-        // TODO: Invert it 
-        double GetDiscountFactor(DateTime date, DateTime today);
+        IDayCountConvention DayCounter { get; } 
+        double GetDiscountFactor(DateTime from, DateTime to);
         double GetForwardRate(DateTime from, DateTime to) {
-            double dt = (to - from).TotalYears;
-            return Math.Log(GetDiscountFactor(from, to)) / dt;
+            double dt = DayCounter.YearFraction(from, to);
+            return -Math.Log(GetDiscountFactor(from, to)) / dt;
         }
     }
 }

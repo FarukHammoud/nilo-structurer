@@ -117,13 +117,13 @@ namespace Application {
                         IList<DateTime> dates       = _configuration.TimeDiscretization;
                         SimulatedPath shortRatePath = _diffusion[shortRate][j];
                         ShortRateDiscounter stochasticDiscounter = new ShortRateDiscounter(shortRatePath, dates);
-                        double stochasticDF = stochasticDiscounter.GetDiscountFactor(flowDates[t], valuationDate);
+                        double stochasticDF = stochasticDiscounter.GetDiscountFactor(valuationDate, flowDates[t]);
                         sum += cashFlows[j, t] * stochasticDF;
                     }
                 }
             } else {
                 for (int t = fromStep; t < steps; t++) {
-                    sum += cashFlows[j, t] * discounter.GetDiscountFactor(flowDates[t], valuationDate);
+                    sum += cashFlows[j, t] * discounter.GetDiscountFactor(valuationDate, flowDates[t]);
                 }
             }
             return sum;

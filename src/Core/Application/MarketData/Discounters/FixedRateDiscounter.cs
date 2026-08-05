@@ -3,8 +3,10 @@
 namespace Application {
     public class FixedRateDiscounter : IDiscounter {
         public double Rate { get; init; }
-        public double GetDiscountFactor(DateTime date, DateTime today) {
-            return Math.Exp(-Rate * (date - today).TotalYears);
+        public IDayCountConvention DayCounter { get; init; } = new Actual365();
+
+        public double GetDiscountFactor(DateTime from, DateTime to) {
+            return Math.Exp(-Rate * DayCounter.YearFraction(from, to));
         }
     }
 }

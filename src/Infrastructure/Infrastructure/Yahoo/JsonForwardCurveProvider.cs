@@ -25,7 +25,7 @@ namespace Infrastructure {
             double C = callPrice;
             double P = putPrice;
             double K = strike;
-            double D = _discounter.GetDiscountFactor(maturity, DateTime.Now);
+            double D = _discounter.GetDiscountFactor(DateTime.Now, maturity);
             return K + (1/D) * (C - P);
         }
 

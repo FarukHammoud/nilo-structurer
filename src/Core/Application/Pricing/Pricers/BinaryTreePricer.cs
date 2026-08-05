@@ -57,7 +57,7 @@ namespace Application {
                     value = payoff.ComputePayoff(new Dictionary<Underlying, double> { { underlying, Price } });
                 } else {
                     double p = GetUpProbability(_volatility, discounter);
-                    value = discounter.GetDiscountFactor(Up.Date, Date) * (p * Up.GetValue(payoff, discounter, step + 1, upMoves + 1, cache) + (1 - p) * Down.GetValue(payoff, discounter, step + 1, upMoves, cache));
+                    value = discounter.GetDiscountFactor(Date, Up.Date) * (p * Up.GetValue(payoff, discounter, step + 1, upMoves + 1, cache) + (1 - p) * Down.GetValue(payoff, discounter, step + 1, upMoves, cache));
                 }
                 cache[this] = value;
                 return value;
@@ -66,7 +66,7 @@ namespace Application {
             private double GetUpProbability(double volatility, IDiscounter discounter) {
                 double u = GetUpFactor(volatility, TimeSpan);
                 double d = 1/u;
-                return ((1/discounter.GetDiscountFactor(NextDate.Value, Date)) - d) / (u - d);
+                return ((1/discounter.GetDiscountFactor(Date, NextDate.Value)) - d) / (u - d);
             }
 
             private double GetUpFactor(double volatility, double timeSpan) {

@@ -35,7 +35,7 @@ namespace Application {
         private Matrix<double> p => _transitionProbabilities;
         private Matrix<double> λ => _arrowDebreuPrices;
         private int N => _dates.Count;
-        private Func<int, double> DF => (n) => _discounter.GetDiscountFactor(_dates[n + 1], _dates[n]);
+        private Func<int, double> DF => (n) => _discounter.GetDiscountFactor(_dates[n], _dates[n + 1]);
         private Func<int, double> Forward => (n) => 1 / DF(n);
 
         private Func<IList<DateTime>, IList<DateTime>> _intermediateDatesGenerator = (dates) => dates

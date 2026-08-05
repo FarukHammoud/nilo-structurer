@@ -16,12 +16,13 @@ namespace Application {
             DateTime startDate = bond.StartDate;
             IEnumerable<DateTime> dates = cashFlows.Dates;
             IEnumerable<double> values = cashFlows.Values;
+            IDiscounter discounter = unshiftedMarketData.GetDiscounter(bond.Currency);
             double duration = 0;
             for (int i = 0; i < dates.Count(); i++) {
                 DateTime date = dates.ElementAt(i);
                 double value = values.ElementAt(i);
-                double discountedValue = unshiftedMarketData.GetDiscounter(bond.Currency).GetDiscountFactor(date, startDate) * value;
-                duration += discountedValue * (date - startDate).TotalYears;
+                double discountedValue = discounter.GetDiscountFactor(startDate, date) * value;
+                duration += discountedValue * discounter.DayCounter.YearFraction(startDate, date);
             }
             duration /= price;
             return new GlobalIndicatorResult(value : duration);

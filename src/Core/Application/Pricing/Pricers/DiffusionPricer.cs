@@ -69,12 +69,12 @@ namespace Application {
                     double payoffValue = prices[ω];
                     SimulatedPath shortRatePath = _diffusion[shortRate][ω];
                     ShortRateDiscounter discounter = new ShortRateDiscounter(shortRatePath, dates);
-                    double stochasticDF = discounter.GetDiscountFactor(payoff.PaymentDate, today);
+                    double stochasticDF = discounter.GetDiscountFactor(today, payoff.PaymentDate);
                     discountedPayoffs.Add(stochasticDF * payoffValue);
                 }
             } else {
                 IDiscounter discounter = _configuration.MarketData.GetDiscounter(pricingCurrency);
-                double discountFactor  = discounter.GetDiscountFactor(payoff.PaymentDate, today);
+                double discountFactor  = discounter.GetDiscountFactor(today, payoff.PaymentDate);
                 discountedPayoffs = prices.Select(payoffValue => discountFactor * payoffValue).ToList();
             }
              
@@ -83,7 +83,7 @@ namespace Application {
 
                 List<List<double>> controlVariates   = lastResults.Select(entry => entry.Value).ToList();
                 Dictionary<Underlying, double> spots = _diffusion.Underlyings.ToDictionary(udl => udl, udl => _diffusion[udl].Paths[0][0]);
-                List<double> expectations            = lastResults.Keys.Select(underlying => spots[underlying] / new UnderlyingDiscounterProvider(underlying, _configuration.Currency, _configuration.MarketData).GetDiscountFactor(payoff.PaymentDate, today)).ToList();
+                List<double> expectations            = lastResults.Keys.Select(underlying => spots[underlying] / new UnderlyingDiscounterProvider(underlying, _configuration.Currency, _configuration.MarketData).GetDiscountFactor(today, payoff.PaymentDate)).ToList();
                 List<double> realizedAverages        = lastResults.Values.Select(values => values.Average()).ToList(); // debugging purposes
 
                 IVarianceReducer varianceReducer = new ControlVariateReducer(controlVariates, expectations, prices.ToList());
