@@ -103,7 +103,7 @@ namespace PricingServices.Tests {
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             DermanKaniBinaryTreePricer pricer = new();
-            pricer.Initialize(marketData, Enumerable.Range(0, 11).Select(i => DateTime.Today.AddMonths(i)).Append(contract.Maturity).ToList());
+            pricer.Initialize(marketData, Enumerable.Range(0, 12).Select(i => DateTime.Today.AddMonths(i)).Append(contract.Maturity).ToList());
             PriceEstimate price = pricer.Price(contract, DateTime.Today, Currencies.USD);
 
             // Theotetical price using Black-Scholes formula

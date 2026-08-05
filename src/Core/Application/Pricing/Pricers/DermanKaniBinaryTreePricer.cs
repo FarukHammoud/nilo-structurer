@@ -8,6 +8,7 @@ namespace Application {
     /// </summary>
     public class DermanKaniBinaryTreePricer : PayoffPricer, IPricer {
 
+        
         private double _spot;
         private Underlying _underlying;
         private ILocalVolatilityModel _volatility;
@@ -18,6 +19,17 @@ namespace Application {
         private Matrix<double> _transitionProbabilities;
         private Matrix<double> _arrowDebreuPrices;
 
+        private bool _withPrecision;
+        private DermanKaniBinaryTreePricer _richardsonExtrapolation;
+
+        public DermanKaniBinaryTreePricer() {
+            _withPrecision = true;
+        }
+
+        public DermanKaniBinaryTreePricer(bool withPrecision) {
+            _withPrecision = withPrecision;
+        }
+
         // alias
         private Matrix<double> S => _impliedStockPrices;
         private Matrix<double> p => _transitionProbabilities;
@@ -26,17 +38,25 @@ namespace Application {
         private Func<int, double> DF => (n) => _discounter.GetDiscountFactor(_dates[n + 1], _dates[n]);
         private Func<int, double> Forward => (n) => 1 / DF(n);
 
+        private Func<IList<DateTime>, IList<DateTime>> _intermediateDatesGenerator = (dates) => dates
+            .Zip(dates.Skip(1), (start, end) => Enumerable
+            .Range(0, 2)
+            .Select(i => start.AddDays((end - start).TotalDays * i / 2)))
+            .SelectMany(x => x)
+            .Append(dates[^1])
+            .ToList();
+
         // Paper Formulas
         private double CallPrice(double strike, double timeToMaturity) {
             double volatility = _volatility.GetVolatility(strike, timeToMaturity);
-            double riskFreeRate = _discounter.GetForwardRate(DateTime.Today, DateTime.Today.AddDays(timeToMaturity * 365));
+            double riskFreeRate = _discounter.GetForwardRate(_dates[0], _dates[0].AddDays(timeToMaturity * 365));
             BlackScholes bsModel = new BlackScholes(OptionType.Call, _spot, strike, timeToMaturity, riskFreeRate, volatility);
             return bsModel.Premium;
         }
 
         private double PutPrice(double strike, double timeToMaturity) {
             double volatility = _volatility.GetVolatility(strike, timeToMaturity);
-            double riskFreeRate = _discounter.GetForwardRate(DateTime.Today, DateTime.Today.AddDays(timeToMaturity * 365));
+            double riskFreeRate = _discounter.GetForwardRate(_dates[0], _dates[0].AddDays(timeToMaturity * 365));
             BlackScholes bsModel = new BlackScholes(OptionType.Put, _spot, strike, timeToMaturity, riskFreeRate, volatility);
             return bsModel.Premium;
         }
@@ -93,7 +113,7 @@ namespace Application {
             double Si = S[n + 1, i];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double call = CallPrice(si, (_dates[n + 1] - DateTime.Today).TotalYears);
+            double call = CallPrice(si, (_dates[n + 1] - _dates[0]).TotalYears);
             double sum = UpperSum(n, i);
             return (Si * (Forward(n) * call - sum) - λi * si * (Fi - Si))
                 / (Forward(n) * call - sum - λi * (Fi - Si));
@@ -105,7 +125,7 @@ namespace Application {
             double Si_1 = S[n + 1, i + 1];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double put = PutPrice(si, (_dates[n+1] - DateTime.Today).TotalYears);
+            double put = PutPrice(si, (_dates[n+1] - _dates[0]).TotalYears);
             double sum = LowerSum(n, i);
             return (Si_1 * (Forward(n) * put - sum) + λi * si * (Fi - Si_1))
                 / (Forward(n) * put - sum + λi * (Fi - Si_1));
@@ -116,10 +136,10 @@ namespace Application {
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
             double S_ = si; 
-            double call = CallPrice(S_, (_dates[n + 1] - DateTime.Today).TotalYears);
+            double call = CallPrice(S_, (_dates[n + 1] - _dates[0]).TotalYears);
             double sum = UpperSum(n, i);
-            return S_ * (Forward(n) * call + λi * S_ - sum)
-                / (λi * Fi - Forward(n) * call + sum);
+            return Fi * (Forward(n) * call + λi * S_ - sum) 
+                / (λi * Fi - Forward(n) * call + sum); // In the article is S_ instead of the first Fi
         }
 
         private void BuildMatrices() {
@@ -136,7 +156,7 @@ namespace Application {
                     int down = n/2;
                     double S_ = S[n, down];
                     S[n + 1, down + 1] = OddUpper(n, down);
-                    S[n + 1, down] = S_ * S_ / S[n + 1, up];
+                    S[n + 1, down] = S_ * S_ * Forward(n) * Forward(n) / S[n + 1, up];
                     // upper nodes
                     for (int i = up; i <= n; i++) {
                         S[n + 1, i + 1] = UpperFormula(n, i);
@@ -148,8 +168,11 @@ namespace Application {
                         EnforceNoArbitrage(n, i);
                     }
                 } else if (n.IsOdd()){
-                    int central = (n + 1)/2;
-                    S[n + 1, central] = _spot;
+                    int central = (n + 1) / 2;
+                    int prevDown = (n - 1) / 2;  
+                    int prevUp   = (n + 1) / 2;  
+                    double geometricCenter = Math.Sqrt(S[n, prevDown] * S[n, prevUp]);
+                    S[n + 1, central] = geometricCenter * Forward(n); // Barle-Cakici (1998) centers the tree on the forward, and not the spot
                     // upper nodes
                     for (int i = central; i <= n; i++) {
                         S[n + 1, i + 1] = UpperFormula(n, i);
@@ -165,11 +188,11 @@ namespace Application {
                 UpdateArrowDebreuPrices(n);
             }
             Debug.WriteLine($"Implied Stock Prices (S)");
-            Debug.WriteLine(S);
+            Debug.WriteLine(S.ToMatrixString(50, 50));
             Debug.WriteLine($"Transition Probabilities (p)");
-            Debug.WriteLine(p);
+            Debug.WriteLine(p.ToMatrixString(50, 50));
             Debug.WriteLine($"Arrow-Debreu Prices (λ)");
-            Debug.WriteLine(λ);
+            Debug.WriteLine(λ.ToMatrixString(50, 50));
         }
 
         public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
@@ -185,6 +208,10 @@ namespace Application {
             _discounter = marketData.GetDiscounter(_underlying.Currency);
             _dates = timeDiscretization;
             BuildMatrices();
+            if (_withPrecision) {
+                _richardsonExtrapolation = new DermanKaniBinaryTreePricer(false);
+                _richardsonExtrapolation.Initialize(marketData, _intermediateDatesGenerator(timeDiscretization), pricerConfiguration);
+            }
          }
 
         public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
@@ -198,6 +225,17 @@ namespace Application {
                 double spot = S[maturityIndex, i];
                 price += λ[maturityIndex, i] * europeanPayoff.ComputePayoff(new Dictionary<Underlying, double> { { _underlying, spot } });
             }
+            
+            if (_withPrecision) {
+                double finerGridPrice = _richardsonExtrapolation.PricePayoff(payoff, today, pricingCurrency).Value;
+                double extrapolated = 2 * finerGridPrice - price;
+                double precision = Math.Abs(finerGridPrice - price); // rough error estimate
+                return new PriceEstimate(
+                    value: extrapolated,
+                    standardError: precision,
+                    currency: payoff.Currency
+                );
+            }
 
             return new PriceEstimate(price, pricingCurrency);
         }
@@ -208,13 +246,15 @@ namespace Application {
             if (i > 0) {
                 double lowerForward = Forward(n) * S[n, i - 1];
                 if (value < lowerForward) {
-                    S[n + 1, i] = lowerForward + 0.001;
+                    S[n + 1, i] = lowerForward * (1 + 1E-6);
+                    Debug.WriteLine($"Enforcing no arbitrage: S[{n + 1}, {i}] adjusted to {S[n + 1, i]}");
                 }
             }
             if (i < n) {
                 double upperForward = Forward(n) * S[n, i];
                 if (value > upperForward) {
-                    S[n + 1, i] = upperForward - 0.001;
+                    S[n + 1, i] = upperForward * (1 - 1E-6);
+                    Debug.WriteLine($"Enforcing no arbitrage: S[{n + 1}, {i}] adjusted to {S[n + 1, i]}");
                 }
             }
         }
