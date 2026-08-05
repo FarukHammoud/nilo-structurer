@@ -2,6 +2,7 @@
 
 namespace Application {
     public static class BlackScholesFactory {
+        private static IDayCountConvention _dayCountConvention = new Actual365();
 
         public static BlackScholes Create(
             VanillaContract contract,
@@ -9,7 +10,7 @@ namespace Application {
             DateTime pricingDate) {
 
             IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(contract.Underlying);
-            double timeToMaturity = (contract.Maturity - pricingDate).TotalYears;
+            double timeToMaturity = _dayCountConvention.YearFraction(pricingDate, contract.Maturity);
             double r = marketData.GetDiscounter(contract.Currency).GetForwardRate(pricingDate, contract.Maturity);
             double σ = underlyingData.GetVolatility().GetVolatility(underlyingData.GetSpot(), timeToMaturity);
             double b = r - underlyingData.GetCarry();

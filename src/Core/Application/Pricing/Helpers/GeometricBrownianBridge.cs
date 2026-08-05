@@ -3,6 +3,7 @@
 namespace Application {
     public class GeometricBrownianBridge {
         private BrownianBridge _bridge;
+        private static readonly IDayCountConvention _dayCountConvention = new Actual365();
         public GeometricBrownianBridge(double left, double right, double spacing, double volatility) {
             double logLeft = Math.Log(left);
             double logRight = Math.Log(right);
@@ -51,7 +52,7 @@ namespace Application {
             for (int i = 1; i < observationDates.Count; i++) {
                 double left = path.Values[i - 1];
                 double right = path.Values[i];
-                double spacing = (observationDates[i] - observationDates[i - 1]).TotalYears;
+                double spacing = _dayCountConvention.YearFraction(observationDates[i - 1], observationDates[i]);
                 GeometricBrownianBridge bridge = new GeometricBrownianBridge(left, right, spacing, volatility);
                 if (isUp) {
                     if (bridge.RandomWalkCrossesUpBarrier(barrierLevel, random)) {

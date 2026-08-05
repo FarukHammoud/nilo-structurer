@@ -5,6 +5,7 @@ namespace Application {
         private TreeNode? _root;
         private TreeNode? _richardsonExtrapolationRoot;
         private IMarketData _marketData;
+        private static IDayCountConvention _dayCountConvention = new Actual365();
 
         private Func<IList<DateTime>, IList<DateTime>> _intermediateDatesGenerator = (dates) => dates
             .Zip(dates.Skip(1), (start, end) => Enumerable
@@ -20,7 +21,7 @@ namespace Application {
             public TreeNode? Up { get; set; }
             public TreeNode? Down { get; set; }
             private DateTime? NextDate => Up?.Date;
-            private double TimeSpan => NextDate.HasValue ? (NextDate.Value - Date).TotalYears : 0;
+            private double TimeSpan => NextDate.HasValue ? _dayCountConvention.YearFraction(Date, NextDate.Value) : 0;
             // How to improve it to local volatility ? ud != du so no cache possible, see The Volatility Smile and Its Implied Tree by Derman and Kani
             private readonly double _volatility;
 
@@ -32,7 +33,7 @@ namespace Application {
                 IEnumerable<DateTime> remainingDates = dates.Skip(1);
                 _volatility = volatility;
                 if (remainingDates.Any()) {
-                    double timeSpan = (remainingDates.First() - Date).TotalYears;
+                    double timeSpan = _dayCountConvention.YearFraction(Date, remainingDates.First());
                     double u = GetUpFactor(volatility, timeSpan);
                     double d = 1 / u;
                     if (!cache.TryGetValue((step + 1, upMoves + 1), out var upNode)) {

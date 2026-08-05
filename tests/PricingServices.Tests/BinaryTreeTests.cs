@@ -25,7 +25,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
@@ -63,7 +63,7 @@ namespace PricingServices.Tests {
                 
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new BlackScholes(OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium;
 
             // Price using General Diffusion
@@ -107,7 +107,7 @@ namespace PricingServices.Tests {
             PriceEstimate price = pricer.Price(contract, DateTime.Today, Currencies.USD);
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, atmVolatility).Premium;
 
             Assert.AreEqual(theoreticalPrice, price.Value, 3.09 * price.StandardError, "The Derman-Kani Binary Tree price should be close to the theoretical Black-Scholes price");
@@ -139,7 +139,7 @@ namespace PricingServices.Tests {
             PriceEstimate price = pricer.Price(contract, DateTime.Today, Currencies.USD);
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new BlackScholes(OptionType.Call, spotPrice + shift * Math.Exp(-riskFreeRate * timeToMaturity), contract.Strike + shift, timeToMaturity, riskFreeRate, volatility).Premium;
 
             Assert.AreEqual(theoreticalPrice, price.Value, 3.09 * price.StandardError, "The Derman-Kani Binary Tree price should be close to the theoretical Black-Scholes price");

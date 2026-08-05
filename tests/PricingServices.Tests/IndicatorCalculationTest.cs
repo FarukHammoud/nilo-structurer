@@ -21,7 +21,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -63,7 +63,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<CurrencyPairMarketData>(CurrencyPairs.EURUSD, md => md
@@ -113,7 +113,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -155,7 +155,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -196,7 +196,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -238,7 +238,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double riskFreeRate = -Math.Log(discountCurve.GetValue(contract.Maturity)) / timeToMaturity;
 
             MarketData marketData = new MarketData()
@@ -279,7 +279,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
@@ -316,7 +316,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD
             };
             // Theotetical delta using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md

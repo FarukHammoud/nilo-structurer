@@ -20,9 +20,9 @@ namespace PricingServices.Tests {
                 StartDate = DateTime.Today.AddMonths(24)
             };
             // Theotetical price using Black-Scholes formula
-            double timeToStart = (contract.StartDate - DateTime.Today).TotalYears;
-            double timeToMaturity = (contract.Maturity - contract.StartDate).TotalYears;
-   
+            double timeToStart = new Actual365().YearFraction(DateTime.Today, contract.StartDate);
+            double timeToMaturity = new Actual365().YearFraction(contract.StartDate, contract.Maturity);
+
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
@@ -64,8 +64,8 @@ namespace PricingServices.Tests {
                 StartDate = DateTime.Today.AddMonths(24)
             };
             // Theotetical price using Black-Scholes formula
-            double timeToStart = (contract.StartDate - DateTime.Today).TotalYears;
-            double timeToMaturity = (contract.Maturity - contract.StartDate).TotalYears;
+            double timeToStart = new Actual365().YearFraction(DateTime.Today, contract.StartDate);
+            double timeToMaturity = new Actual365().YearFraction(contract.StartDate, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md

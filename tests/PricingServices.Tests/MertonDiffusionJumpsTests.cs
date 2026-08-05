@@ -24,7 +24,7 @@ namespace PricingServices.Tests {
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new MertonDiffusionJumps(jumpParameters, OptionType.Call, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium();
 
             // Price using General Diffusion
@@ -62,7 +62,7 @@ namespace PricingServices.Tests {
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = new MertonDiffusionJumps(jumpParameters, OptionType.Put, spotPrice, contract.Strike, timeToMaturity, riskFreeRate, volatility).Premium();
 
             // Price using General Diffusion

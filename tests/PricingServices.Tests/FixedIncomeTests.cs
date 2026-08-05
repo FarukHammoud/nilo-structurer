@@ -17,7 +17,7 @@ namespace PricingServicesTests {
                 Notional = 1000,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, bond.Maturity);
 
             MarketData marketData = new MarketData()
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
@@ -54,7 +54,7 @@ namespace PricingServicesTests {
                 Notional = 1000,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, bond.Maturity);
 
             MarketData marketData = new MarketData()
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
@@ -105,7 +105,7 @@ namespace PricingServicesTests {
                 .SetRiskFreeRate(Currencies.USD, spotRate);
 
             // Theoretical Price
-            double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, bond.Maturity);
             double df = new Vasicek(kappa, theta, sigma).DiscountFactor(spotRate, timeToMaturity);
             double price = bond.Notional * df;
             // Price using General Diffusion
@@ -151,7 +151,7 @@ namespace PricingServicesTests {
                 .SetRiskFreeRate(Currencies.USD, spotRate);
 
             // Theoretical Price
-            double timeToMaturity = (bond.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, bond.Maturity);
             double df = new CoxIngersollRoss(kappa, theta, sigma).DiscountFactor(spotRate, timeToMaturity);
             double price = bond.Notional * df;
             // Price using General Diffusion

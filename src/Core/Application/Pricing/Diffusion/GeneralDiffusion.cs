@@ -3,6 +3,7 @@
 namespace Application {
     public class GeneralDiffusion {
 
+        private static readonly IDayCountConvention _dayCountConvention = new Actual365();
         public static Diffusion DiffuseMultiUnderlying(IDiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration);
@@ -46,8 +47,8 @@ namespace Application {
                 for (int step = 1; step < steps; step++) {
                     DateTime t            = configuration.TimeDiscretization[step];
                     DateTime t_1          = configuration.TimeDiscretization[step - 1];
-                    double timeToMaturity = (T - t).TotalYears;
-                    double dt             = (t - t_1).TotalYears;
+                    double timeToMaturity = _dayCountConvention.YearFraction(t, T);
+                    double dt             = _dayCountConvention.YearFraction(t_1, t);
 
                     StochasticDifferentialEquation sde = dynamics.GetSDE(path[step - 1], t_1, t);
                     path[step] = scheme.Evolve(path[step - 1], timeToMaturity, dt, dW[step], sde);

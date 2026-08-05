@@ -2,6 +2,7 @@
 
 namespace Application {
     public class ZeroCouponBootstrapper {
+        private static IDayCountConvention _dayCountConvention = new Actual365();
 
         public static Curve ZeroCouponCurve(Curve swapCurve) {
             Curve discountCurve = GetDiscountCurve(swapCurve);
@@ -9,7 +10,7 @@ namespace Application {
             OrderedDictionary<DateTime, double> discountNodes = discountCurve.GetNodes();
             foreach (var node in discountNodes) {
                 DateTime date = node.Key;
-                double years = (node.Key - DateTime.Now).TotalYears;
+                double years = _dayCountConvention.YearFraction(DateTime.Now, date);
                 double discountFactor = node.Value;
                 double zeroRate = -Math.Pow(discountFactor, -1 / years) - 1; // annual compounding
                 zeroCouponCurve.setNode(date, zeroRate);
@@ -23,7 +24,7 @@ namespace Application {
             if (!swapCurve.FirstDate.HasValue || !swapCurve.LastDate.HasValue) {
                 return discountCurve;
             }
-            for (int i = 0; i < (swapCurve.LastDate.Value - swapCurve.FirstDate.Value).TotalYears; i++) {
+            for (int i = 0; i < _dayCountConvention.YearFraction(swapCurve.FirstDate.Value, swapCurve.LastDate.Value); i++) {
                 DateTime date = swapCurve.FirstDate.Value.AddDays(365 * i);
                 double SwapRate = swapCurve.GetValue(date);
                 double sum = 0;

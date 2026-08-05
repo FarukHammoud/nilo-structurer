@@ -7,8 +7,8 @@ namespace Application {
     /// Derman-Kani, The volatility smile and its implied tree, 1994, Journal of Financial and Quantitative Analysis, 29(4), 611-650
     /// </summary>
     public class DermanKaniBinaryTreePricer : PayoffPricer, IPricer {
+        private static IDayCountConvention _dayCountConvention = new Actual365();
 
-        
         private double _spot;
         private Underlying _underlying;
         private ILocalVolatilityModel _volatility;
@@ -113,7 +113,7 @@ namespace Application {
             double Si = S[n + 1, i];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double call = CallPrice(si, (_dates[n + 1] - _dates[0]).TotalYears);
+            double call = CallPrice(si, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
             double sum = UpperSum(n, i);
             return (Si * (Forward(n) * call - sum) - λi * si * (Fi - Si))
                 / (Forward(n) * call - sum - λi * (Fi - Si));
@@ -125,7 +125,7 @@ namespace Application {
             double Si_1 = S[n + 1, i + 1];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double put = PutPrice(si, (_dates[n+1] - _dates[0]).TotalYears);
+            double put = PutPrice(si, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
             double sum = LowerSum(n, i);
             return (Si_1 * (Forward(n) * put - sum) + λi * si * (Fi - Si_1))
                 / (Forward(n) * put - sum + λi * (Fi - Si_1));
@@ -136,7 +136,7 @@ namespace Application {
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
             double S_ = si; 
-            double call = CallPrice(S_, (_dates[n + 1] - _dates[0]).TotalYears);
+            double call = CallPrice(S_, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
             double sum = UpperSum(n, i);
             return Fi * (Forward(n) * call + λi * S_ - sum) 
                 / (λi * Fi - Forward(n) * call + sum); // In the article is S_ instead of the first Fi

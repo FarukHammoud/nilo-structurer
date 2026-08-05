@@ -8,6 +8,7 @@ namespace Application {
         private double _volatility;
         private double _min => Math.Min(_left, _right);
         private double _max => Math.Max(_left, _right);
+        private static readonly IDayCountConvention _dayCountConvention = new Actual365();
         public BrownianBridge(double left, double right, double spacing, double volatility) {
             _left = left;
             _right = right;
@@ -75,7 +76,7 @@ namespace Application {
             for (int i = 1; i < observationDates.Count; i++) {
                 double left = path.Values[i - 1];
                 double right = path.Values[i];
-                double spacing = (observationDates[i] - observationDates[i - 1]).TotalYears;
+                double spacing = _dayCountConvention.YearFraction(observationDates[i - 1], observationDates[i]);
                 BrownianBridge bridge = new BrownianBridge(left, right, spacing, volatility);
                 if (isUp) {
                     if (bridge.RandomWalkCrossesUpBarrier(barrierLevel, random)) {

@@ -19,7 +19,7 @@ namespace PricingServices.Tests {
                 Currency = Currencies.USD,
             };
 
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
@@ -97,7 +97,7 @@ namespace PricingServices.Tests {
             var americanResult = results.Get(contract, new Premium());
 
             // Theotetical price using Barone Adesi Whaley formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
             double theoreticalPrice = BaroneAdesiWhaley.PriceAmerican(OptionType.Put, spotPrice, contract.Strike, riskFreeRate, volatility, timeToMaturity);
 
       

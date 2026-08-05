@@ -20,7 +20,7 @@ namespace PricingServicesTests {
                 Currency = Currencies.USD,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
@@ -69,7 +69,7 @@ namespace PricingServicesTests {
                 Currency = Currencies.EUR,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
@@ -120,7 +120,7 @@ namespace PricingServicesTests {
                 Currency = Currencies.EUR,
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
@@ -172,7 +172,7 @@ namespace PricingServicesTests {
                 FxRate = fxSpot
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
@@ -223,7 +223,7 @@ namespace PricingServicesTests {
                 FxRate = fxSpot
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()
@@ -275,7 +275,7 @@ namespace PricingServicesTests {
                 FxRate = fxSpot
             };
             // Theotetical price using Black-Scholes formula
-            double timeToMaturity = (contract.Maturity - DateTime.Today).TotalYears;
+            double timeToMaturity = new Actual365().YearFraction(DateTime.Today, contract.Maturity);
 
             // we need one discounter by currency
             MarketData marketData = new MarketData()

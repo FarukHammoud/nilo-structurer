@@ -11,6 +11,7 @@ namespace PricingServices {
             double sigma = 0.01;
             Swaption swaption = new Swaption {
                 Swap = new Swap() {
+                    DayCounter = new Actual365(),
                     FloatingRate = new ShortRate(Currencies.USD),
                     FixedRate = 0.025,
                     Dates = [DateTime.Today.AddMonths(18)],
@@ -30,6 +31,7 @@ namespace PricingServices {
             double sigma = 0.01;
             Swaption swaption = new Swaption {
                 Swap = new Swap() {
+                    DayCounter = new Actual365(),
                     FloatingRate = new ShortRate(Currencies.USD),
                     FixedRate = 0.025,
                     Dates = [DateTime.Today.AddMonths(18)],
@@ -49,6 +51,7 @@ namespace PricingServices {
             double sigma = 0.01;
             double spotRate = 0.03;
             Swap onlyFloatingSwap = new Swap() {
+                DayCounter = new Actual365(),
                 FloatingRate = new ShortRate(Currencies.USD),
                 FixedRate = 0.0,
                 Dates = [DateTime.Today.AddMonths(18)],
@@ -77,8 +80,8 @@ namespace PricingServices {
             var results = new PricingEngine().Run(request);
             var onlyFloatingSwapPrice = results.Get(onlyFloatingSwap, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
-            double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
-            double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
+            double P_0_T1 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(18)));
+            double P_0_T0 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(6)));
             double theoreticalFloatingLegPrice = onlyFloatingSwap.Notional * (P_0_T0 - P_0_T1);
             Assert.AreEqual(theoreticalFloatingLegPrice, onlyFloatingSwapPrice.Value, 3.09 * onlyFloatingSwapPrice.StandardError);
         }
@@ -90,6 +93,7 @@ namespace PricingServices {
             double sigma = 0.01;
             double spotRate = 0.03;
             Swap swap = new Swap() {
+                DayCounter = new Actual365(),
                 FloatingRate = new ShortRate(Currencies.USD),
                 FixedRate = 0.025,
                 Dates = [DateTime.Today.AddMonths(18)],
@@ -118,8 +122,8 @@ namespace PricingServices {
             var results = new PricingEngine().Run(request);
             var swapPrice = results.Get(swap, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
-            double P_0_T1 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(18) - DateTime.Today).TotalYears);
-            double P_0_T0 = model.DiscountFactor(spotRate, (DateTime.Today.AddMonths(6) - DateTime.Today).TotalYears);
+            double P_0_T1 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(18)));
+            double P_0_T0 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(6)));
             double theoreticalFixedLegPrice = swap.Notional * (P_0_T1 * swap.FixedRate);
             double theoreticalFloatingLegPrice = swap.Notional * (P_0_T0 - P_0_T1);
             double theoreticalSwapPrice = theoreticalFloatingLegPrice - theoreticalFixedLegPrice;
@@ -133,6 +137,7 @@ namespace PricingServices {
             double sigma = 0.01;
             double spotRate = 0.03;
             Swap swap = new Swap() {
+                DayCounter = new Actual365(),
                 FloatingRate = new ShortRate(Currencies.USD),
                 FixedRate = 0.025,
                 Dates = [DateTime.Today.AddMonths(18)],
