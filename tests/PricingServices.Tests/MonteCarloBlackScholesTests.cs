@@ -354,7 +354,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new BestOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -400,7 +400,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new WorstOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -446,7 +446,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new BestOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -492,7 +492,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new WorstOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -538,7 +538,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new WorstOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -589,7 +589,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new BestOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -640,7 +640,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new WorstOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new WorstOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };
@@ -691,7 +691,7 @@ namespace PricingServices.Tests {
             double strike = 100;
             EuropeanPut contract = new() {
                 Maturity = DateTime.Today.AddMonths(12),
-                Underlying = new BestOf(MSFT, AAPL, Currencies.USD),
+                Underlying = new BestOf([MSFT, AAPL], Currencies.USD),
                 Strike = strike,
                 Currency = Currencies.USD
             };

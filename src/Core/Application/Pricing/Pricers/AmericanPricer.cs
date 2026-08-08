@@ -78,6 +78,7 @@ namespace Application {
                     for (int j = 0; j < N; j++) {
                         if (autoCallFlow.IsTriggered(scenarios[j])) {
                             cashFlows.ClearRow(j);
+                            // TODO: Smooth the rebate payoff with continuation value to respect max delta
                             cashFlows[j, step] = autoCallFlow.Rebate.ComputePayoff(scenarios[j]);
                         }
                     }

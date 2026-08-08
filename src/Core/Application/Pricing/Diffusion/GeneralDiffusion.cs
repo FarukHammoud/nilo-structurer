@@ -22,7 +22,6 @@ namespace Application {
             IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(underlying);
             IDriftProvider driftProvider         = new DriftProvider();
 
-            // hack, we should get dynamics from somewhere (market data?)
             IProcessDynamics dynamics;
             double spot;
             if (underlying is ShortRate shortRate) {

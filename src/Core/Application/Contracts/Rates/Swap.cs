@@ -19,6 +19,7 @@ namespace Application {
 
         // TODO: Should in fact be the forward rate Ti -> Ti+1
         // That is the Log(DiscountFactor(Ti, Ti+1)) / (Ti+1 - Ti)
+        // We can't suppose the short rate dynamic inside the Swap Contract.
 
         private double GetForwardRate(DateTime start, DateTime end, Dictionary<DateTime, double> shortRatePath) {
             double kappa = 0.1;
