@@ -11,7 +11,7 @@ namespace Application {
 
         private double _spot;
         private Underlying _underlying;
-        private ILocalVolatilityModel _volatility;
+        private ILocalVolatilityModel _volatility; // SHOULD BE IImpliedVolatilityModel 
         private IDiscounter _discounter;
         private IList<DateTime> _dates;
 
@@ -20,6 +20,7 @@ namespace Application {
         private Matrix<double> _arrowDebreuPrices;
 
         private bool _withPrecision;
+        private bool _withBarleCakiciCentering; // Barle-Cakici (1998) centers the tree on the forward, and not the spot
         private DermanKaniBinaryTreePricer _richardsonExtrapolation;
 
         public DermanKaniBinaryTreePricer() {
@@ -46,6 +47,54 @@ namespace Application {
             .Append(dates[^1])
             .ToList();
 
+        public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
+            base.Initialize(marketData, timeDiscretization, pricerConfiguration);
+            if (pricerConfiguration is DermanKaniPricerConfiguration configuration) {
+                _withBarleCakiciCentering = configuration.WithBarleCakiciCentering;
+            }
+            IList<Underlying> underlyings = marketData.Underlyings;
+            if (underlyings.Count != 1) {
+                throw new ArgumentException("Binary tree pricer only supports single underlying payoffs");
+            }
+            _underlying = underlyings.First();
+            IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(_underlying);
+            _spot = underlyingMarketData.GetSpot();
+            _volatility = underlyingMarketData.GetVolatility();
+            _discounter = marketData.GetDiscounter(_underlying.Currency);
+            _dates = timeDiscretization;
+            BuildMatrices();
+            if (_withPrecision) {
+                _richardsonExtrapolation = new DermanKaniBinaryTreePricer(false);
+                _richardsonExtrapolation.Initialize(marketData, _intermediateDatesGenerator(timeDiscretization), pricerConfiguration);
+            }
+        }
+
+        public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
+            int maturityIndex = _dates.IndexOf(payoff.Maturity);
+            if (maturityIndex < 0 || payoff is not IPathIndependentPayoff europeanPayoff) {
+                throw new ArgumentException("Payoff maturity does not align with tree dates");
+            }
+
+            double price = 0;
+            for (int i = 0; i <= maturityIndex; i++) {
+                double spot = S[maturityIndex, i];
+                price += λ[maturityIndex, i] * europeanPayoff.ComputePayoff(new Dictionary<Underlying, double> { { _underlying, spot } });
+            }
+
+            if (_withPrecision) {
+                double finerGridPrice = _richardsonExtrapolation.PricePayoff(payoff, today, pricingCurrency).Value;
+                double extrapolated = 2 * finerGridPrice - price;
+                double precision = Math.Abs(finerGridPrice - price); // rough error estimate
+                return new PriceEstimate(
+                    value: extrapolated,
+                    standardError: precision,
+                    currency: payoff.Currency
+                );
+            }
+
+            return new PriceEstimate(price, pricingCurrency);
+        }
+
         // Paper Formulas
         private double CallPrice(double strike, double timeToMaturity) {
             double volatility = _volatility.GetVolatility(strike, timeToMaturity);
@@ -68,6 +117,7 @@ namespace Application {
                 double Si1 = S[n + 1, i + 1];
                 double Fi = si * Forward(n);
                 p[n, i] = (Fi - Si) / (Si1 - Si);
+                p[n, i] = Math.Max(0, Math.Min(1, p[n, i]));
             }
         }
 
@@ -138,8 +188,15 @@ namespace Application {
             double S_ = si; 
             double call = CallPrice(S_, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
             double sum = UpperSum(n, i);
-            return Fi * (Forward(n) * call + λi * S_ - sum) 
-                / (λi * Fi - Forward(n) * call + sum); // In the article is S_ instead of the first Fi
+            double oddUpper = (S_ * (Forward(n) * call + λi * S_ - sum))
+                / (λi * Fi - Forward(n) * call + sum);
+            if (oddUpper < 0) {
+                oddUpper *= -1;
+            }
+            if (_withBarleCakiciCentering) {
+                return Forward(n) * oddUpper;
+            }
+            return oddUpper;
         }
 
         private void BuildMatrices() {
@@ -156,32 +213,41 @@ namespace Application {
                     int down = n/2;
                     double S_ = S[n, down];
                     S[n + 1, down + 1] = OddUpper(n, down);
-                    S[n + 1, down] = S_ * S_ * Forward(n) * Forward(n) / S[n + 1, up];
+                    if (_withBarleCakiciCentering) {
+                        S[n + 1, down] = S_ * S_ * Forward(n) * Forward(n) / S[n + 1, up]; 
+                    } else {
+                        S[n + 1, down] = S_ * S_ / S[n + 1, up];
+                    }
+                    
                     // upper nodes
                     for (int i = up; i <= n; i++) {
                         S[n + 1, i + 1] = UpperFormula(n, i);
-                        EnforceNoArbitrage(n, i + 1);
+                        EnforceNoArbitrage(n, i + 1, true);
                     }
                     // lower nodes
                     for (int i = down - 1; i >= 0; i--) {
                         S[n + 1, i] = LowerFormula(n, i);
-                        EnforceNoArbitrage(n, i);
+                        EnforceNoArbitrage(n, i, false);
                     }
                 } else if (n.IsOdd()){
                     int central = (n + 1) / 2;
                     int prevDown = (n - 1) / 2;  
                     int prevUp   = (n + 1) / 2;  
                     double geometricCenter = Math.Sqrt(S[n, prevDown] * S[n, prevUp]);
-                    S[n + 1, central] = geometricCenter * Forward(n); // Barle-Cakici (1998) centers the tree on the forward, and not the spot
+                    if (_withBarleCakiciCentering) {
+                        S[n + 1, central] = geometricCenter * Forward(n); 
+                    } else {
+                        S[n + 1, central] = _spot;
+                    }
                     // upper nodes
                     for (int i = central; i <= n; i++) {
                         S[n + 1, i + 1] = UpperFormula(n, i);
-                        EnforceNoArbitrage(n, i + 1);
+                        EnforceNoArbitrage(n, i + 1, true);
                     }
                     // lower nodes
                     for (int i = central - 1; i >= 0; i--) {
                         S[n + 1, i] = LowerFormula(n, i);
-                        EnforceNoArbitrage(n, i);
+                        EnforceNoArbitrage(n, i, false);
                     }
                 }
                 UpdateTransitionProbabilities(n);
@@ -195,67 +261,29 @@ namespace Application {
             Debug.WriteLine(λ.ToMatrixString(50, 50));
         }
 
-        public override void Initialize(IMarketData marketData, IList<DateTime> timeDiscretization, IPricerConfiguration? pricerConfiguration = null) {
-            base.Initialize(marketData, timeDiscretization, pricerConfiguration);
-            IList<Underlying> underlyings = marketData.Underlyings;
-            if (underlyings.Count != 1) {
-                throw new ArgumentException("Binary tree pricer only supports single underlying payoffs");
-            }
-            _underlying = underlyings.First();
-            IUnderlyingMarketData underlyingMarketData = marketData.GetUnderlyingMarketData(_underlying);
-            _spot = underlyingMarketData.GetSpot();
-            _volatility = underlyingMarketData.GetVolatility();
-            _discounter = marketData.GetDiscounter(_underlying.Currency);
-            _dates = timeDiscretization;
-            BuildMatrices();
-            if (_withPrecision) {
-                _richardsonExtrapolation = new DermanKaniBinaryTreePricer(false);
-                _richardsonExtrapolation.Initialize(marketData, _intermediateDatesGenerator(timeDiscretization), pricerConfiguration);
-            }
-         }
-
-        public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {
-            int maturityIndex = _dates.IndexOf(payoff.Maturity);
-            if (maturityIndex < 0 || payoff is not IPathIndependentPayoff europeanPayoff) {
-                throw new ArgumentException("Payoff maturity does not align with tree dates");
-            }
-
-            double price = 0;
-            for (int i = 0; i <= maturityIndex; i++) {
-                double spot = S[maturityIndex, i];
-                price += λ[maturityIndex, i] * europeanPayoff.ComputePayoff(new Dictionary<Underlying, double> { { _underlying, spot } });
-            }
-            
-            if (_withPrecision) {
-                double finerGridPrice = _richardsonExtrapolation.PricePayoff(payoff, today, pricingCurrency).Value;
-                double extrapolated = 2 * finerGridPrice - price;
-                double precision = Math.Abs(finerGridPrice - price); // rough error estimate
-                return new PriceEstimate(
-                    value: extrapolated,
-                    standardError: precision,
-                    currency: payoff.Currency
-                );
-            }
-
-            return new PriceEstimate(price, pricingCurrency);
-        }
-
         // Enforces Fi < Si < Fi+1 for node just computed at S[n+1, i],
-        private void EnforceNoArbitrage(int n, int i) {
+        private void EnforceNoArbitrage(int n, int i, bool upward) {
             double value = S[n + 1, i];
-            if (i > 0) {
-                double lowerForward = Forward(n) * S[n, i - 1];
-                if (value < lowerForward) {
-                    S[n + 1, i] = lowerForward * (1 + 1E-6);
-                    Debug.WriteLine($"Enforcing no arbitrage: S[{n + 1}, {i}] adjusted to {S[n + 1, i]}");
+            if (i > 0 && value < Forward(n) * S[n, i - 1] ||
+                i < n && value > Forward(n) * S[n, i]) {
+                if (upward) {
+                    // Building UPWARDS: rely on S[n+1, i-1] (already known)
+                    // Use parent ratio S[n, i-1] / S[n, i-2] (with fallback if i < 2)
+                    double parentLogRatio = (i >= 2)
+                        ? (S[n, i - 1] / S[n, i - 2])
+                        : (S[n, i] / S[n, i - 1]);
+
+                    S[n + 1, i] = S[n + 1, i - 1] * parentLogRatio;
+                } else {
+                    // Building DOWNWARDS: rely on S[n+1, i+1] (already known)
+                    // Use parent ratio S[n, i+1] / S[n, i] (with fallback if i >= n)
+                    double parentLogRatio = (i < n)
+                        ? (S[n, i + 1] / S[n, i])
+                        : (S[n, i] / S[n, i - 1]);
+
+                    S[n + 1, i] = S[n + 1, i + 1] / parentLogRatio;
                 }
-            }
-            if (i < n) {
-                double upperForward = Forward(n) * S[n, i];
-                if (value > upperForward) {
-                    S[n + 1, i] = upperForward * (1 - 1E-6);
-                    Debug.WriteLine($"Enforcing no arbitrage: S[{n + 1}, {i}] adjusted to {S[n + 1, i]}");
-                }
+                Debug.WriteLine($"Enforcing no arbitrage: S[{n + 1}, {i}] adjusted from {value} to {S[n + 1, i]}");
             }
         }
     }

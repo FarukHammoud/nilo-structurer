@@ -26,7 +26,9 @@ namespace Application {
                     HasStochasticRate = request.ModelConfiguration.Discounting is StochasticRatesDiscounting
                 },
                 BinaryTree => new BinaryTreePricerConfiguration(),
-                DermanKani => new BinaryTreePricerConfiguration(),
+                DermanKani => new DermanKaniPricerConfiguration() {
+                    WithBarleCakiciCentering = request.WithBarleCakiciCentering
+                },
                 LongStaffSchwartz => new DiffusionPricerConfiguration {
                     NumberOfDrawings = request.NumberOfDrawings,
                     Currency = request.PricingCurrency,

@@ -15,6 +15,9 @@ namespace Application {
                 if (model.Discounting is StochasticRatesDiscounting) {
                     return DailyGrid(dates);
                 }
+                if (model.Pricing is DermanKani) {
+                    return MonthlyGrid(dates);
+                }
                 return dates;
             }
             return DailyGrid(dates);
@@ -26,6 +29,18 @@ namespace Application {
 
         public static Func<IEnumerable<DateTime>, List<DateTime>> WeeklyGrid = dates => Enumerable.Range(0, (int)((dates.Max() - dates.Min()).TotalDays / 7) + 1)
                 .Select(i => dates.Min().AddDays(i * 7))
+                .Append(dates.Max())
+                .Distinct()
+                .ToList();
+
+        public static Func<IEnumerable<DateTime>, List<DateTime>> MonthlyGrid = dates => Enumerable.Range(0, (int)((dates.Max() - dates.Min()).TotalDays / 30) + 1)
+                .Select(i => dates.Min().AddMonths(i))
+                .Append(dates.Max())
+                .Distinct()
+                .ToList();
+
+        public static Func<IEnumerable<DateTime>, List<DateTime>> BiMonthlyGrid = dates => Enumerable.Range(0, (int)((dates.Max() - dates.Min()).TotalDays / 60) + 1)
+                .Select(i => dates.Min().AddMonths(i))
                 .Append(dates.Max())
                 .Distinct()
                 .ToList();

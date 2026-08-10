@@ -5,7 +5,7 @@ namespace Application {
     /// sigma_local = sigma * (1 + beta / S)
     /// Equivalent to dS = mu * S * dt + sigma * (S + beta) * dW
     /// </summary>
-    public class InverseLinearVolatilityModel : ILocalVolatilityModel {
+    public class InverseLinearVolatilityModel : ILocalVolatilityModel, IImpliedVolatilityModel {
         private double _volatility;
         private double _beta;
         private double _riskfreeRate;

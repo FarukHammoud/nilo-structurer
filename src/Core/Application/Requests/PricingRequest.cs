@@ -10,5 +10,6 @@ namespace Application {
         public required Currency PricingCurrency { get; set; }
         public int NumberOfDrawings { get; set; } = 50000;
         public bool WithControlVariate { get; set; } = true;
+        public bool WithBarleCakiciCentering { get; set; } = false;
     }
 }
