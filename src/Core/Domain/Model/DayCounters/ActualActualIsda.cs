@@ -14,8 +14,8 @@
                 DateTime periodStart = (year == startYear) ? start : yearStart;
                 DateTime periodEnd = (year == endYear) ? end : yearEnd;
                 int daysInYear = DateTime.IsLeapYear(year) ? 366 : 365;
-                int daysInPeriod = (periodEnd - periodStart).Days + 1;
-                yearFraction += (double)daysInPeriod / daysInYear;
+                double daysInPeriod = (periodEnd - periodStart).TotalDays + 1.0;
+                yearFraction += daysInPeriod / daysInYear;
             }
             return yearFraction;
         }

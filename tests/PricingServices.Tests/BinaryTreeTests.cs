@@ -180,8 +180,11 @@ namespace PricingServices.Tests {
             double volatility = 0.1;
             double shift = -20;
 
-            ILocalVolatilityModel volatilityModel = 
+            IImpliedVolatilityModel volatilityModel = 
                 new InverseLinearVolatilityModel(volatility, shift, riskFreeRate);
+
+            ILocalVolatilityModel localVolatilityModel =
+                new DupireLocalVolatilityModel(volatilityModel, new FixedRateDiscounter() { Rate = riskFreeRate });
             
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(18),
@@ -193,7 +196,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
-                    .SetVolatility(volatilityModel))
+                    .SetVolatility(localVolatilityModel))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             PricingRequest request = new() {

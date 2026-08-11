@@ -4,6 +4,6 @@
     /// </summary>
     public sealed class Actual360 : IDayCountConvention {
         public double YearFraction(DateTime start, DateTime end)
-            => (end - start).Days / 360.0;
+            => (end - start).TotalDays / 360.0;
     }
 }
