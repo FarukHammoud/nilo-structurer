@@ -30,7 +30,7 @@ namespace PricingServices.Tests {
             foreach (double spot in spots) {
                 foreach (double days in daysToMaturity) {
                     DateTime maturity2 = DateTime.Today.AddDays(days);
-                    double localVol2 = dupireModel.GetLocalVolatility(spot, maturity2, DateTime.Today);
+                    double localVol2 = dupireModel.GetLocalVolatility(spot, maturity2, 100, DateTime.Today);
                     Assert.AreEqual(volatility, localVol2, 1e-4,
                         $"Flat surface should reproduce flat local vol at spot={spot:F6}, days={days:F6}");
                 }

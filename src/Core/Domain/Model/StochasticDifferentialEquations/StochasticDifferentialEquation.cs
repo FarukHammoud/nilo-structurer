@@ -3,7 +3,7 @@
     // dS = a(S, t) dt + b(S, t) dW
 
     public sealed record StochasticDifferentialEquation(
-        Func<double, double, double> Drift,      // (S, t) → a(S,t)
-        Func<double, double, double> Diffusion); // (S, t) → b(S,t)
+        Func<double, DateTime, double> Drift,      // (S, t) → a(S,t)
+        Func<double, DateTime, double> Diffusion); // (S, t) → b(S,t)
         
 }

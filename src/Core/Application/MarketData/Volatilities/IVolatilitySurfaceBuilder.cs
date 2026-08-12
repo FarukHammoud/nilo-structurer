@@ -2,6 +2,6 @@
 
 namespace Application {
     public interface IVolatilitySurfaceBuilder {
-        ILocalVolatilityModel BuildVolatilitySurface(Dictionary<VanillaContract, double> optionPrices);
+        IImpliedVolatilityModel BuildVolatilitySurface(Dictionary<VanillaContract, double> optionPrices);
     }
 }

@@ -6,7 +6,7 @@ namespace Application {
         public ConstantVolatilityModel(double volatility) {
             this.volatility = volatility;
         }
-        public double GetVolatility(double spot, double timeToMaturity) {
+        public double GetVolatility(double spot, DateTime _) {
             return volatility;
         }
     }

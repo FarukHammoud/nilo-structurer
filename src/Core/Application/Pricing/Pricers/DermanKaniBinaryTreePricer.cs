@@ -11,7 +11,7 @@ namespace Application {
 
         private double _spot;
         private Underlying _underlying;
-        private ILocalVolatilityModel _volatility; // SHOULD BE IImpliedVolatilityModel 
+        private IImpliedVolatilityModel _volatility; 
         private IDiscounter _discounter;
         private IList<DateTime> _dates;
 
@@ -85,6 +85,7 @@ namespace Application {
                 double finerGridPrice = _richardsonExtrapolation.PricePayoff(payoff, today, pricingCurrency).Value;
                 double extrapolated = 2 * finerGridPrice - price;
                 double precision = Math.Abs(finerGridPrice - price); // rough error estimate
+                Debug.WriteLine($"Derman-Kani Binary Tree Pricer: Price = {price}, Finer Grid Price = {finerGridPrice}, Extrapolated Price = {extrapolated}, Precision = {precision}");
                 return new PriceEstimate(
                     value: extrapolated,
                     standardError: precision,
@@ -96,17 +97,17 @@ namespace Application {
         }
 
         // Paper Formulas
-        private double CallPrice(double strike, double timeToMaturity) {
-            double volatility = _volatility.GetVolatility(strike, timeToMaturity);
-            double riskFreeRate = _discounter.GetForwardRate(_dates[0], _dates[0].AddDays(timeToMaturity * 365));
-            BlackScholes bsModel = new BlackScholes(OptionType.Call, _spot, strike, timeToMaturity, riskFreeRate, volatility);
+        private double CallPrice(double strike, DateTime maturity) {
+            double volatility = _volatility.GetVolatility(strike, maturity);
+            double riskFreeRate = _discounter.GetForwardRate(_dates[0], maturity);
+            BlackScholes bsModel = new BlackScholes(OptionType.Call, _spot, strike, _dayCountConvention.YearFraction(_dates[0], maturity), riskFreeRate, volatility);
             return bsModel.Premium;
         }
 
-        private double PutPrice(double strike, double timeToMaturity) {
-            double volatility = _volatility.GetVolatility(strike, timeToMaturity);
-            double riskFreeRate = _discounter.GetForwardRate(_dates[0], _dates[0].AddDays(timeToMaturity * 365));
-            BlackScholes bsModel = new BlackScholes(OptionType.Put, _spot, strike, timeToMaturity, riskFreeRate, volatility);
+        private double PutPrice(double strike, DateTime maturity) {
+            double volatility = _volatility.GetVolatility(strike, maturity);
+            double riskFreeRate = _discounter.GetForwardRate(_dates[0], maturity);
+            BlackScholes bsModel = new BlackScholes(OptionType.Put, _spot, strike, _dayCountConvention.YearFraction(_dates[0], maturity), riskFreeRate, volatility);
             return bsModel.Premium;
         }
 
@@ -163,7 +164,7 @@ namespace Application {
             double Si = S[n + 1, i];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double call = CallPrice(si, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
+            double call = CallPrice(si, _dates[n + 1]);
             double sum = UpperSum(n, i);
             return (Si * (Forward(n) * call - sum) - λi * si * (Fi - Si))
                 / (Forward(n) * call - sum - λi * (Fi - Si));
@@ -175,7 +176,7 @@ namespace Application {
             double Si_1 = S[n + 1, i + 1];
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
-            double put = PutPrice(si, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
+            double put = PutPrice(si, _dates[n + 1]);
             double sum = LowerSum(n, i);
             return (Si_1 * (Forward(n) * put - sum) + λi * si * (Fi - Si_1))
                 / (Forward(n) * put - sum + λi * (Fi - Si_1));
@@ -186,7 +187,7 @@ namespace Application {
             double λi = λ[n, i];
             double Fi = Forward(n) * si;
             double S_ = si; 
-            double call = CallPrice(S_, _dayCountConvention.YearFraction(_dates[0], _dates[n + 1]));
+            double call = CallPrice(S_, _dates[n + 1]);
             double sum = UpperSum(n, i);
             double oddUpper = (S_ * (Forward(n) * call + λi * S_ - sum))
                 / (λi * Fi - Forward(n) * call + sum);

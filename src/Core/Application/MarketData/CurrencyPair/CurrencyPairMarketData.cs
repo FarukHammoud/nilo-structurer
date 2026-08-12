@@ -3,7 +3,7 @@
 namespace Application {
     public class CurrencyPairMarketData : IUnderlyingMarketData {
         private double _spot;
-        private ILocalVolatilityModel? _volatility;
+        private IImpliedVolatilityModel? _volatility;
 
         public double GetCarry() {
             return 0; // drift is done on engine level. Should we fix the interface?
@@ -13,7 +13,7 @@ namespace Application {
             return _spot;
         }
 
-        public ILocalVolatilityModel GetVolatility() {
+        public IImpliedVolatilityModel GetVolatility() {
             return _volatility;
         }
 
@@ -22,7 +22,7 @@ namespace Application {
             return this;
         }
 
-        public CurrencyPairMarketData SetVolatility(ILocalVolatilityModel volatilityModel) {
+        public CurrencyPairMarketData SetVolatility(IImpliedVolatilityModel volatilityModel) {
             _volatility = volatilityModel;
             return this;    
         }

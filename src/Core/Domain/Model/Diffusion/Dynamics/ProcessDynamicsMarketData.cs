@@ -24,7 +24,7 @@
             return 0;
         }
 
-        public ILocalVolatilityModel GetVolatility() {
+        public IImpliedVolatilityModel GetVolatility() {
             throw new NotImplementedException();
         }
 

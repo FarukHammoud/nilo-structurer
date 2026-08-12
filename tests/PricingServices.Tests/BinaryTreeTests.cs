@@ -90,7 +90,7 @@ namespace PricingServices.Tests {
             double atmVolatility = 0.1;
             double skew = 0.0;
             double termStructure = 0.0;
-            ILocalVolatilityModel volatility = new LinearVolatilityModel(atmVolatility, skew, termStructure, spotPrice);
+            IImpliedVolatilityModel volatility = new LinearVolatilityModel(atmVolatility, skew, termStructure, spotPrice);
             
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddYears(1),
@@ -135,7 +135,7 @@ namespace PricingServices.Tests {
             double spotPrice = 100.0;
             double volatility = 0.1;
             double shift = -20;
-            ILocalVolatilityModel volatilityModel = new InverseLinearVolatilityModel(volatility, shift, riskFreeRate);
+            IImpliedVolatilityModel volatilityModel = new InverseLinearVolatilityModel(volatility, shift, riskFreeRate, DateTime.Today);
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(18),
                 Strike = spotPrice,
@@ -171,8 +171,6 @@ namespace PricingServices.Tests {
         }
 
         [TestMethod]
-        /// It will never work, we are mismatching local and implied volatilities.
-        /// Should we convert it for the diffuser?
         public void DermanKaniCallPremiumWithSkewedVolatilityVsDiffusion() {
             Equity MSFT = new("MSFT", Currencies.USD);
             double riskFreeRate = 0.03;
@@ -180,12 +178,8 @@ namespace PricingServices.Tests {
             double volatility = 0.1;
             double shift = -20;
 
-            IImpliedVolatilityModel volatilityModel = 
-                new InverseLinearVolatilityModel(volatility, shift, riskFreeRate);
+            IImpliedVolatilityModel volatilityModel = new InverseLinearVolatilityModel(volatility, shift, riskFreeRate, DateTime.Today);
 
-            ILocalVolatilityModel localVolatilityModel =
-                new DupireLocalVolatilityModel(volatilityModel, new FixedRateDiscounter() { Rate = riskFreeRate });
-            
             EuropeanCall contract = new() {
                 Maturity = DateTime.Today.AddMonths(18),
                 Strike = spotPrice,
@@ -196,7 +190,7 @@ namespace PricingServices.Tests {
             MarketData marketData = new MarketData()
                 .For<EquityMarketData>(MSFT, md => md
                     .SetSpot(spotPrice)
-                    .SetVolatility(localVolatilityModel))
+                    .SetVolatility(volatilityModel))
                 .SetRiskFreeRate(Currencies.USD, riskFreeRate);
 
             PricingRequest request = new() {
@@ -220,6 +214,7 @@ namespace PricingServices.Tests {
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
+
             PricingResults diffusionResults = new PricingEngine().Run(diffusionRequest);
             Estimate diffusionResult = diffusionResults.Get(contract, new Premium());
  

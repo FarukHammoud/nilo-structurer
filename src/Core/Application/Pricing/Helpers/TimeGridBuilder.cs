@@ -18,7 +18,10 @@ namespace Application {
                 if (model.Pricing is DermanKani) {
                     return MonthlyGrid(dates);
                 }
-                return dates;
+                if (model.Volatility is ConstantVolatility) {
+                    return dates;
+                } 
+                return MonthlyGrid(dates);
             }
             return DailyGrid(dates);
         }

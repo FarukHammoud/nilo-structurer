@@ -24,7 +24,7 @@
             }
         }
 
-        public double GetVolatility(double k, double timeToMaturity) {
+        public double GetVolatility(double k, DateTime time) {
             // k is log-moneyness, i.e. log(spot/strike)
             return a + b * (ρ * (k - m) + Math.Sqrt((k - m) * (k - m) + σ * σ));
         }

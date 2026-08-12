@@ -39,7 +39,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Delta() },
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -89,7 +93,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [deltaFx],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -131,7 +139,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = new List<IIndicator>() { new Gamma() },
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -172,7 +184,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [rho],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -215,7 +231,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [theta],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -257,7 +277,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [vega],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -294,7 +318,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [impliedVolatility],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };
@@ -330,7 +358,11 @@ namespace PricingServices.Tests {
                 Position = [contract],
                 MarketData = marketData,
                 Indicators = [impliedVolatility],
-                ModelConfiguration = ModelConfiguration.LocalVolatilityDiffusion,
+                ModelConfiguration = new ModelConfiguration() {
+                    Pricing = new MonteCarlo(),
+                    Discounting = new DiscountCurveDiscounting(),
+                    Volatility = new ConstantVolatility()
+                },
                 PricingDate = DateTime.Today,
                 PricingCurrency = Currencies.USD
             };

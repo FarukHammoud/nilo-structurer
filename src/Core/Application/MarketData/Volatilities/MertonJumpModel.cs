@@ -1,17 +1,11 @@
 ﻿using Domain;
 
 namespace Application {
-    public class MertonJumpModel : IMertonJumpModel, ILocalVolatilityModel {
+    public class MertonJumpModel : ConstantVolatilityModel, IMertonJumpModel {
         public JumpParameters JumpParameters { get; private set; }
 
-        private double _volatility;
-        public MertonJumpModel(JumpParameters jumpParameters, double volatility) {
+        public MertonJumpModel(JumpParameters jumpParameters, double volatility) : base(volatility) {
             JumpParameters = jumpParameters;
-            _volatility = volatility;
-        }
-
-        public double GetVolatility(double spot, double timeToMaturity) {
-            return _volatility;
         }
     }
 }

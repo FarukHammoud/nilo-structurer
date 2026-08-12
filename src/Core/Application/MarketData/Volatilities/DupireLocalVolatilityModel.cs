@@ -4,11 +4,18 @@ namespace Application {
     public class DupireLocalVolatilityModel : ILocalVolatilityModel {
         private IImpliedVolatilityModel _impliedVolatilityModel;
         private Dupire _dupireModel;
-        public DupireLocalVolatilityModel(IImpliedVolatilityModel impliedVolatilityModel, IDiscounter discounter) {
-            _dupireModel = new Dupire(_impliedVolatilityModel, discounter);
+        private double _referenceSpot;
+        public DupireLocalVolatilityModel(IImpliedVolatilityModel impliedVolatilityModel, IDiscounter discounter, double referenceSpot) {
+            _impliedVolatilityModel = impliedVolatilityModel;
+            _dupireModel = new Dupire(impliedVolatilityModel, discounter);
+            _referenceSpot = referenceSpot;
         }
-        public double GetVolatility(double spot, double timeToMaturity) {
-            return _dupireModel.GetLocalVolatility(spot, DateTime.Today.AddDays(timeToMaturity * 365), DateTime.Today);
+        public double GetVolatility(double spot, DateTime time) {
+            // Fall back to the implied volatility model if it is a constant volatility model
+            if (_impliedVolatilityModel is ConstantVolatilityModel || _impliedVolatilityModel is MertonJumpModel) {
+                return _impliedVolatilityModel.GetVolatility(spot, time);
+            }
+            return _dupireModel.GetLocalVolatility(spot, time, _referenceSpot, DateTime.Today);
         }
     }
 }

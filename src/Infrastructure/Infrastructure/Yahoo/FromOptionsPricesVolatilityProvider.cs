@@ -11,14 +11,14 @@ namespace Infrastructure {
             _optionPriceProvider = optionPriceProvider;
         }
 
-        public async Task<Dictionary<Underlying, ILocalVolatilityModel>> GetVolatilitiesAsync(IEnumerable<Underlying> underlyings, CancellationToken ct = default) {
+        public async Task<Dictionary<Underlying, IImpliedVolatilityModel>> GetVolatilitiesAsync(IEnumerable<Underlying> underlyings, CancellationToken ct = default) {
             Dictionary<Underlying, Dictionary<VanillaContract, OptionMarketData>> pricesByUnderlying = await _optionPriceProvider.GetOptionPricesAsync(underlyings, ct);
-            Dictionary<Underlying, ILocalVolatilityModel> volatilitiesByUnderlying = new();
+            Dictionary<Underlying, IImpliedVolatilityModel> volatilitiesByUnderlying = new();
             foreach (Underlying underlying in underlyings) {
                 if (pricesByUnderlying.ContainsKey(underlying)) {
                     Dictionary<VanillaContract, OptionMarketData> optionData = pricesByUnderlying[underlying];
                     Dictionary<VanillaContract, double> optionPrices = optionData.ToDictionary(x => x.Key, x => x.Value.LastPrice);
-                    ILocalVolatilityModel model = _builder.BuildVolatilitySurface(optionPrices);
+                    IImpliedVolatilityModel model = _builder.BuildVolatilitySurface(optionPrices);
                     volatilitiesByUnderlying[underlying] = model;
                 }
             }

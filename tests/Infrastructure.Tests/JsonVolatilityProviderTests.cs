@@ -15,7 +15,7 @@ namespace Infrastructure.Tests {
             Underlying AAPL = new Equity("AAPL", Currencies.USD);
 
             // Act
-            Dictionary<Underlying, ILocalVolatilityModel> volatilities = await provider.GetVolatilitiesAsync(
+            Dictionary<Underlying, IImpliedVolatilityModel> volatilities = await provider.GetVolatilitiesAsync(
                 [MSFT, AAPL]);
 
             // Assert

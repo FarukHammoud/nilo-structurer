@@ -19,7 +19,7 @@ namespace Application {
             return _inner.GetCarry() + bump;
         }
 
-        public ILocalVolatilityModel GetVolatility() {
+        public IImpliedVolatilityModel GetVolatility() {
             double bump = _shifts.OfType<VolatilityShift>().Sum(shift => shift.Bump);
             if (bump == 0) {
                 return _inner.GetVolatility();

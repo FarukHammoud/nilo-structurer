@@ -51,7 +51,7 @@ namespace Application {
                 if (payoff is IContinuousBarrier barrier) {
                     double upBarrier = barrier.BarrierLevel;
                     SimulatedPath underlyingPath = _diffusion[barrier.Underlying][ω];
-                    double volatility = _configuration.MarketData.GetUnderlyingMarketData(barrier.Underlying).GetVolatility().GetVolatility(0,0); // only works for constant volatility
+                    double volatility = _configuration.MarketData.GetUnderlyingMarketData(barrier.Underlying).GetVolatility().GetVolatility(0, DateTime.Now); // TODO: HACK, only works for constant volatility
                     if (barrier is IContinuousKnockOutBarrier outBarrier && GeometricBrownianBridge.HasCrossed(underlyingPath, datesOfInterest.ToList(), upBarrier, barrier.IsUp, volatility, random)) {
                         prices[ω] = outBarrier.GetRedemption(scenario);
                     } else if (barrier is IContinuousKnockInBarrier && !GeometricBrownianBridge.HasCrossed(underlyingPath, datesOfInterest.ToList(), upBarrier, barrier.IsUp, volatility, random)) {

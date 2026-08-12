@@ -5,7 +5,7 @@ namespace Application {
         private double _dividend;
         private double _repo;
         private double _spot;
-        private ILocalVolatilityModel? _volatility;
+        private IImpliedVolatilityModel? _volatility;
 
         public double GetCarry() {
             return GetDividend() + GetRepo();
@@ -23,7 +23,7 @@ namespace Application {
             return _spot;
         }
 
-        public ILocalVolatilityModel GetVolatility() {
+        public IImpliedVolatilityModel GetVolatility() {
             return _volatility;
         }
 
@@ -42,7 +42,7 @@ namespace Application {
             return this;
         }
 
-        public EquityMarketData SetVolatility(ILocalVolatilityModel volatilityModel) {
+        public EquityMarketData SetVolatility(IImpliedVolatilityModel volatilityModel) {
             _volatility = volatilityModel;
             return this;
         }

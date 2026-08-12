@@ -24,18 +24,23 @@ namespace Application {
 
             // hack, we should get dynamics from somewhere (market data?)
             IProcessDynamics dynamics;
-            double spot;
+            double spot = underlyingData.GetSpot();
             if (underlying is ShortRate shortRate) {
                 dynamics = marketData.GetShortRateDynamics(shortRate.Currency);
                 scheme = new EulerMaruyamaScheme();
             } else {
-                ILocalVolatilityModel volatility       = underlyingData.GetVolatility();
+                IDiscounter discounter = marketData.GetDiscounter(configuration.Currency);
+                IImpliedVolatilityModel impliedVolatility = underlyingData.GetVolatility();
+                ILocalVolatilityModel volatility = new DupireLocalVolatilityModel(impliedVolatility, discounter, spot);
+                JumpParameters? jumpParameters = null;
+                if (impliedVolatility is MertonJumpModel merton) {
+                    volatility = merton;
+                    jumpParameters = merton.JumpParameters;
+                } 
                 Func<DateTime, DateTime, double> drift = (t_1, t) => driftProvider.GetDrift(underlying, configuration.Currency, marketData, t_1, t);
                 double carry                           = underlyingData.GetCarry();
-                JumpParameters? jumpParameters         = volatility is MertonJumpModel mertonJumpModel ? mertonJumpModel.JumpParameters : null;
                 dynamics = new LevyProcessDynamics((t_1, t) => drift(t_1, t) - carry, volatility, jumpParameters);
             }
-            spot = underlyingData.GetSpot();
             DateTime T  = configuration.TimeDiscretization.LastOrDefault();
 
             Realizations realizations = new();
@@ -45,13 +50,12 @@ namespace Application {
                 SimulatedPath dW   = noises.Paths[underlying][ω];
                 path[0]            = spot;
                 for (int step = 1; step < steps; step++) {
-                    DateTime t            = configuration.TimeDiscretization[step];
-                    DateTime t_1          = configuration.TimeDiscretization[step - 1];
-                    double timeToMaturity = _dayCountConvention.YearFraction(t, T);
-                    double dt             = _dayCountConvention.YearFraction(t_1, t);
+                    DateTime t   = configuration.TimeDiscretization[step];
+                    DateTime t_1 = configuration.TimeDiscretization[step - 1];
+                    double dt    = _dayCountConvention.YearFraction(t_1, t);
 
                     StochasticDifferentialEquation sde = dynamics.GetSDE(path[step - 1], t_1, t);
-                    path[step] = scheme.Evolve(path[step - 1], timeToMaturity, dt, dW[step], sde);
+                    path[step]  = scheme.Evolve(path[step - 1], t, dt, dW[step], sde);
                     path[step] *= dynamics.SampleJumpMultiplier(dt, jumpRandom.NextDouble);
                 }
                 realizations.AddPath(path);

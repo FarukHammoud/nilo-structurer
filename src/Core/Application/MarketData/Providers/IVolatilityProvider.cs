@@ -2,7 +2,7 @@
 
 namespace Application {
     public interface IVolatilityProvider {
-        Task<Dictionary<Underlying, ILocalVolatilityModel>> GetVolatilitiesAsync(
+        Task<Dictionary<Underlying, IImpliedVolatilityModel>> GetVolatilitiesAsync(
                 IEnumerable<Underlying> underlyings, CancellationToken ct = default);
     }
 }

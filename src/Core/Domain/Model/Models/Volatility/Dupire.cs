@@ -26,21 +26,20 @@
             _varianceFloor = varianceFloor;
         }
 
-        public double GetLocalVolatility(double spot, DateTime maturity, DateTime spotTime) {
-            double timeToMaturity = _dayCount.YearFraction(spotTime, maturity);
-            double forward = 1 / _discounter.GetDiscountFactor(spotTime, maturity);
+        public double GetLocalVolatility(double spot, DateTime date, double referenceSpot, DateTime referenceTime) {
+            double forward = referenceSpot / _discounter.GetDiscountFactor(referenceTime, date);
             double k = Math.Log(spot / forward);
 
-            DateTime maturityUp = maturity.AddDays(_dT);
-            DateTime maturityDown = maturity.AddDays(-_dT);
-            double tUp = _dayCount.YearFraction(spotTime, maturityUp);
-            double tDown = Math.Max(_dayCount.YearFraction(spotTime, maturityDown), 1e-6);
+            DateTime dateUp = date.AddDays(_dT);
+            DateTime dateDown = date.AddDays(-_dT);
+            double tUp = _dayCount.YearFraction(referenceTime, dateUp);
+            double tDown = Math.Max(_dayCount.YearFraction(referenceTime, dateDown), 1e-6);
 
-            double w = TotalVariance(k, maturity, spotTime);
-            double wKUp = TotalVariance(k + _dk, maturity, spotTime);
-            double wKDown = TotalVariance(k - _dk, maturity, spotTime);
-            double wTUp = TotalVariance(k, maturityUp, spotTime);
-            double wTDown = TotalVariance(k, maturityDown, spotTime);
+            double w = TotalVariance(k, date, referenceSpot, referenceTime);
+            double wKUp = TotalVariance(k + _dk, date, referenceSpot, referenceTime);
+            double wKDown = TotalVariance(k - _dk, date, referenceSpot, referenceTime);
+            double wTUp = TotalVariance(k, dateUp, referenceSpot, referenceTime);
+            double wTDown = TotalVariance(k, dateDown, referenceSpot, referenceTime);
 
             double dwdT = (wTUp - wTDown) / (tUp - tDown);
             double dwdk = (wKUp - wKDown) / (2.0 * _dk);
@@ -68,11 +67,11 @@
             return Math.Sqrt(localVariance);
         }
 
-        private double TotalVariance(double logMoneyness, DateTime maturity, DateTime spotTime) {
-            double timeToMaturity = _dayCount.YearFraction(spotTime, maturity);
-            double forward = 1 / _discounter.GetDiscountFactor(spotTime, maturity);
+        private double TotalVariance(double logMoneyness, DateTime date, double referenceSpot, DateTime referenceTime) {
+            double timeToMaturity = _dayCount.YearFraction(referenceTime, date);
+            double forward = referenceSpot / _discounter.GetDiscountFactor(referenceTime, date);
             double strike = forward * Math.Exp(logMoneyness);
-            double volatility = _impliedVolatility.GetVolatility(strike, timeToMaturity);
+            double volatility = _impliedVolatility.GetVolatility(strike, date);
             return volatility * volatility * timeToMaturity;
         }
     }
