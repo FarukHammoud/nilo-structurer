@@ -1,4 +1,5 @@
 ﻿using Application;
+using Common.Tests;
 using Domain;
 
 namespace PricingServices {
@@ -83,7 +84,7 @@ namespace PricingServices {
             double P_0_T1 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(18)));
             double P_0_T0 = model.DiscountFactor(spotRate, new Actual365().YearFraction(DateTime.Today, DateTime.Today.AddMonths(6)));
             double theoreticalFloatingLegPrice = onlyFloatingSwap.Notional * (P_0_T0 - P_0_T1);
-            Assert.AreEqual(theoreticalFloatingLegPrice, onlyFloatingSwapPrice.Value, 3.09 * onlyFloatingSwapPrice.StandardError);
+            StatisticalAssert.IsNormallyDistributed(theoreticalFloatingLegPrice, onlyFloatingSwapPrice, alpha: 0.001);
         }
 
         [TestMethod]
@@ -127,7 +128,7 @@ namespace PricingServices {
             double theoreticalFixedLegPrice = swap.Notional * (P_0_T1 * swap.FixedRate);
             double theoreticalFloatingLegPrice = swap.Notional * (P_0_T0 - P_0_T1);
             double theoreticalSwapPrice = theoreticalFloatingLegPrice - theoreticalFixedLegPrice;
-            Assert.AreEqual(theoreticalSwapPrice, swapPrice.Value, 3.09 * swapPrice.StandardError);
+            StatisticalAssert.IsNormallyDistributed(theoreticalSwapPrice, swapPrice, alpha: 0.001);
         }
 
         [TestMethod]
@@ -171,7 +172,7 @@ namespace PricingServices {
             var swaptionPrice = results.Get(swaption, new Premium());
             Vasicek model = new Vasicek(kappa, theta, sigma);
             double theoreticalSwaptionPrice = SwaptionCriticalRateFinder.Price(swaption, model, DateTime.Today, currentRate: spotRate);
-            Assert.AreEqual(theoreticalSwaptionPrice, swaptionPrice.Value, 3.09 * swaptionPrice.StandardError);
+            StatisticalAssert.IsNormallyDistributed(theoreticalSwaptionPrice, swaptionPrice, alpha: 0.001);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application;
+using Common.Tests;
 using Domain;
 
 namespace PricingServices.Tests {
@@ -45,7 +46,7 @@ namespace PricingServices.Tests {
             var lsResult = results.Get(contract, new Premium());
 
             // 8.84 - 8.91
-            Assert.AreEqual(theoreticalPrice, lsResult.Value, 3.09 * lsResult.StandardError, "");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, lsResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -102,7 +103,7 @@ namespace PricingServices.Tests {
 
       
             // 8.84 - 8.91
-            Assert.AreEqual(theoreticalPrice, americanResult.Value, 3.09 * americanResult.StandardError, "");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, americanResult, alpha: 0.001);
         }
     }
 }

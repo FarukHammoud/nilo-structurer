@@ -1,5 +1,6 @@
 ﻿using Application;
 using Application.Indicators;
+using Common.Tests;
 using Domain;
 using PricingServicesTests;
 
@@ -48,9 +49,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Delta(), MSFT);   
+            Estimate monteCarloResult = results.Get(contract, new Delta(), MSFT);   
 
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo delta should be close to the theoretical Black-Scholes delta");
+            StatisticalAssert.IsNormallyDistributed(theoreticalDelta, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -102,9 +103,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, deltaFx, CurrencyPairs.EURUSD);
+            Estimate monteCarloResult = results.Get(contract, deltaFx, CurrencyPairs.EURUSD);
 
-            Assert.AreEqual(theoreticalDelta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo delta fx should be close to the theoretical Black-Scholes delta");
+            StatisticalAssert.IsNormallyDistributed(theoreticalDelta, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -148,9 +149,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Gamma(), MSFT);
+            Estimate monteCarloResult = results.Get(contract, new Gamma(), MSFT);
 
-            Assert.AreEqual(theoreticalGamma, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo gamma should be close to the theoretical Black-Scholes gamma");
+            StatisticalAssert.IsNormallyDistributed(theoreticalGamma, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -193,9 +194,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, rho);
+            Estimate monteCarloResult = results.Get(contract, rho);
 
-            Assert.AreEqual(theoreticalRho, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo rho should be close to the theoretical Black-Scholes rho");
+            StatisticalAssert.IsNormallyDistributed(theoreticalRho, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -240,9 +241,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, theta);
+            Estimate monteCarloResult = results.Get(contract, theta);
 
-            Assert.AreEqual(theoreticalTheta, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo theta should be close to the theoretical Black-Scholes theta");
+            StatisticalAssert.IsNormallyDistributed(theoreticalTheta, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -286,9 +287,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, vega, MSFT);
+            Estimate monteCarloResult = results.Get(contract, vega, MSFT);
 
-            Assert.AreEqual(theoreticalVega, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo vega should be close to the theoretical Black-Scholes vega");
+            StatisticalAssert.IsNormallyDistributed(theoreticalVega, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -327,9 +328,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, impliedVolatility);
+            Estimate monteCarloResult = results.Get(contract, impliedVolatility);
 
-            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
+            StatisticalAssert.IsNormallyDistributed(volatility, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -367,9 +368,9 @@ namespace PricingServices.Tests {
                 PricingCurrency = Currencies.USD
             };
             var results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, impliedVolatility);
+            Estimate monteCarloResult = results.Get(contract, impliedVolatility);
 
-            Assert.AreEqual(volatility, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo implied volatility should be close to the theoretical Black-Scholes volatility");
+            StatisticalAssert.IsNormallyDistributed(volatility, monteCarloResult, alpha: 0.001);
         }
     }
 }

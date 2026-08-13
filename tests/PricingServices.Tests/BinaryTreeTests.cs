@@ -1,4 +1,5 @@
 ﻿using Application;
+using Common.Tests;
 using Domain;
 using System.Diagnostics;
 
@@ -41,7 +42,7 @@ namespace PricingServices.Tests {
             PricingResults results = new PricingEngine().Run(request);
             var binaryTreeResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, binaryTreeResult.Value, 3.09 * binaryTreeResult.StandardError, "The Binary Tree price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, binaryTreeResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -79,7 +80,7 @@ namespace PricingServices.Tests {
             PricingResults results = new PricingEngine().Run(request);
             var binaryTreeResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, binaryTreeResult.Value, 3.09 * binaryTreeResult.StandardError, "The Binary Tree price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, binaryTreeResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -124,7 +125,7 @@ namespace PricingServices.Tests {
             Debug.WriteLine($"Theoretical Price: {theoreticalPrice}");
             Debug.WriteLine($"Derman-Kani Price: {dermanKaniResult.Value}");
             Debug.WriteLine($"Derman-Kani Standard Error: {dermanKaniResult.StandardError}");
-            Assert.AreEqual(theoreticalPrice, dermanKaniResult.Value, 3.09 * dermanKaniResult.StandardError, "The Derman-Kani Binary Tree price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, dermanKaniResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -167,7 +168,7 @@ namespace PricingServices.Tests {
             Debug.WriteLine($"Theoretical Price: {theoreticalPrice}");
             Debug.WriteLine($"Derman-Kani Price: {dermanKaniResult.Value}");
             Debug.WriteLine($"Derman-Kani Standard Error: {dermanKaniResult.StandardError}");
-            Assert.AreEqual(theoreticalPrice, dermanKaniResult.Value, 3.09 * dermanKaniResult.StandardError, "The Derman-Kani Binary Tree price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, dermanKaniResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -218,7 +219,7 @@ namespace PricingServices.Tests {
             PricingResults diffusionResults = new PricingEngine().Run(diffusionRequest);
             Estimate diffusionResult = diffusionResults.Get(contract, new Premium());
  
-            Assert.AreEqual(diffusionResult.Value, dermanKaniResult.Value, 3.09 * diffusionResult.StandardError, "The Derman-Kani Binary Tree price should be close to the diffusion price");
+            StatisticalAssert.IsNormallyDistributed(dermanKaniResult.Value, diffusionResult, alpha: 0.001);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application;
+using Common.Tests;
 using Domain;
 
 namespace PricingServicesTests {
@@ -37,7 +38,7 @@ namespace PricingServicesTests {
                 + bond.Notional * Math.Exp(-riskFreeRate * 10));
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(bond, new Premium());
+            Estimate monteCarloResult = results.Get(bond, new Premium());
 
             Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 1E-1, "The Monte Carlo price should be close to the theoretical bond price");
         }
@@ -78,7 +79,7 @@ namespace PricingServicesTests {
             double macaulayDuration = (1/price) * (Enumerable.Range(1, 10)
                 .Sum(i => i *bond.Coupon * bond.Notional * Math.Exp(-riskFreeRate * i))
                 + 10 * bond.Notional * Math.Exp(-riskFreeRate * 10));
-            var monteCarloResult = results.Get(bond, new Duration());
+            Estimate monteCarloResult = results.Get(bond, new Duration());
 
             Assert.AreEqual(macaulayDuration, monteCarloResult.Value, 1E-1, "The Monte Carlo price should be close to the theoretical bond duration");
         }
@@ -170,8 +171,8 @@ namespace PricingServicesTests {
             };
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(bond, new Premium())   ;
-            Assert.AreEqual(price, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError);
+            Estimate monteCarloResult = results.Get(bond, new Premium())   ;
+            StatisticalAssert.IsNormallyDistributed(price, monteCarloResult, alpha: 0.001);
         }
     }
 }

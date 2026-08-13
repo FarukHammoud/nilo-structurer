@@ -1,4 +1,5 @@
 ﻿using Application;
+using Common.Tests;
 using Domain;
 using Domain.Model.Models;
 
@@ -51,9 +52,9 @@ namespace PricingServicesTests {
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Premium());
+            Estimate monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice * fxRate, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice * fxRate, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -106,9 +107,9 @@ namespace PricingServicesTests {
             };
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Premium());
+            Estimate monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(thoreticalPrice, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -161,9 +162,9 @@ namespace PricingServicesTests {
             };
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Premium());
+            Estimate monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -216,9 +217,9 @@ namespace PricingServicesTests {
             };
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, premium);
+            Estimate monteCarloResult = results.Get(contract, premium);
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -272,9 +273,9 @@ namespace PricingServicesTests {
 
             double fxRate = marketData.GetFxRate(Currencies.USD, Currencies.EUR);
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, premium);
+            Estimate monteCarloResult = results.Get(contract, premium);
 
-            Assert.AreEqual(theoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError, "The Monte Carlo price should be close to the theoretical Black-Scholes price");
+            StatisticalAssert.IsNormallyDistributed(theoreticalPrice, monteCarloResult, alpha: 0.001);
         }
 
         [TestMethod]
@@ -331,9 +332,9 @@ namespace PricingServicesTests {
             };
 
             PricingResults results = new PricingEngine().Run(request);
-            var monteCarloResult = results.Get(contract, new Premium());
+            Estimate monteCarloResult = results.Get(contract, new Premium());
 
-            Assert.AreEqual(thoreticalPrice, monteCarloResult.Value, 3.09 * monteCarloResult.StandardError);
+            StatisticalAssert.IsNormallyDistributed(thoreticalPrice, monteCarloResult, alpha: 0.001);
         }
     }
 }
