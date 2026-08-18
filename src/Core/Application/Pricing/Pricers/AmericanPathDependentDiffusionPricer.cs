@@ -3,6 +3,7 @@
 namespace Application {
     public class AmericanPathDependentDiffusionPricer : PayoffPricer, IPricer {
 
+        private IDiffusionEngine _diffusionEngine = new DiffusionEngine();
         private IDiffusionConfiguration? _diffusionConfiguration;
         private Diffusion? _diffusion;
 
@@ -18,7 +19,7 @@ namespace Application {
             } else {
                 _diffusionConfiguration = getDiffusionConfiguration(marketData, timeDiscretization);
             }
-            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_diffusionConfiguration);
+            _diffusion = _diffusionEngine.Diffuse(_diffusionConfiguration);
         }
 
         public override PriceEstimate PricePayoff(

@@ -3,7 +3,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace Application {
     public class AmericanPricer : IPricer {
-
+        private readonly IDiffusionEngine _diffusionEngine = new DiffusionEngine();
         private IDiffusionConfiguration? _configuration;
         private Diffusion? _diffusion;
         private const int REGRESSION_DEGREE = 3;
@@ -20,7 +20,7 @@ namespace Application {
             } else {
                 _configuration = getDiffusionConfiguration(marketData, timeDiscretization);
             }
-            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_configuration);
+            _diffusion = _diffusionEngine.Diffuse(_configuration);
         }
 
         public PriceEstimate Price(

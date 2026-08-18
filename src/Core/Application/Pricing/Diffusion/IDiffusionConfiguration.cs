@@ -6,6 +6,6 @@ namespace Application {
         Currency Currency { get; }
         bool WithControlVariate { get; }
         bool HasStochasticRate { get; }
-        INumericalScheme NumericalScheme { get; } 
+        INumericalScheme? NumericalSchemeOverride { get; } 
     }
 }

@@ -3,6 +3,7 @@
 namespace Application {
     public class DiffusionPricer : PayoffPricer, IPricer {
 
+        private readonly IDiffusionEngine _diffusionEngine = new DiffusionEngine();
         private IDiffusionConfiguration? _configuration;
         private Diffusion? _diffusion;
         
@@ -26,7 +27,7 @@ namespace Application {
             } else {
                 _configuration = _diffusionConfigurationFactory(marketData, timeDiscretization);
             }
-            _diffusion = GeneralDiffusion.DiffuseMultiUnderlying(_configuration);
+            _diffusion = _diffusionEngine.Diffuse(_configuration);
         }
 
         public override PriceEstimate PricePayoff(IPayoff payoff, DateTime today, Currency pricingCurrency) {

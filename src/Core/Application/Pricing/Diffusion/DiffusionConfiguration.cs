@@ -7,7 +7,7 @@ namespace Application {
         public int NumberOfDrawings { get; set; } = 50000;
         public bool WithControlVariate { get; set; } = true;
         public bool HasStochasticRate { get; set; } = false;
-        public INumericalScheme NumericalScheme { get; set; } = new LogEulerScheme();
+        public INumericalScheme? NumericalSchemeOverride { get; set; } 
         public IList<Underlying> Underlyings => MarketData.Underlyings;
 
         public double[,] CorrelationMatrix => CorrelationMatrixBuilder.GetCorrelationMatrix(MarketData);

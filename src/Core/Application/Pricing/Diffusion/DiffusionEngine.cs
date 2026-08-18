@@ -1,10 +1,24 @@
 ﻿using Domain;
 
 namespace Application {
-    public class GeneralDiffusion {
+    public class DiffusionEngine : IDiffusionEngine {
 
-        private static readonly IDayCountConvention _dayCountConvention = new Actual365();
-        public static Diffusion DiffuseMultiUnderlying(IDiffusionConfiguration configuration) {
+        private IDayCountConvention _dayCountConvention;
+        private IDriftProvider _driftProvider;
+        private ISchemeProvider _schemeProvider;
+
+        public DiffusionEngine() : this(
+            dayCountConvention: new Actual365(),
+            driftProvider: new DriftProvider(),
+            schemeProvider: new SchemeProvider()) { }
+
+        public DiffusionEngine(IDayCountConvention dayCountConvention, IDriftProvider driftProvider, ISchemeProvider schemeProvider) {
+            _dayCountConvention = dayCountConvention;
+            _driftProvider = driftProvider;
+            _schemeProvider = schemeProvider;
+        }
+      
+        public Diffusion Diffuse(IDiffusionConfiguration configuration) {
             BrowniansResult noises = new BrowniansService()
                 .CreateCorrelatedBrownians(configuration);
             Diffusion diffusion = new(configuration.TimeDiscretization);
@@ -16,28 +30,21 @@ namespace Application {
             return diffusion;
         }
 
-        private static Realizations DiffuseUnderlying(IDiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises, Diffusion diffusion) {
+        private Realizations DiffuseUnderlying(IDiffusionConfiguration configuration, Underlying underlying, BrowniansResult noises, Diffusion diffusion) {
             int steps    = configuration.TimeDiscretization.Count;
             int drawings = configuration.NumberOfDrawings;
-            IMarketData marketData               = configuration.MarketData;
-            INumericalScheme scheme              = configuration.NumericalScheme;
-            Currency currency                    = configuration.Currency;
+            IMarketData           marketData     = configuration.MarketData;
+            Currency              currency       = configuration.Currency;
             IUnderlyingMarketData underlyingData = marketData.GetUnderlyingMarketData(underlying);
-            IDriftProvider driftProvider         = new DriftProvider();
-
+            
             IProcessDynamics dynamics = marketData.GetDynamics(underlying);
+            INumericalScheme scheme   = configuration.NumericalSchemeOverride ??
+                _schemeProvider.GetScheme(dynamics);
+
             double spot = underlyingData.GetSpot();
-            if (underlying is ShortRate shortRate) {
-                scheme = new EulerMaruyamaScheme();
-            }
-            if (underlying is InstantaneousVolatility) {
-                scheme = new EulerMaruyamaScheme() { 
-                    EnsurePositivity = true 
-                };
-            }
             // TODO: Needs to be completed on market data side
             if (dynamics is LevyProcessDynamics levyDynamics) {
-                Func<DateTime, DateTime, double> drift = driftProvider.GetDrift(underlying, currency, marketData);
+                Func<DateTime, DateTime, double> drift = _driftProvider.GetDrift(underlying, currency, marketData);
                 double carry                           = underlyingData.GetCarry();
                 levyDynamics.SetDrift((t_1, t) => drift(t_1, t) - carry);
                     
