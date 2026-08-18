@@ -20,7 +20,7 @@ namespace Common.Tests {
             // probability of observing a value as extreme or more extreme than the observed value, two tailed test
             var pValue = 2 * (1 - MathNet.Numerics.Distributions.Normal.CDF(0, 1, Math.Abs(zScore))); 
             Debug.WriteLine($"Z-Score: {zScore:F3}, P-Value: {pValue:F5}");
-            if (pValue <= alpha) {
+            if (pValue <= alpha || double.IsNaN(pValue)) {
                 Assert.Fail(
                     $"Statistical Assert Failed: Value {value:F3} is significantly different from the expected normal distribution.\n" +
                     $"P-Value: {pValue:F5} (Threshold α={alpha})\n" +

@@ -82,6 +82,7 @@ Tests compare pricer output against closed-form and semi-analytic benchmarks on 
 - American puts — Barone–Adesi & Whaley (1987)
 - Swaptions — Jamshidian (1989)
 - Displaced Diffusion - Rubinstein (1983)
+- Stochastic Volatility - Heston (1993)
 
 > **Stack:** .NET 10 · C# 14 · MathNet.Numerics · MSTest · Python (market data)
 
@@ -95,6 +96,7 @@ Tests compare pricer output against closed-form and semi-analytic benchmarks on 
 - Jamshidian, F. (1989). *An Exact Bond Option Formula.* The Journal of Finance, 44(1), 205–209.
 - Rubinstein, M. & Reiner, E. (1991). *Breaking Down the Barriers.* Risk Magazine, 4(8), 28–35.
 - Reiner, E. (1992). *Quanto Mechanics.* Risk Magazine, 5(3), 59–63.
+- Heston, S.L. (1993). *A Closed-Form Solution For Options with Stochastic Volatility with Applications to Bond and Currency Options* The Review of Financial Studies, 6(2), 327–343.
 - Derman, E. & Kani, I. (1994). *Riding on a Smile.* Risk, 7(2), 32–39.
 - Longstaff, F. A. & Schwartz, E. S. (2001). *Valuing American Options by Simulation: A Simple Least-Squares Approach.* Review of Financial Studies, 14(1), 113–147.
 - Gatheral, J. (2006). *The Volatility Surface: A Practitioner's Guide.* Wiley Finance.

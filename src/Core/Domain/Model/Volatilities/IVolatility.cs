@@ -1,4 +1,3 @@
 ﻿namespace Domain {
-    public interface IVolatility {
-    }
+    public interface IVolatility;
 }

@@ -8,8 +8,8 @@
             _spotRate = spotRate;
         }
 
-        public StochasticDifferentialEquation GetSDE(double state, DateTime t_1, DateTime t) {
-            return _dynamics.GetSDE(state, t_1, t);
+        public StochasticDifferentialEquation GetSDE(int ω, int step, DateTime t_1, DateTime t) {
+            return _dynamics.GetSDE(ω, step, t_1, t);
         }
 
         public double SampleJumpMultiplier(double dt, Func<double> uniform) {

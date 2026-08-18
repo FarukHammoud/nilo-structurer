@@ -3,7 +3,7 @@
 namespace Application {
     public class MarketData : IMarketData {
         private OrderedDictionary<Currency, IDiscounter> _discounters = new();
-        private OrderedDictionary<Currency, IProcessDynamics> _shortRateDynamics = new();
+        private OrderedDictionary<Underlying, IProcessDynamics> _dynamics = new();
         private OrderedDictionary<Underlying, IUnderlyingMarketData> _underlyingMarketData = new();
         private OrderedDictionary<(Underlying, Underlying), double> _correlations = new();
 
@@ -48,7 +48,13 @@ namespace Application {
 
         public MarketData SetShortRateDynamics(Currency currency, IProcessDynamics dynamics, double spotRate) {
             _underlyingMarketData.Add(new ShortRate(currency), new ProcessDynamicsMarketData(dynamics, spotRate));
-            _shortRateDynamics[currency] = dynamics;
+            _dynamics[new ShortRate(currency)] = dynamics;
+            return this;
+        }
+
+        public MarketData SetVolatilityDynamics(Equity equity, IProcessDynamics dynamics, double volatility) {
+            _underlyingMarketData.Add(new InstantaneousVolatility(equity), new ProcessDynamicsMarketData(dynamics, volatility));
+            _dynamics[new InstantaneousVolatility(equity)] = dynamics;
             return this;
         }
 
@@ -56,8 +62,8 @@ namespace Application {
             return _discounters[currency];
         }
 
-        public IProcessDynamics GetShortRateDynamics(Currency currency) {
-            return _shortRateDynamics[currency];
+        public IProcessDynamics GetDynamics(Underlying underlying) {
+            return _dynamics[underlying];
         }
 
         public IUnderlyingMarketData GetUnderlyingMarketData(Underlying underlying) {
@@ -74,6 +80,7 @@ namespace Application {
                     throw new InvalidOperationException($"Unsupported underlying type: {underlying.GetType().Name}");
                 }
                 _underlyingMarketData[underlying] = marketData;
+                _dynamics[underlying] = new LevyProcessDynamics();
             }
             return marketData;
         }

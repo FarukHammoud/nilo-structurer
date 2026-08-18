@@ -24,7 +24,7 @@ namespace Application {
                     return diffusionDiscountFactor;
                 }
                 IDriftProvider driftProvider = new DriftProvider();
-                double drift = driftProvider.GetDrift(equity, _diffusionCurrency, _marketData, t0, t1);
+                double drift = driftProvider.GetDrift(equity, _diffusionCurrency, _marketData)(t0, t1);
                 return Math.Exp(-drift * DayCounter.YearFraction(t0, t1));
             }
 
@@ -37,7 +37,10 @@ namespace Application {
             }
 
             if (_underlying is ShortRate shortRate) {
-                throw new NotImplementedException(); // should be based on shortRate realization
+                throw new NotImplementedException(); // TODO: should be based on shortRate realization
+            }
+            if (_underlying is InstantaneousVolatility instantaneousVolatility) {
+                return 1;
             }
             throw new NotImplementedException();
         }

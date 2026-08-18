@@ -2,7 +2,11 @@
 
 namespace Application {
     public class DriftProvider : IDriftProvider {
-        public double GetDrift(Underlying underlying, Currency diffusionCurrency, IMarketData marketData, DateTime t_1, DateTime t) {
+        public Func<DateTime, DateTime, double> GetDrift(Underlying underlying, Currency diffusionCurrency, IMarketData marketData) {
+            return (t_1, t) => CalculateDrift(underlying, diffusionCurrency, marketData, t_1, t);
+        }
+
+        private double CalculateDrift(Underlying underlying, Currency diffusionCurrency, IMarketData marketData, DateTime t_1, DateTime t) {
             double μ = 0;
             IDiscounter discounter = marketData.GetDiscounter(diffusionCurrency);
             if (underlying is Equity equity) {

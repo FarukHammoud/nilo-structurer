@@ -13,7 +13,7 @@ namespace Application {
             _theta = theta;          // θ(t) fitted to discount curve
         }
 
-        public StochasticDifferentialEquation GetSDE(double r, DateTime t_1, DateTime t) {
+        public StochasticDifferentialEquation GetSDE(int ω, int step, DateTime t_1, DateTime t) {
             double tYear = (t).Year;
             return new StochasticDifferentialEquation(
                 Drift: (r, t) => _theta(tYear) - _kappa * r,  // θ(t) replaces κθ
